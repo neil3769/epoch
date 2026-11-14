@@ -27,3 +27,6 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - Phase 1 committed as 496fb8a. Workflow: .github/workflows/deploy.yml (checkout@v7, setup-node@v7, configure-pages@v6,
   upload-pages-artifact@v5, deploy-pages@v5; runs npm test + npm run build).
 - User chose: public repo neil3769/epoch, keep Gmail as commit author. Site: https://neil3769.github.io/epoch/
+- DONE: repo https://github.com/neil3769/epoch created and pushed (main @ 64da30e), Pages source = GitHub Actions,
+  first deploy run 43638445794 succeeded; live site verified (sub-path, SW scope /epoch/, manifest, icons).
+- Next: Phase 3 (review system, settings, GitHub sync, code labs, Library, F3 labs + summary).
