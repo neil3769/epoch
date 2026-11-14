@@ -2,7 +2,8 @@
 // Module worker that hosts Pyodide. Pyodide 314.x ships as an ES module, so
 // this must be a module worker (classic importScripts workers are no longer
 // supported). Loaded only when a run-code exercise is reached.
-import { HARNESS_PY } from './harness';
+import SIM_PY from './epoch_sim.py?raw';
+import { HARNESS_PY, installSim } from './harness';
 import { PYODIDE_INDEX_URL } from './version';
 
 type Msg = { type: 'init' } | { type: 'run'; id: number; code: string };
@@ -20,6 +21,7 @@ async function init() {
   py = await mod.loadPyodide({ indexURL: PYODIDE_INDEX_URL });
   post({ type: 'stage', stage: 'Loading NumPy' });
   await py.loadPackage('numpy', { messageCallback: () => {} });
+  installSim(py, SIM_PY);
   await py.runPythonAsync(HARNESS_PY);
   // Import once now so the learner's first Run is not slowed by it.
   await py.runPythonAsync('import numpy');

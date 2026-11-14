@@ -214,6 +214,57 @@ export const LessonSchema = z.object({
   exercises: z.array(ExerciseSchema).min(8).max(12),
 });
 
+
+
+// ------------------------------------------------------------------ labs ---
+
+export const LabStepSchema = z.object({
+  /** What to build in this step. */
+  goal: z.string(),
+  /** What the editor starts with: scaffolding with ___ gaps, or an empty function. */
+  starter: z.string(),
+  /** New lines that complete the step (verified to pass the tests). */
+  solution: z.string(),
+  /** Hidden asserts, run after the code so far plus this step. Messages say which case failed. */
+  tests: z.string(),
+  /** Hint 1: a nudge in words. Hint 2: the structure with ___ blanks. Hint 3 is the solution. */
+  hints: z.tuple([z.string(), z.string()]),
+  /** Shown once the step passes. */
+  explain: z.string().optional(),
+});
+
+export const LabSchema = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  title: z.string(),
+  /** What the learner will build, shown before step 1. */
+  intro: z.string(),
+  /** One line on what they built, shown at the end. */
+  summary: z.string(),
+  minutes: z.number().int().min(5).max(20),
+  /** The lab opens once this lesson is done. */
+  unlockAfter: z.string(),
+  /** Visible code the lab starts from (not edited). */
+  given: z.string().optional(),
+  /** For labs using simulated services: what differs from the real library. */
+  differs: z.string().optional(),
+  steps: z.array(LabStepSchema).min(4).max(6),
+});
+
+// --------------------------------------------------------------- library ---
+
+export const LibraryPageSchema = z.object({
+  unit: z.string(),
+  /** The key ideas, one short paragraph each. */
+  ideas: z.array(z.object({ title: z.string(), text: z.string() })).min(2),
+  /** Rules worth remembering, one line each. */
+  rules: z.array(z.string()).min(1),
+  /** A short annotated example: code, what it prints (verified), and notes. */
+  example: z.object({ code: z.string(), output: z.string(), notes: z.array(z.string()) }),
+  mistakes: z.array(z.object({ mistake: z.string(), fix: z.string() })).min(2),
+  /** "To do this for real": what the app cannot give, and where to go next. */
+  forReal: z.string().optional(),
+});
+
 export const UnitSchema = z.object({
   id: z.string().regex(/^[FE]\d+$/),
   track: z.enum(['foundations', 'engineering']),
@@ -221,7 +272,15 @@ export const UnitSchema = z.object({
   blurb: z.string(),
   prelude: z.string().optional(),
   lessons: z.array(LessonSchema).min(1),
+  /** Code labs, unlocked as lessons are done. */
+  labs: z.array(LabSchema).optional(),
+  /** The unit's Library page, unlocked when the unit is finished. */
+  library: LibraryPageSchema.optional(),
 });
+
+export type LabStep = z.infer<typeof LabStepSchema>;
+export type Lab = z.infer<typeof LabSchema>;
+export type LibraryPage = z.infer<typeof LibraryPageSchema>;
 
 export type Option = z.infer<typeof OptionSchema>;
 export type FigureSpec = z.infer<typeof FigureSchema>;

@@ -210,3 +210,28 @@ describe('testing out with a checkpoint', () => {
     expect(f3.lessons.at(-1)?.checkpoint).toBe(true);
   });
 });
+
+describe('labs', () => {
+  it('saves step code, queues hinted steps, completes the lab on the last step, and a clean rewrite retires the step', async () => {
+    const { replaceProgress, recordLabStep, getProgress } = await import('../src/lib/progress');
+    const { findLab, labCodeBefore, labRewrites } = await import('../src/lib/curriculum');
+    const lab = findLab('f3-lab-1')!.lab;
+    const now = new Date(2026, 10, 14, 12);
+    replaceProgress(emptyProgress());
+    lab.steps.forEach((st, i) => recordLabStep(lab.id, i + 1, st.solution, i === 1, i === lab.steps.length - 1, 8, 2, now));
+    let p = getProgress();
+    expect(p.completed[lab.id]).toBeTruthy();
+    expect(p.labCode['f3-lab-1#1'].code).toBe(lab.steps[0].solution);
+    expect(p.review['lab:f3-lab-1#2']).toMatchObject({ box: 1, due: '2026-11-15' });
+    // Not due today, due tomorrow; and lab steps never appear in exercise reviews.
+    expect(labRewrites(p, '2026-11-14')).toEqual([]);
+    expect(labRewrites(p, '2026-11-15')).toEqual([{ labId: 'f3-lab-1', step: 2 }]);
+    expect(buildReviewSet(p, 10, '2026-11-15').some((r) => r.ex.id.startsWith('lab'))).toBe(false);
+    // The program so far is the given code plus the learner's steps.
+    expect(labCodeBefore(lab, p, 2)).toBe([lab.given, lab.steps[0].solution, lab.steps[1].solution].join('\n\n'));
+    recordLabStep(lab.id, 2, 'def column(M, j):\n    return [r[j] for r in M]', false, false, 8, 2, now);
+    p = getProgress();
+    expect(p.review['lab:f3-lab-1#2'].box).toBe(RETIRED);
+    expect(labCodeBefore(lab, p, 2)).toContain('[r[j] for r in M]');
+  });
+});

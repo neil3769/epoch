@@ -1,3 +1,5 @@
+import { f3Labs } from '../labs/f3';
+import { f3Library } from '../library/f3';
 import type { Unit } from '../schema';
 
 const MATMUL_ERR =
@@ -1748,4 +1750,6 @@ print(out)`,
       ],
     },
   ],
+  labs: f3Labs,
+  library: f3Library,
 };

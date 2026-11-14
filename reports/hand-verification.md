@@ -40,3 +40,45 @@ No PyTorch content exists yet, so no local PyTorch check was needed.
   the wording of their distractor explanations was re-read too: f3-2-1, f3-2-8, f3-3-4,
   f3-5-8, f3-6-7, f3-7-10, f3-9-8, f3-10-3, f3-11-5, f3-12-1 to f3-12-3, e2-2-2, e2-3-3.
   No errors found.
+
+# Hand verification, Phase 3
+
+`npm run verify-content` now also runs every lab step (the solution passes its tests; the
+starter and the hint-2 structure fail them; the finished program passes every step's tests),
+executes the Library example and compares its output, and runs `scripts/sim_selftest.py`
+against the simulated services. A mutation check (changing lab 1's `a * b` to `a + b`) made
+the build fail at steps 1, 4 and 5, so the lab checks do catch wrong solutions.
+
+What is not executed, re-derived by hand:
+
+## F3 Library page
+
+| Claim | Check |
+|---|---|
+| `W * W` for `W = [[1, 0, 2], [0, 1, 1]]` is `[[1 0 4] [0 1 1]]` | Squares of each cell. Also executed: the output block is verified. Correct. |
+| `W @ x` row 1 = 1·3 + 0·4 + 2·5 = 13, row 2 = 0·3 + 1·4 + 1·5 = 9 | Arithmetic re-done. Matches executed output `[13  9]`. Correct. |
+| (2, 3) @ (3,) → (2,) | Inner 3s match; a 1-D right operand gives one value per row. Correct. |
+| `np.dot` and `np.matmul` equal `@` for 2-D arrays | True in NumPy 2.x; they differ only for scalars and stacks of matrices, which the page does not claim. Correct. |
+| "mismatch in its core dimension" means the inner sizes differ | This is NumPy 2.x's matmul error text (seen in f3-11 and executed there). Correct. |
+| A batch `X` (batch × inputs) goes through as `X @ W.T` | (b, n) @ (n, m) = (b, m), with `W` stored as (m, n). This is what lab 2 step 5 tests. Correct. |
+| PyTorch follows the same rules | `torch.matmul` on 2-D tensors has the same shape rule. Correct. |
+| Mistakes: two (2, 3) arrays with `@` fail (3 ≠ 2); shapes read (rows, columns) | Correct. |
+
+## F3 lab texts
+
+- Lab 1 step 4 explain: rows come from A, columns from B, so (m, n) @ (n, p) → (m, p). Correct.
+- Lab 1 step 5 explain: NumPy raises ValueError on an inner-size mismatch. Correct (executed in f3-11).
+- Lab 2 step 3 explain: `A @ A` with A (2, 3) fails, inner 3 vs 2. Correct.
+- Lab 2 step 5 goal: (4, 3) @ (2, 3) fails; `X @ W.T` gives (4, 2). Correct (tested).
+- Lab 3 step 2 explain: NumPy broadcasting stretches some unequal shapes (taught in F4). Correct.
+- Lab 3 step 3 explain: same-size square matrices run under both `*` and `@` with different results. Correct.
+
+## Simulated services
+
+`DIFFERENCES` in `src/python/epoch_sim.py` lists what differs from the real libraries
+(virtual time, estimated tokens, made-up prices and model names, scripted replies). The
+`FakeLLM` interface follows the Anthropic SDK shape (`messages.create`, `content[0].text`,
+`usage.input_tokens`, `stop_reason` of `end_turn` / `max_tokens` / `tool_use`); `Client` and
+`AsyncClient` follow httpx (`get`, `post`, `status_code`, `json()`, `raise_for_status()`,
+`HTTPStatusError`, `TimeoutException`). No engineering lab uses them yet; each lab that does
+must state its own differences (`differs` field) and be checked against current docs then.

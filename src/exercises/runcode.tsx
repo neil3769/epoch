@@ -18,10 +18,10 @@ const READ_ERROR: Record<string, string> = {
   AttributeError: 'An AttributeError means the thing before the dot has no such name: check what comes after the dot.',
   AssertionError: 'An AssertionError means your code ran but gave the wrong result; the message says which case failed.',
 };
-const readError = (type: string | null) =>
+export const readError = (type: string | null) =>
   (type && READ_ERROR[type]) ?? 'Read the last line of an error first: it names the problem, and the line number says where.';
 
-function PythonStatus() {
+export function PythonStatus() {
   const py = usePython();
   if (py.status === 'loading')
     return (

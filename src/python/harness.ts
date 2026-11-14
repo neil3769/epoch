@@ -8,7 +8,11 @@
 //   cannot block, so asyncio.run() is not available there.
 // - Reports the error type, message and the line number inside the snippet.
 export const HARNESS_PY = String.raw`
-import ast, contextlib, inspect, io, json, re, traceback
+import ast, contextlib, inspect, io, json, re, sys, traceback
+
+# The simulated-services module (epoch_sim.py) lives here; see installSim.
+if "/epoch" not in sys.path:
+    sys.path.insert(0, "/epoch")
 
 _EPOCH_RUN = re.compile(r'^asyncio\.run\((.*)\)\s*$', re.M)
 
@@ -18,6 +22,8 @@ def _epoch_prep(src):
 async def _epoch_exec(src, g=None):
     if g is None:
         g = {"__name__": "__main__"}
+    # Fresh simulated services (clock, scripts, call logs) for every run.
+    sys.modules.pop("epoch_sim", None)
     buf = io.StringIO()
     res = {"stdout": "", "ok": True, "type": None, "msg": None, "line": None}
     try:
@@ -45,3 +51,9 @@ async def _epoch_run_json(src):
     res, _ = await _epoch_exec(src)
     return json.dumps(res)
 `;
+
+/** Write the simulated-services module where `import epoch_sim` finds it. */
+export function installSim(py: { FS: { mkdirTree(p: string): void; writeFile(p: string, d: string): void } }, source: string) {
+  py.FS.mkdirTree('/epoch');
+  py.FS.writeFile('/epoch/epoch_sim.py', source);
+}

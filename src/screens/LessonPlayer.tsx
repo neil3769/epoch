@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { go } from '../components/Bits';
 import { CodeBlock, Inline, OutputBlock } from '../components/Text';
 import { Figure } from '../figures/Figure';
-import { TEST_OUT, findLesson, nextAfter } from '../lib/curriculum';
+import { TEST_OUT, findLesson, labUnlocked, nextAfter } from '../lib/curriculum';
 import { computeStats, creditedMinutes, getProgress, lessonXp, recordLesson, recordMistake } from '../lib/progress';
 import { DoneScreen } from './DoneScreen';
 import { ExerciseSession } from './ExerciseSession';
@@ -35,6 +35,8 @@ export function LessonPlayer({ lessonId, previewFrom }: { lessonId: string; prev
 
   if (done) {
     const upNext = nextAfter(lesson.id, getProgress());
+    // Labs this lesson just opened (and not yet built).
+    const newLabs = (unit.labs ?? []).filter((l) => l.unlockAfter === lesson.id && labUnlocked(l, getProgress()) && !getProgress().completed[l.id]);
     const checkpointLine = lesson.checkpoint
       ? done.testedOut
         ? `${done.right} of ${total} right first time: you tested out of ${unit.id}. Every lesson in it is marked done.`
@@ -45,7 +47,19 @@ export function LessonPlayer({ lessonId, previewFrom }: { lessonId: string; prev
         title={done.goalJustMet ? 'Daily goal reached' : lesson.checkpoint ? 'Checkpoint done' : 'Lesson done'}
         line={lesson.summary}
         xp={done.xp}
-        extra={checkpointLine && <p className="done-note">{checkpointLine}</p>}
+        extra={
+          <>
+            {checkpointLine && <p className="done-note">{checkpointLine}</p>}
+            {newLabs.map((lab) => (
+              <button key={lab.id} className="rewrite-card" onClick={() => go(`#/lab/${lab.id}`)}>
+                <span>
+                  <strong>New lab: {lab.title}</strong>
+                  <span className="unit-meta">{lab.minutes} min of real code, when you have time</span>
+                </span>
+              </button>
+            ))}
+          </>
+        }
         next={upNext && { label: `Next: ${upNext.lesson.title}`, href: `#/lesson/${upNext.lesson.id}` }}
       />
     );

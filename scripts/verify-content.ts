@@ -12,7 +12,7 @@
  *
  * Exit code 1 on any failure, so `npm run build` fails too.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadPyodide, type PyodideInterface } from 'pyodide';
@@ -25,8 +25,10 @@ import {
   type FigureSpec,
   type Unit,
   type Card,
+  type Lab,
+  type LibraryPage,
 } from '../content/schema';
-import { HARNESS_PY } from '../src/python/harness';
+import { HARNESS_PY, installSim } from '../src/python/harness';
 import { fillGaps, countGaps, countSentences, splitLines } from '../src/lib/text';
 import { shapeGoalReachable } from '../src/lib/shapes';
 
@@ -417,6 +419,55 @@ async function verifyCard(card: Card, where: string, prelude: string) {
     fail(where, `card code prints ${JSON.stringify(cleanOut(r.stdout))}, card says ${JSON.stringify(card.output)}`);
 }
 
+// ------------------------------------------------------------------ labs ---
+
+let labSteps = 0;
+
+function checkLabStructure(lab: Lab, where: string, unit: Unit, isLast: boolean) {
+  if (!unit.lessons.some((l) => l.id === lab.unlockAfter)) fail(where, `unlockAfter "${lab.unlockAfter}" is not a lesson of ${unit.id}`);
+  if (countSentences(lab.intro) > 3) fail(where, 'intro is more than three sentences');
+  checkWidth(where, 'given', lab.given);
+  lab.steps.forEach((st, i) => {
+    const w = `${where}/step ${i + 1}`;
+    checkWidth(w, 'starter', st.starter);
+    checkWidth(w, 'solution', st.solution);
+    checkWidth(w, 'hint 2', st.hints[1]);
+    if (countSentences(st.goal) > 3) fail(w, 'goal is more than three sentences');
+    if (!st.hints[1].includes('___')) fail(w, 'hint 2 should show the structure with ___ blanks');
+    // The last lab of a unit starts every step from an empty function.
+    if (isLast && !/^def [^\n]+:\n {4}pass$/.test(st.starter)) fail(w, 'the last lab of a unit should start each step from an empty function');
+    if (!isLast && st.starter.trim() !== 'pass' && !st.starter.includes('___') && !/pass$/.test(st.starter))
+      fail(w, 'starter should leave something to write (___ gaps or an empty function)');
+  });
+}
+
+async function verifyLab(lab: Lab, where: string, prelude: string) {
+  const P = prelude ? prelude + '\n' : '';
+  let soFar = P + (lab.given ? lab.given + '\n' : '');
+  for (const [i, st] of lab.steps.entries()) {
+    const w = `${where}/step ${i + 1}`;
+    labSteps++;
+    const good = await run(soFar + st.solution + '\n' + st.tests);
+    if (!good.ok) fail(w, `solution fails its tests: ${good.type}: ${good.msg}`);
+    const start = await run(soFar + st.starter + '\n' + st.tests);
+    if (start.ok) fail(w, 'tests already pass with the starter code');
+    const hinted = await run(soFar + st.hints[1] + '\n' + st.tests);
+    if (hinted.ok) fail(w, 'tests pass with the hint-2 structure (its blanks give the answer away)');
+    soFar += st.solution + '\n';
+  }
+  // Later steps must not break earlier ones.
+  const all = await run(soFar + lab.steps.map((st) => st.tests).join('\n'));
+  if (!all.ok) fail(where, `finished program fails an earlier step's tests: ${all.type}: ${all.msg}`);
+}
+
+async function verifyLibrary(page: LibraryPage, where: string, prelude: string) {
+  checkWidth(where, 'example', page.example.code);
+  const r = await run((prelude ? prelude + '\n' : '') + page.example.code);
+  if (!r.ok) fail(where, `example raised ${r.type}: ${r.msg}`);
+  else if (cleanOut(r.stdout) !== page.example.output)
+    fail(where, `example prints ${JSON.stringify(cleanOut(r.stdout))}, page says ${JSON.stringify(page.example.output)}`);
+}
+
 // ------------------------------------------------------------------ main ---
 
 async function main() {
@@ -453,13 +504,24 @@ async function main() {
         if (PRODUCING_TYPES.includes(ex.type) || (ex.type === 'mcq' && ex.code)) producing++;
       }
     }
+    const labs = u.labs ?? [];
+    labs.forEach((lab, i) => {
+      claim(lab.id, `${u.id}/${lab.id}`);
+      checkLabStructure(lab, `${u.id}/${lab.id}`, u, i === labs.length - 1);
+    });
+    if (u.library && u.library.unit !== u.id) fail(`${u.id}/library`, `page is for unit ${u.library.unit}`);
   }
   for (const t of EXERCISE_TYPES) if (!typeCount.get(t)) fail('coverage', `exercise type "${t}" is never used`);
 
   py = await loadPyodide();
   await py.loadPackage('numpy', { messageCallback: () => {} });
+  installSim(py, readFileSync(join(root, 'src', 'python', 'epoch_sim.py'), 'utf8'));
   await py.runPythonAsync(HARNESS_PY);
   await py.runPythonAsync(VERIFY_PY);
+
+  // The simulated services must support everything the engineering labs ask for.
+  const sim = await run(readFileSync(join(root, 'scripts', 'sim_selftest.py'), 'utf8'));
+  if (!sim.ok) fail('epoch_sim self-test', `line ${sim.line}: ${sim.type}: ${sim.msg}`);
 
   for (const u of units) {
     const prelude = u.prelude ?? '';
@@ -467,6 +529,8 @@ async function main() {
       await verifyCard(l.card, `${u.id}/${l.id}/card`, prelude);
       for (const ex of l.exercises) await verifyExercise(ex, `${u.id}/${l.id}/${ex.id}`, prelude);
     }
+    for (const lab of u.labs ?? []) await verifyLab(lab, `${u.id}/${lab.id}`, prelude);
+    if (u.library) await verifyLibrary(u.library, `${u.id}/library`, prelude);
   }
 
   const ratio = total ? producing / total : 0;
@@ -481,6 +545,9 @@ async function main() {
     `- Verified by execution or data check: ${executed}`,
     `- Not verifiable by execution (listed below for hand checking): ${manual.length}`,
     `- Exercises that produce or predict: ${producing} (${(ratio * 100).toFixed(0)}%)`,
+    `- Labs: ${units.reduce((n, u) => n + (u.labs?.length ?? 0), 0)} (${labSteps} steps; each solution passes its tests, each starter and hint-2 structure fails them)`,
+    `- Library pages: ${units.filter((u) => u.library).map((u) => u.id).join(', ') || 'none'} (example code executed)`,
+    `- Simulated services self-test: ${errors.some((e) => e.startsWith('epoch_sim')) ? 'FAILED' : 'passed'}`,
     `- Python runs: ${runs}`,
     `- Result: ${errors.length ? `**FAILED** (${errors.length} problems)` : 'passed'}`,
     '',

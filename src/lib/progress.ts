@@ -284,27 +284,32 @@ export function recordReview(kind: 'review' | 'quick', results: Record<string, b
   commit({ ...state, review, activity: [...state.activity, activity('review', kind, xp, minutes, now)] });
 }
 
-/** Save the learner's code for a lab step (as they type, so nothing is lost). */
-export function saveLabCode(stepId: string, code: string, now = new Date()) {
-  if (state.labCode[stepId]?.code === code) return;
-  commit({ ...state, labCode: { ...state.labCode, [stepId]: { code, updatedAt: now.toISOString() } } });
-}
-
 /**
- * A lab step passed its tests. A step done with a hint goes in the review
- * queue, to be rewritten later without help. The last step completes the lab.
+ * A lab step passed its tests: save the learner's code for it and log it. A
+ * step done with a hint goes in the review queue, to be rewritten later
+ * without help; a clean rewrite takes it out again. The last step completes the lab.
  */
-export function recordLabStep(labId: string, step: number, usedHint: boolean, isLast: boolean, xp: number, minutes: number, now = new Date()) {
+export function recordLabStep(
+  labId: string,
+  step: number,
+  code: string,
+  usedHint: boolean,
+  isLast: boolean,
+  xp: number,
+  minutes: number,
+  now = new Date(),
+) {
   const stepId = `${labId}#${step}`;
   const at = now.toISOString();
   const review = { ...state.review };
   const key = `lab:${stepId}`;
   if (usedHint) review[key] = nextReview(undefined, false, now);
-  else if (review[key] && review[key].box < RETIRED) review[key] = nextReview(review[key], true, now);
+  else if (review[key] && review[key].box < RETIRED) review[key] = { box: RETIRED, due: NEVER, updatedAt: at };
   commit({
     ...state,
     completed: markDone(state.completed, isLast ? [stepId, labId] : [stepId], at),
     review,
+    labCode: { ...state.labCode, [stepId]: { code, updatedAt: at } },
     activity: [...state.activity, activity('lab', stepId, xp, minutes, now)],
   });
 }

@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import type { Track } from '../../content/index';
-import { CheckIcon, GearIcon, GoalRing, MoonIcon, OrbitIcon, SparkIcon, SunIcon, go } from '../components/Bits';
+import { CheckIcon, CodeIcon, GearIcon, GoalRing, LockIcon, MoonIcon, OrbitIcon, SparkIcon, SunIcon, go } from '../components/Bits';
 import { toggleTheme, useTheme } from '../lib/theme';
 import { useBarHeight } from '../components/useBarHeight';
-import { checkpointOf, continueLesson, findExercise, unitDone, unitsForTrack } from '../lib/curriculum';
+import { checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack } from '../lib/curriculum';
+import { dayKey } from '../lib/dates';
+import { LibraryList } from './Library';
 import { computeStats, dueItems, setDailyGoal, useProgress, type DailyGoal } from '../lib/progress';
 import { SyncBadge } from './SyncBadge';
 
+type Tab = Track | 'library';
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'foundations', label: 'Foundations' },
+  { id: 'engineering', label: 'AI Engineering' },
+  { id: 'library', label: 'Library' },
+];
+
 const TRACK_KEY = 'epoch.track';
-const readTrack = (): Track => {
+const readTrack = (): Tab => {
   try {
-    return localStorage.getItem(TRACK_KEY) === 'engineering' ? 'engineering' : 'foundations';
+    const v = localStorage.getItem(TRACK_KEY);
+    return v === 'engineering' || v === 'library' ? v : 'foundations';
   } catch {
     return 'foundations';
   }
@@ -21,10 +31,10 @@ const GOALS: DailyGoal[] = [5, 15, 30];
 export function Home() {
   const p = useProgress();
   const stats = computeStats(p);
-  const [track, setTrackState] = useState<Track>(readTrack);
+  const [track, setTrackState] = useState<Tab>(readTrack);
   const barRef = useBarHeight();
   const theme = useTheme();
-  const setTrack = (t: Track) => {
+  const setTrack = (t: Tab) => {
     setTrackState(t);
     try {
       localStorage.setItem(TRACK_KEY, t);
@@ -34,7 +44,8 @@ export function Home() {
   };
 
   const cont = continueLesson(p);
-  const units = unitsForTrack(track);
+  const units = track === 'library' ? [] : unitsForTrack(track);
+  const rewrites = labRewrites(p, dayKey());
   const hasHistory = p.activity.length > 0;
   const due = dueItems(p).filter((id) => findExercise(id)).length;
   const canReview = Object.keys(p.completed).length > 0 || Object.keys(p.review).length > 0;
@@ -120,6 +131,18 @@ export function Home() {
         </section>
       )}
 
+      {rewrites.length > 0 && (
+        <button className="rewrite-card" onClick={() => go(`#/lab/${rewrites[0].labId}/${rewrites[0].step}`)}>
+          <CodeIcon />
+          <span>
+            <strong>Rewrite a lab step on your own</strong>
+            <span className="unit-meta">
+              {rewrites.length} step{rewrites.length > 1 ? 's' : ''} you finished with a hint · {findLab(rewrites[0].labId)?.lab.title}
+            </span>
+          </span>
+        </button>
+      )}
+
       {cont && hasHistory && !stats.activeToday && (
         <p className="pickup">
           {stats.frozeYesterday && 'A streak freeze covered yesterday. '}
@@ -128,12 +151,14 @@ export function Home() {
       )}
 
       <div className="tabs" role="tablist">
-        {(['foundations', 'engineering'] as Track[]).map((t) => (
-          <button key={t} role="tab" aria-selected={track === t} className={`tab${track === t ? ' on' : ''}`} onClick={() => setTrack(t)}>
-            {t === 'foundations' ? 'Foundations' : 'AI Engineering'}
+        {TABS.map((t) => (
+          <button key={t.id} role="tab" aria-selected={track === t.id} className={`tab${track === t.id ? ' on' : ''}`} onClick={() => setTrack(t.id)}>
+            {t.label}
           </button>
         ))}
       </div>
+
+      {track === 'library' && <LibraryList />}
 
       <div className="path">
         {units.map((u) => {
@@ -188,6 +213,28 @@ export function Home() {
                   );
                 })}
               </ol>
+              {(u.unit.labs ?? []).length > 0 && (
+                <ol className="lessons labs" aria-label={`${u.id} labs`}>
+                  {u.unit.labs!.map((lab) => {
+                    const open = labUnlocked(lab, p);
+                    const isDone = !!p.completed[lab.id];
+                    const after = findLab(lab.id) && u.unit!.lessons.findIndex((l) => l.id === lab.unlockAfter) + 1;
+                    return (
+                      <li key={lab.id}>
+                        <button className={`lesson-row lab-row${isDone ? ' done' : ''}${open ? '' : ' locked'}`} disabled={!open} onClick={() => go(`#/lab/${lab.id}`)}>
+                          <span className="dot" aria-hidden="true">
+                            {isDone ? <CheckIcon size={14} /> : open ? <CodeIcon size={14} /> : <LockIcon size={12} />}
+                          </span>
+                          <span className="lesson-title">
+                            Lab: {lab.title}
+                            <span className="unit-meta">{open ? `${lab.minutes} min · write real code` : `Opens after lesson ${after}`}</span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
             </section>
           );
         })}

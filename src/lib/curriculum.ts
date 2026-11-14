@@ -1,5 +1,5 @@
 import { catalog, type Track, type UnitEntry } from '../../content/index';
-import type { Exercise, Lesson, Unit } from '../../content/schema';
+import type { Exercise, Lab, Lesson, Unit } from '../../content/schema';
 import { RETIRED, dueItems, type Progress } from './progress';
 
 export interface LessonRef {
@@ -105,3 +105,37 @@ export const unitDone = (unit: Unit, p: Progress) => unit.lessons.every((l) => p
 
 /** Share of exercises right first time needed to test out of a unit with its checkpoint. */
 export const TEST_OUT = 0.8;
+
+// ----------------------------------------------------------------------- labs ---
+
+export interface LabRef {
+  unit: Unit;
+  lab: Lab;
+  index: number;
+}
+
+const labIndex = new Map<string, LabRef>();
+for (const entry of catalog) entry.unit?.labs?.forEach((lab, i) => labIndex.set(lab.id, { unit: entry.unit!, lab, index: i }));
+
+export const findLab = (id: string) => labIndex.get(id);
+export const allLabs = () => [...labIndex.values()];
+
+export const labUnlocked = (lab: Lab, p: Progress) => !!p.completed[lab.unlockAfter];
+
+/** Step ids are 1-based: "<lab>#1" is the first step. */
+export const stepId = (labId: string, n: number) => `${labId}#${n}`;
+
+/** The code the learner wrote for each step so far (falling back to the reference if missing). */
+export function labCodeBefore(lab: Lab, p: Progress, step: number): string {
+  const parts = lab.given ? [lab.given] : [];
+  for (let i = 0; i < step; i++) parts.push(p.labCode[stepId(lab.id, i + 1)]?.code ?? lab.steps[i].solution);
+  return parts.join('\n\n');
+}
+
+/** Lab steps done with a hint and due to be rewritten without help. */
+export function labRewrites(p: Progress, today: string): { labId: string; step: number }[] {
+  return dueItems(p, today, 'lab:')
+    .map((key) => key.slice(4).split('#'))
+    .filter(([labId]) => labIndex.has(labId))
+    .map(([labId, n]) => ({ labId, step: Number(n) }));
+}

@@ -42,3 +42,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - sync.ts: contents API (X-GitHub-Api-Version 2026-03-10), cache no-store, 409/422 -> pull/merge/retry, fixed error
   messages, token only in localStorage key epoch.sync.v1. Tests: tests/progress.test.ts, tests/sync.test.ts (fake API).
 - Browser-checked: quick review flow, connect/pull/push/disconnect/bad-token against an in-page fake API, dark mode.
+
+## Phase 3b (labs, sim, Library), 2026-11-15 — DONE (committed, pushed)
+- CodeMirror 6 (pinned: state 6.7.6, view 6.43.15, commands 6.11.1, language 6.13.1, lang-python 6.2.1,
+  autocomplete 6.20.4, @lezer/highlight 1.2.5). src/components/CodeEditor.tsx (+ EditorKeys with indent key).
+- content/schema.ts: LabSchema, LibraryPageSchema; Unit.labs / Unit.library. content/labs/f3.ts (3 labs, 14 steps),
+  content/library/f3.ts. Lab ids f3-lab-1..3; step ids "<lab>#<n>"; review key "lab:<lab>#<n>".
+- src/screens/LabPlayer.tsx (lazy chunk): routes #/lab/<id>, #/lab/<id>/again, #/lab/<id>/<n> (single rewrite).
+  Drafts per device in localStorage epoch.draft.<step>. Editor keyed by step (fixes a stale-draft bug).
+- src/screens/Library.tsx: Library tab on home (3rd tab), search, #/library/<unit>.
+- src/python/epoch_sim.py installed to /epoch in worker + verifier; scripts/sim_selftest.py run by verify-content.
+- Browser-checked: lab 1 end to end, hints 1-3, error line mapping, rewrite card -> single step -> retired, Library
+  unlock/search/page, dark mode, `import epoch_sim` in the app worker. Next: Phase 4 (content: E unit for current plan week).
