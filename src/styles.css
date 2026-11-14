@@ -1335,3 +1335,262 @@ code {
   margin-left: auto;
   margin-right: auto;
 }
+
+/* ------------------------------------------------------- Phase 3: home --- */
+
+.chips {
+  gap: 6px;
+  align-items: center;
+}
+.freeze-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-left: -2px;
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.review-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 10px 10px 10px 16px;
+  background: var(--surface);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.review-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  line-height: 1.25;
+}
+.review-text span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.review-card .btn-small {
+  min-height: 44px;
+  padding: 0 14px;
+}
+.test-out {
+  margin-left: auto;
+  flex: none;
+}
+.done-note,
+.card-note {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--primary-soft);
+  color: var(--text);
+  font-size: 15px;
+}
+
+/* sync indicator */
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+}
+.sync-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.sync-synced .sync-dot {
+  background: var(--good);
+}
+.sync-syncing .sync-dot {
+  background: var(--primary);
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+.sync-offline .sync-dot {
+  background: var(--muted);
+}
+.sync-error {
+  color: var(--bad);
+}
+.sync-error .sync-dot {
+  background: var(--bad);
+}
+@keyframes pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.3;
+  }
+}
+
+/* --------------------------------------------------- settings and pages --- */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.top-bar h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+.settings .screen,
+.settings {
+  padding-bottom: calc(24px + var(--safe-b));
+}
+.panel {
+  background: var(--surface);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 4px 16px 16px;
+  margin-bottom: 12px;
+}
+.panel h2 {
+  font-size: 16px;
+  margin: 14px 0 8px;
+}
+.panel p {
+  margin: 8px 0;
+}
+.panel a {
+  color: var(--primary);
+  font-weight: 600;
+}
+.panel code {
+  font-size: 0.92em;
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 14px;
+}
+.block {
+  display: block;
+  margin-top: 4px;
+}
+.mono {
+  font-family: var(--mono);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.steps {
+  margin: 8px 0 12px;
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+}
+.field {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+.text-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text);
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+}
+.text-input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+.row-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.row-btns .btn-small {
+  min-height: 44px;
+  padding: 0 16px;
+}
+.note {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 15px;
+}
+.note-bad {
+  background: var(--bad-soft);
+  color: var(--text);
+}
+.note-good {
+  background: var(--good-soft);
+  color: var(--text);
+}
+.kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  margin: 8px 0;
+}
+.kv dt {
+  color: var(--muted);
+  font-size: 14px;
+}
+.kv dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  margin-top: 8px;
+}
+.switch {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--line);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  transition: transform 0.2s;
+}
+.switch:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.switch:checked::after {
+  transform: translateX(20px);
+}

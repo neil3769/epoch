@@ -58,3 +58,27 @@ export const useTheme = (): Theme =>
     },
     effective,
   );
+
+export type ThemeChoice = Theme | 'system';
+
+/** Pick light, dark, or follow the device ('system'). */
+export function setThemeChoice(c: ThemeChoice) {
+  choice = c === 'system' ? null : c;
+  try {
+    if (choice) localStorage.setItem(KEY, choice);
+    else localStorage.removeItem(KEY);
+  } catch {
+    /* still applies for this session */
+  }
+  apply();
+  notify();
+}
+
+export const useThemeChoice = (): ThemeChoice =>
+  useSyncExternalStore(
+    (cb) => {
+      listeners.add(cb);
+      return () => listeners.delete(cb);
+    },
+    () => choice ?? 'system',
+  );

@@ -1,6 +1,6 @@
 import { catalog, type Track, type UnitEntry } from '../../content/index';
-import type { Lesson, Unit } from '../../content/schema';
-import type { Progress } from './progress';
+import type { Exercise, Lesson, Unit } from '../../content/schema';
+import { RETIRED, dueItems, type Progress } from './progress';
 
 export interface LessonRef {
   unit: Unit;
@@ -51,3 +51,57 @@ export function nextAfter(lessonId: string, p: Progress): LessonRef | undefined 
   if (next) return index.get(next.id);
   return continueLesson(p, ref.unit.track);
 }
+
+// ----------------------------------------------------------------- exercises ---
+
+export interface ExerciseRef {
+  unit: Unit;
+  lesson: Lesson;
+  ex: Exercise;
+}
+
+const exIndex = new Map<string, ExerciseRef>();
+for (const entry of catalog)
+  for (const lesson of entry.unit?.lessons ?? [])
+    for (const ex of lesson.exercises) exIndex.set(ex.id, { unit: entry.unit!, lesson, ex });
+
+export const findExercise = (id: string) => exIndex.get(id);
+
+/** Figures cannot be answered wrongly, so they are never reviewed. */
+const reviewable = (r: ExerciseRef | undefined): r is ExerciseRef => !!r && r.ex.type !== 'figure';
+
+/**
+ * The items for a review session of `size`: due items first, then items not
+ * yet due (weakest first), then exercises from finished lessons, so there is
+ * always something to practise once any lesson is done.
+ */
+export function buildReviewSet(p: Progress, size: number, today: string, random = Math.random): ExerciseRef[] {
+  const picked = new Map<string, ExerciseRef>();
+  const take = (id: string) => {
+    const r = exIndex.get(id);
+    if (picked.size < size && !picked.has(id) && reviewable(r)) picked.set(id, r);
+  };
+  dueItems(p, today).forEach(take);
+  Object.entries(p.review)
+    .filter(([id, r]) => !id.startsWith('lab:') && r.box < RETIRED)
+    .sort(([, a], [, b]) => a.box - b.box || (a.due < b.due ? -1 : 1))
+    .forEach(([id]) => take(id));
+  if (picked.size < size) {
+    const pool = [...exIndex.values()].filter((r) => p.completed[r.lesson.id] && r.ex.type !== 'run-code' && reviewable(r));
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    pool.forEach((r) => take(r.ex.id));
+  }
+  return [...picked.values()];
+}
+
+// ---------------------------------------------------------------------- units ---
+
+export const checkpointOf = (unit: Unit) => unit.lessons.find((l) => l.checkpoint);
+
+export const unitDone = (unit: Unit, p: Progress) => unit.lessons.every((l) => p.completed[l.id]);
+
+/** Share of exercises right first time needed to test out of a unit with its checkpoint. */
+export const TEST_OUT = 0.8;

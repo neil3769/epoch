@@ -208,6 +208,8 @@ export const LessonSchema = z.object({
   title: z.string(),
   /** One line on what was learned, shown on the completion screen. */
   summary: z.string(),
+  /** The unit's last lesson: mixes everything, and passing it tests out of the unit. */
+  checkpoint: z.boolean().optional(),
   card: CardSchema,
   exercises: z.array(ExerciseSchema).min(8).max(12),
 });

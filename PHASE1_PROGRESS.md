@@ -30,3 +30,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - DONE: repo https://github.com/neil3769/epoch created and pushed (main @ 64da30e), Pages source = GitHub Actions,
   first deploy run 43638445794 succeeded; live site verified (sub-path, SW scope /epoch/, manifest, icons).
 - Next: Phase 3 (review system, settings, GitHub sync, code labs, Library, F3 labs + summary).
+
+## Phase 3a (retention + sync), 2026-11-14 — DONE
+- progress.ts: Leitner boxes 1-5 (1,3,7,14,30 days), box 6 = retired; streak freezes derived from activity
+  (1 per 7 active days, max 2 banked); mergeProgress (union/earliest, union-by-id, newest-wins) + normalizeProgress;
+  recordReview / recordLabStep / saveLabCode; onLearnerChange for sync.
+- curriculum.ts: findExercise, buildReviewSet (due -> not-yet-due -> padding from finished lessons, no figure/run-code),
+  checkpointOf, TEST_OUT = 0.8 (f3-12 has `checkpoint: true`).
+- screens: ExerciseSession (shared loop), DoneScreen, LessonPlayer (thin), ReviewPlayer (#/review, #/review/quick),
+  Settings (#/settings: goal, theme, sound, GitHub sync, export/import, reminder steps), SyncBadge.
+- sync.ts: contents API (X-GitHub-Api-Version 2026-03-10), cache no-store, 409/422 -> pull/merge/retry, fixed error
+  messages, token only in localStorage key epoch.sync.v1. Tests: tests/progress.test.ts, tests/sync.test.ts (fake API).
+- Browser-checked: quick review flow, connect/pull/push/disconnect/bad-token against an in-page fake API, dark mode.

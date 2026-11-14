@@ -1582,6 +1582,7 @@ print(np.dot(a, a), a * a)`,
     {
       id: 'f3-12',
       title: 'Checkpoint',
+      checkpoint: true,
       summary: 'You can pick `*` or `@` for a situation, predict shapes, and compute products by hand.',
       card: {
         title: 'Checkpoint',

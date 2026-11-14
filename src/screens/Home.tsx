@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import type { Track } from '../../content/index';
-import { CheckIcon, GoalRing, MoonIcon, OrbitIcon, SparkIcon, SunIcon, go } from '../components/Bits';
+import { CheckIcon, GearIcon, GoalRing, MoonIcon, OrbitIcon, SparkIcon, SunIcon, go } from '../components/Bits';
 import { toggleTheme, useTheme } from '../lib/theme';
 import { useBarHeight } from '../components/useBarHeight';
-import { continueLesson, unitsForTrack } from '../lib/curriculum';
-import { computeStats, setDailyGoal, useProgress, type DailyGoal } from '../lib/progress';
+import { checkpointOf, continueLesson, findExercise, unitDone, unitsForTrack } from '../lib/curriculum';
+import { computeStats, dueItems, setDailyGoal, useProgress, type DailyGoal } from '../lib/progress';
+import { SyncBadge } from './SyncBadge';
 
 const TRACK_KEY = 'epoch.track';
 const readTrack = (): Track => {
@@ -35,6 +36,8 @@ export function Home() {
   const cont = continueLesson(p);
   const units = unitsForTrack(track);
   const hasHistory = p.activity.length > 0;
+  const due = dueItems(p).filter((id) => findExercise(id)).length;
+  const canReview = Object.keys(p.completed).length > 0 || Object.keys(p.review).length > 0;
 
   return (
     <main className="screen home">
@@ -46,6 +49,10 @@ export function Home() {
           Epoch
         </div>
         <div className="chips">
+          <SyncBadge />
+          <button type="button" className="chip chip-btn" onClick={() => go('#/settings')} aria-label="Settings" title="Settings">
+            <GearIcon />
+          </button>
           <button
             type="button"
             className="chip chip-btn"
@@ -55,9 +62,16 @@ export function Home() {
           >
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
-          <span className={`chip${stats.activeToday ? ' chip-on' : ''}`} title="Day streak">
+          <span
+            className={`chip${stats.activeToday ? ' chip-on' : ''}`}
+            title={`Day streak${stats.freezes ? `, ${stats.freezes} freeze${stats.freezes > 1 ? 's' : ''} banked` : ''}`}
+          >
             <OrbitIcon /> {stats.streak}
-            <span className="sr-only"> day streak</span>
+            {stats.freezes > 0 && <span className="freeze-pip" aria-hidden="true" />}
+            <span className="sr-only">
+              {' '}
+              day streak{stats.freezes ? `, ${stats.freezes} streak freeze${stats.freezes > 1 ? 's' : ''} banked` : ''}
+            </span>
           </span>
           <span className="chip" title="Total XP">
             <SparkIcon /> {stats.totalXp}
@@ -91,8 +105,24 @@ export function Home() {
         </div>
       </section>
 
+      {canReview && (
+        <section className="review-card" aria-label="Review">
+          <div className="review-text">
+            <strong>Review</strong>
+            <span>{due ? `${due} item${due > 1 ? 's' : ''} due` : 'Nothing due · practise anyway'}</span>
+          </div>
+          <button className="btn btn-small" onClick={() => go('#/review/quick')}>
+            2 min
+          </button>
+          <button className="btn btn-small btn-primary" onClick={() => go('#/review')}>
+            Review
+          </button>
+        </section>
+      )}
+
       {cont && hasHistory && !stats.activeToday && (
         <p className="pickup">
+          {stats.frozeYesterday && 'A streak freeze covered yesterday. '}
           Pick up at <strong>{cont.lesson.title}</strong> ({cont.unit.id}).
         </p>
       )}
@@ -121,6 +151,8 @@ export function Home() {
             );
           const lessons = u.unit.lessons;
           const doneCount = lessons.filter((l) => p.completed[l.id]).length;
+          const checkpoint = checkpointOf(u.unit);
+          const canTestOut = checkpoint && !unitDone(u.unit, p);
           return (
             <section key={u.id} className="unit">
               <div className="unit-head">
@@ -132,6 +164,11 @@ export function Home() {
                     {lessons.length < u.planned ? ` · ${u.planned - lessons.length} more lessons coming` : ''}
                   </span>
                 </div>
+                {canTestOut && (
+                  <button className="btn btn-small btn-ghost test-out" onClick={() => go(`#/lesson/${checkpoint.id}`)}>
+                    Test out
+                  </button>
+                )}
               </div>
               <ol className="lessons">
                 {lessons.map((l, i) => {

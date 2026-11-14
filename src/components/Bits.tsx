@@ -70,6 +70,55 @@ export const MoonIcon = () => (
   </svg>
 );
 
+export const GearIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm8.2 4.7l1.8 1.4-2 3.5-2.2-.8a7.7 7.7 0 0 1-2 1.2L15.5 21h-4l-.4-2.4a7.7 7.7 0 0 1-2-1.2l-2.2.8-2-3.5 1.8-1.4a7.6 7.6 0 0 1 0-2.4L4.9 9.5l2-3.5 2.2.8a7.7 7.7 0 0 1 2-1.2L11.5 3h4l.4 2.6a7.7 7.7 0 0 1 2 1.2l2.2-.8 2 3.5-1.8 1.4a7.6 7.6 0 0 1 0 2.4z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const BackIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const BookIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+  </svg>
+);
+
+export const CodeIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M8 7l-5 5 5 5M16 7l5 5-5 5" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const LockIcon = ({ size = 14 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor" />
+    <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" strokeWidth="2.4" fill="none" />
+  </svg>
+);
+
+/** Screen header with a back button. */
+export function TopBar({ title, back = '#/' }: { title: string; back?: string }) {
+  return (
+    <header className="top-bar">
+      <button className="icon-btn" aria-label="Back" onClick={() => go(back)}>
+        <BackIcon />
+      </button>
+      <h1>{title}</h1>
+    </header>
+  );
+}
+
 export const go = (hash: string) => {
   window.location.hash = hash;
 };
