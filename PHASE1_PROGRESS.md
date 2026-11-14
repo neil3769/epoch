@@ -22,3 +22,8 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - added on user request: light/dark toggle (src/lib/theme.ts, sun/moon chip on home)
 - not verified: real iPhone/Android device, true offline mode (browser tool cannot go offline), install to home screen
 - next: Phase 2 (deploy to GitHub Pages) needs the user's GitHub account; ask before creating repo or pushing
+
+## Phase 2 (deploy), started 2026-11-14
+- Phase 1 committed as 496fb8a. Workflow: .github/workflows/deploy.yml (checkout@v7, setup-node@v7, configure-pages@v6,
+  upload-pages-artifact@v5, deploy-pages@v5; runs npm test + npm run build).
+- User chose: public repo neil3769/epoch, keep Gmail as commit author. Site: https://neil3769.github.io/epoch/
