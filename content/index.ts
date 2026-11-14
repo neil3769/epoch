@@ -1,0 +1,47 @@
+import type { Unit } from './schema';
+import { f1 } from './units/f1';
+import { f3 } from './units/f3';
+import { e2 } from './units/e2';
+
+export type Track = 'foundations' | 'engineering';
+
+export interface UnitEntry {
+  id: string;
+  track: Track;
+  title: string;
+  /** Number of lessons the unit will have when complete. */
+  planned: number;
+  /** Lessons written so far (absent: not written yet). */
+  unit?: Unit;
+}
+
+const written: Record<string, Unit> = { F1: f1, F3: f3, E2: e2 };
+
+const plan: Omit<UnitEntry, 'unit'>[] = [
+  { id: 'F1', track: 'foundations', title: 'Python you will see in ML code', planned: 12 },
+  { id: 'F2', track: 'foundations', title: 'Vectors', planned: 8 },
+  { id: 'F3', track: 'foundations', title: 'Matrices and matrix multiplication', planned: 12 },
+  { id: 'F4', track: 'foundations', title: 'NumPy', planned: 14 },
+  { id: 'F5', track: 'foundations', title: 'Change and gradients', planned: 9 },
+  { id: 'F6', track: 'foundations', title: 'Probability and loss', planned: 9 },
+  { id: 'F7', track: 'foundations', title: 'Machine learning from scratch', planned: 10 },
+  { id: 'F8', track: 'foundations', title: 'Neural networks', planned: 12 },
+  { id: 'F9', track: 'foundations', title: 'PyTorch', planned: 14 },
+  { id: 'F10', track: 'foundations', title: 'Text as numbers', planned: 7 },
+  { id: 'F11', track: 'foundations', title: 'Attention and transformers', planned: 12 },
+  { id: 'E1', track: 'engineering', title: 'A real Python project', planned: 8 },
+  { id: 'E2', track: 'engineering', title: 'Async and HTTP', planned: 8 },
+  { id: 'E3', track: 'engineering', title: 'Calling an LLM', planned: 10 },
+  { id: 'E4', track: 'engineering', title: 'Prompts and context', planned: 7 },
+  { id: 'E5', track: 'engineering', title: 'Evaluation', planned: 11 },
+  { id: 'E6', track: 'engineering', title: 'Retrieval (RAG)', planned: 9 },
+  { id: 'E7', track: 'engineering', title: 'Agents', planned: 10 },
+  { id: 'E8', track: 'engineering', title: 'Shipping a service', planned: 12 },
+  { id: 'E9', track: 'engineering', title: 'Cost, latency, observability', planned: 8 },
+  { id: 'E10', track: 'engineering', title: 'Safety', planned: 7 },
+  { id: 'E11', track: 'engineering', title: 'Interview practice', planned: 12 },
+];
+
+export const catalog: UnitEntry[] = plan.map((u) => ({ ...u, unit: written[u.id] }));
+
+export const writtenUnits: Unit[] = Object.values(written);
