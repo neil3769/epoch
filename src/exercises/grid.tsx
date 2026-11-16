@@ -29,8 +29,11 @@ function NumberGrid({ ex, value, onChange, locked }: ExProps<ExerciseOf<'number-
     onChange(next);
   };
 
-  const op = ex.expr.match(/^\s*(\w+)\s*([*@+])\s*(\w+)\s*$/);
   const byName = Object.fromEntries(ex.inputs.map((x) => [x.name, x.value]));
+  // "A @ B" with two named inputs is drawn as an equation; anything else (such as
+  // "3 * v" or "2 * a - b") shows the inputs, with the expression as the result label.
+  const m = ex.expr.match(/^\s*(\w+)\s*([*@+])\s*(\w+)\s*$/);
+  const op = m && byName[m[1]] && byName[m[3]] ? m : null;
 
   return (
     <>
@@ -66,8 +69,8 @@ function NumberGrid({ ex, value, onChange, locked }: ExProps<ExerciseOf<'number-
 function explainGrid(ex: ExerciseOf<'number-grid'>, got: number[][]): string {
   const op = ex.expr.match(/^\s*(\w+)\s*([*@])\s*(\w+)\s*$/);
   const same = (m: number[][]) => m.length === got.length && m.every((r, i) => r.every((v, j) => v === got[i][j]));
-  if (op) {
-    const byName = Object.fromEntries(ex.inputs.map((x) => [x.name, x.value]));
+  const byName = Object.fromEntries(ex.inputs.map((x) => [x.name, x.value]));
+  if (op && byName[op[1]] && byName[op[3]]) {
     const L = byName[op[1]];
     const R = byName[op[3]];
     const sameShape = L.length === R.length && L[0].length === R[0].length;

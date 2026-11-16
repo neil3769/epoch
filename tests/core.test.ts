@@ -148,3 +148,19 @@ describe('continue button', () => {
     expect(nextAfter('f3-02', p)?.lesson.id).toBe('f3-03');
   });
 });
+
+describe('number grid with a scalar or a longer expression', () => {
+  it('grades without crashing and explains with the lesson text', async () => {
+    const { f2 } = await import('../content/units/f2');
+    const all = f2.lessons.flatMap((l) => l.exercises);
+    for (const id of ['f2-3-1', 'f2-8-2', 'f2-2-1']) {
+      const ex = all.find((e) => e.id === id) as ExerciseOf<'number-grid'>;
+      const wrong = ex.answer.map((r) => r.map(() => '0'));
+      const g = numberGrid.grade(ex, wrong, { prelude: '' }) as { correct: boolean; message?: string };
+      expect(g.correct).toBe(false);
+      expect(g.message).toBeTruthy();
+      const right = ex.answer.map((r) => r.map(String));
+      expect((numberGrid.grade(ex, right, { prelude: '' }) as { correct: boolean }).correct).toBe(true);
+    }
+  });
+});

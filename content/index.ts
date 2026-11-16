@@ -1,5 +1,6 @@
 import type { Unit } from './schema';
 import { f1 } from './units/f1';
+import { f2 } from './units/f2';
 import { f3 } from './units/f3';
 import { e1 } from './units/e1';
 import { e2 } from './units/e2';
@@ -19,7 +20,7 @@ export interface UnitEntry {
   unit?: Unit;
 }
 
-const written: Record<string, Unit> = { F1: f1, F3: f3, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5 };
+const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5 };
 
 const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'F1', track: 'foundations', title: 'Python you will see in ML code', planned: 12 },

@@ -97,3 +97,9 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - content/units/f1-more.ts (unpacking/zip/enumerate, defaults/keywords, *args/**kwargs, classes, inheritance/super,
   imports, type hints, tracebacks, checkpoint), labs/f1.ts (dataset class; helpers from empty functions), library/f1.ts.
 - Next: F2 Vectors (8 lessons + labs + Library).
+
+## Phase 4, unit F2 (Vectors), 2026-11-16 — DONE
+- content/units/f2.ts (8 lessons), labs/f2.ts (vectors by hand; similarity search from empty functions), library/f2.ts.
+- Fixed: number-grid crashed for a scalar expression like `3 * v` (display and wrong-answer explanation); test added.
+- Note: NumPy in Pyodide (wasm) cannot raise floating-point errors (errstate / warnings-as-errors do nothing).
+- Written units now: F1, F2, F3, E1, E2, E3, E4, E5. Next per brief: F4 (NumPy), then E6 (week 5, 30 Nov), F5...

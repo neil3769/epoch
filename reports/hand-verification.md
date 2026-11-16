@@ -291,3 +291,22 @@ Judgement items re-derived by hand (Python language facts):
 | f1-11-5 | NameError/KeyError/IndexError/TypeError causes | Standard meanings of the built-in exceptions. Correct. |
 | f1-12-8 | Line 42 of forward multiplied mismatched shapes | Frame gives file/line/function; message gives the problem. Correct. |
 | f1-12-9 | `xs[-2:]`, `enumerate`, `**kwargs`, `super().__init__()` | As taught in lessons 1, 4, 6 and 8. Correct. |
+
+# Hand verification, Phase 4: unit F2 (Vectors)
+
+All snippets, number grids, both labs and the Library example are executed (two multiple-choice
+questions, f2-4-4 and f2-5-6, also carry executed `check`s). Note: NumPy compiled to WebAssembly
+cannot raise floating-point errors, so the zero-vector exercise (f2-6-6) asks for the `nan`
+result instead of an error. Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| f2-1-2 | Swapped feature order compares prices with rooms | Position carries meaning. Correct. |
+| f2-1-6 | A 300-number list per word is a vector describing it (an embedding) | Fixed length regardless of the word; learned features. Correct. |
+| f2-2-7 | [price, rooms] + [rooms, price] adds prices to rooms | Same reasoning as f2-1-2. Correct. |
+| f2-3-6 | Scaling by 10 changes size, not direction | k·v is parallel to v for k > 0. Correct. |
+| f2-6-4 | Same proportions → same unit vector | Normalising removes the length factor. Correct. |
+| f2-7-3 | Cosine stops long documents winning by size | Cosine divides out both lengths. Correct. |
+| f2-7-7 | Cosine 0.92 → nearly the same direction | cos θ = 0.92 ⇒ θ ≈ 23°. Correct. |
+| f2-8-4 | Cosine similarity for meaning | Direction comparison, standard for embeddings. Correct. |
+| f2-8-9 | a+b vector; 3a longer same direction; a@b one number; cosine in [-1, 1] | Definitions. Correct. |
