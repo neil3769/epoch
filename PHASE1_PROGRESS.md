@@ -200,3 +200,17 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   before/after report from empty functions. Library page.
 - Browser at 390 px: 76 E9 screens and labs, no overflow.
 - Written units now: F1-F9, E1-E9, E11. Next: E10 Safety (week 13), F10, F11, then System Design.
+
+## Phase 4, unit E10 (Safety), 2026-11-17 — DONE
+- 7 lessons: the OWASP risk list (scenario → risk), prompt injection, data leakage, excessive agency,
+  guardrails on output, provider fallback, checkpoint. Risk names follow the OWASP Top 10 for LLM
+  Applications; the official site still shows the 2025 edition and a 2026 reordering is reported by
+  secondary sources, so no exercise asks for a rank number and the Library page says to check
+  genai.owasp.org.
+- The prelude's `gullible()` is a toy FakeLLM that obeys the last "Instruction: say ..." it reads, so
+  direct/indirect injection and the limits of fencing and phrase filters actually run. Redaction,
+  allowlists, approval rules, Pydantic validation, html.escape, per-user limits and fallback all run.
+- Labs: guard the way in (filter, redaction, fencing, per-user rows; scaffolded); guard the way out
+  (tool runner with allowlist and approval, validated refund, safe render, fallback; empty functions).
+- Browser at 390 px: 66 E10 screens and labs, no overflow.
+- Written units now: F1-F9, E1-E11 (engineering track complete). Next: F10, F11, then System Design.

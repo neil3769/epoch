@@ -728,3 +728,42 @@ All cost, percentile, span, log, routing, cache and table exercises run against 
 | e9-8-2 | p95 doubled: open the slowest traces | As e9-3. Correct. |
 | e9-8-7 | Key only on question: old model's answers return | As e9-6-3. Correct. |
 | e9-8-9 | Cheaper but worse: report the trade-off | As taught. Correct. |
+
+# Hand verification, Phase 4: unit E10 (Safety)
+
+Injection demos run against the prelude's toy model `gullible()` (FakeLLM replying with whatever
+follows the last "Instruction: say"); redaction, allowlist, validation, escaping, rate-limit and
+fallback exercises all run. Risk names checked against the OWASP Top 10 for LLM Applications
+(2025 edition on genai.owasp.org; a 2026 update reorders it, reported by one secondary source,
+so the unit never asks for rank numbers). Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e10-1-1 | Planted page instructions obeyed: prompt injection | OWASP LLM01 (indirect). Correct. |
+| e10-1-2 | Another customer's address in a reply: sensitive information disclosure | OWASP LLM02. Correct. |
+| e10-1-3 | 300 refunds from one message: excessive agency | OWASP excessive agency (permissions/autonomy). Correct. |
+| e10-1-4 | Reply inserted as raw HTML: improper output handling | OWASP improper output handling (XSS). Correct. |
+| e10-1-5 | Thousands of huge requests: unbounded consumption | OWASP unbounded consumption (denial of wallet). Correct. |
+| e10-1-6 | "Repeat everything above": system prompt leakage | OWASP system prompt leakage. Correct. |
+| e10-1-7 | Risk → first defence pairs | OWASP mitigations for each entry. Correct. |
+| e10-1-8 | False docs uploaded to the index: data poisoning | OWASP data poisoning / vector and embedding weaknesses. Correct. |
+| e10-2-2 | Hidden text in an email: indirect injection | Definition (content, not the user). Correct. |
+| e10-2-4 | Defence that survives a fooled model: limited tools | Least privilege. Correct. |
+| e10-2-7 | No tools, public docs only: little risk | Impact bounded by reach. Correct. |
+| e10-3-2 | API key in the server environment | Secrets never in context. Correct. |
+| e10-3-3 | Secret code in the system prompt can leak | Prompt is not a secret store. Correct. |
+| e10-3-7 | Leaked prompt: keep nothing secret in it | As OWASP system prompt leakage guidance. Correct. |
+| e10-4-2 | Draft-only assistant: read and draft tools | Least privilege. Correct. |
+| e10-4-3 | Approval threshold in the tool's code | Enforcement outside the model. Correct. |
+| e10-4-7 | 400 paid calls: step and spend limits | Unbounded consumption / agent loop caps. Correct. |
+| e10-5-3 | Model-written arithmetic: strict pattern, not eval | Simulator calculator does exactly this. Correct. |
+| e10-5-5 | Invented policy: ground and cite | Misinformation mitigation. Correct. |
+| e10-5-8 | Validate before anything acts | As taught. Correct. |
+| e10-6-2 | 400: do not fall back | Client error repeats anywhere. Correct. |
+| e10-6-5 | Backup's different JSON: one schema for both | Shared contract. Correct. |
+| e10-6-7 | Both down: short message, details in logs | Error-handling practice. Correct. |
+| e10-6-8 | Main failing for 10 min: skip it for a while | Circuit breaker. Correct. |
+| e10-7-1 | README told agent to upload .env: injection + excessive agency | Both entries. Correct. |
+| e10-7-3 | System prompt holds tone and scope only | As e10-3. Correct. |
+| e10-7-5 | Summariser asking to send email: refuse | Least privilege; sends are irreversible. Correct. |
+| e10-7-10 | "Filter solves injection": helps, still limit tools | Defence in depth. Correct. |
