@@ -6,3 +6,6 @@ dev-dist
 
 # Personal study plan: contains personal details, never commit it (the repo will be public)
 *.docx
+__pycache__/
+*.pyc
+*.tsbuildinfo
