@@ -204,3 +204,44 @@ every wrong one (this caught one old E2 question, rewritten).
 Also checked: the e4-4-4 note says the stand-in rejects a "system" role in the list and that the
 provider's docs recommend the separate `system` parameter (which they do); it does not claim the
 real API's behaviour for that role. Library forReal refers only to plan weeks 1 and 4.
+
+# Hand verification, Phase 4: unit E1 (A real Python project)
+
+Sources read on 2026-11-16: uv "Working on projects" and "Creating projects" guides, the
+Python Packaging guide "Writing your pyproject.toml", pytest "Get Started", the Ruff tutorial
+and configuration pages, pre-commit.com and the ruff-pre-commit README, and the `typing` docs.
+TOML snippets run through `tomllib`, pytest snippets run with pytest in Pyodide (now preloaded
+by the verifier; the app loads it on first import), and both labs are executed, including
+checks that each learner-written test fails on a deliberately broken function.
+
+| Exercise | Answer | Source / re-derivation |
+|---|---|---|
+| e1-1-1 | pyproject → describes; uv.lock → exact versions; .python-version → which Python; src/notes → package | uv project guide. Correct. |
+| e1-1-2 | Commit uv.lock | uv guide: the lockfile "should be checked into version control". Correct. |
+| e1-1-3 | Do not commit .venv | uv rebuilds it (`uv sync`); it is machine-specific. Correct. |
+| e1-1-5 | Tests import the installed package | Standard src-layout rationale (packaging guides). Correct. |
+| e1-1-7 | `uv run pytest` | uv guide and pytest Get Started both use `uv run pytest`. Correct. |
+| e1-2-3 | `notes` command runs `main()` from `notes/cli.py` | Packaging guide, `[project.scripts]`. Correct. |
+| e1-2-7 | `name` cannot be dynamic | Packaging guide: name is the only field that cannot be marked dynamic. Correct. |
+| e1-3-2 | `--dev` puts tools in the dev group | pytest's own install line is `uv add --dev pytest`; uv writes development dependencies to `[dependency-groups]` `dev` (the doc fetch did not quote this line from a uv page; it matches uv's documented behaviour and the packaging guide's description of dependency groups). Correct, flagged for a recheck if uv changes. |
+| e1-3-3 | Commit uv.lock and install from it | Lockfile purpose. Correct. |
+| e1-3-4 | add / add --dev / run / sync | uv guide. Correct. |
+| e1-3-7 | `uv run` uses the locked project environment | uv guide: uv run checks lock and environment before running. Correct. |
+| e1-4-5 | Hints are not enforced; checkers flag them | typing docs: the runtime does not enforce annotations. Correct. |
+| e1-5-6 | One behaviour, known input, exact expected output | Standard unit-test practice. Correct. |
+| e1-5-7 | `notes_tests.py` matches no default pattern | pytest: `test_*.py` or `*_test.py`. Correct. |
+| e1-6-2 | add(2, 3) returned 4; 5 was expected | pytest assert rewriting shows `where 4 = add(2, 3)`. Correct. |
+| e1-6-4 | The test is wrong (2 × 3 = 6) | Arithmetic. Correct. |
+| e1-6-7 | Read from the bottom | Summary and FAILED lines come last in pytest output. Correct. |
+| e1-7-2 | check → bugs; format → layout; pre-commit → before commits; pytest → tests | Ruff tutorial, pre-commit docs. Correct. |
+| e1-7-3 | F401 = imported but unused | Ruff tutorial example. Correct. |
+| e1-7-4 | On each git commit, once installed | pre-commit: `pre-commit install` sets up the git hook. Correct. |
+| e1-7-6 | Linter finds problems, formatter fixes layout | Ruff docs. Correct. |
+| e1-7-7 | `pre-commit install` | pre-commit docs. Correct. |
+| e1-8-2 | `uv sync` | Installs from the lockfile. Correct. |
+| e1-8-5 | `uv add --dev pytest ruff` | As e1-3-2. Correct. |
+| e1-8-8 | The code (spec says 10 s, test expects 10) | The test matches the spec. Correct. |
+| e1-8-9 | unused import → ruff; wrong sum → pytest; wrong type → mypy; versions → uv.lock | Each tool's job. Correct. |
+
+TOML error texts shown in e1-2-4 and e1-8-6 are checked by prefix against the real error.
+Library forReal refers only to plan week 1.

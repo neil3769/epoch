@@ -520,7 +520,7 @@ async function main() {
   for (const t of EXERCISE_TYPES) if (!typeCount.get(t)) fail('coverage', `exercise type "${t}" is never used`);
 
   py = await loadPyodide();
-  await py.loadPackage(['numpy', 'pydantic'], { messageCallback: () => {} });
+  await py.loadPackage(['numpy', 'pydantic', 'pytest'], { messageCallback: () => {} });
   installSim(py, readFileSync(join(root, 'src', 'python', 'epoch_sim.py'), 'utf8'));
   await py.runPythonAsync(HARNESS_PY);
   await py.runPythonAsync(VERIFY_PY);

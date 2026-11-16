@@ -80,3 +80,9 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - content/units/e4.ts (7 lessons), labs/e4.ts (prompt builder; fit-the-context from empty functions), library/e4.ts.
 - verify-content now fails an MCQ whose right option is >1.25x longer than every wrong one.
 - User asked for 3-4 more units after E4: plan E1, rest of E2 (lessons 4-8), rest of F1 (lessons 4-12), F2.
+
+## Phase 4, unit E1 (A real Python project), 2026-11-16 — DONE
+- Sources: uv, packaging guide, pytest, ruff, pre-commit, typing docs (hand-verification has the table).
+- content/units/e1.ts (8 lessons; tomllib + pytest executed in Pyodide; verifier preloads pytest),
+  labs/e1.ts (tests that must fail on a broken function; pyproject checker from empty functions), library/e1.ts.
+- Next: rest of E2 (lessons 4-8 + labs + library), rest of F1 (lessons 4-12), F2.
