@@ -214,3 +214,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   (tool runner with allowlist and approval, validated refund, safe render, fallback; empty functions).
 - Browser at 390 px: 66 E10 screens and labs, no overflow.
 - Written units now: F1-F9, E1-E11 (engineering track complete). Next: F10, F11, then System Design.
+
+## Phase 4, unit F10 (Text as numbers), 2026-11-17 — DONE
+- 7 lessons: tokens, vocabulary and ids, subword tokens (one BPE merge step by hand, greedy longest
+  match), embeddings as a lookup table (= one-hot @ table), cosine similarity, similarity search
+  (normalise rows, one matrix-vector product, argsort top k), checkpoint. Prelude: a tiny VOCAB/IDS,
+  merge/pieces helpers, a hand-made 6×3 embedding table E (animal, fruit, vehicle), N, cos.
+- Labs: a word-level tokenizer (scaffolded); search by meaning from empty functions (words,
+  sentence vector, safe cosine, ranked search).
+- App fix: predict-shape exercises now show "Shape of <target>" under the code (the target
+  expression was never displayed before, in any unit), and hide an empty code block.
+- Browser at 390 px: 66 F10 screens and labs, no overflow.
+- Written units now: F1-F10, E1-E11. Next: F11 Attention and transformers, then System Design.

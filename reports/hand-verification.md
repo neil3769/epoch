@@ -767,3 +767,26 @@ so the unit never asks for rank numbers). Judgement items:
 | e10-7-3 | System prompt holds tone and scope only | As e10-3. Correct. |
 | e10-7-5 | Summariser asking to send email: refuse | Least privilege; sends are irreversible. Correct. |
 | e10-7-10 | "Filter solves injection": helps, still limit tools | Defence in depth. Correct. |
+
+# Hand verification, Phase 4: unit F10 (Text as numbers)
+
+Every tokenizer, vocabulary, BPE, embedding, cosine and search exercise is executed (prelude:
+VOCAB/IDS, merge, pieces, toy table E with columns animal/fruit/vehicle, N, cos). Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| f10-1-5 | "cat" vs "cat.": one word learned twice | Separate vocabulary entries share nothing. Correct. |
+| f10-2-4 | <unk> exists because text holds words the vocabulary lacks | Definition. Correct. |
+| f10-2-7 | A token's id is its position in the vocabulary | As built in IDS. Correct. |
+| f10-3-5 | Subwords: any word can still be spelled | BPE / byte-level fallback. Correct. |
+| f10-3-7 | 4,000 English characters ≈ 1,000 tokens | ~4 chars/token rule of thumb for English BPE tokenizers. Correct. |
+| f10-3-8 | Rare words cost more tokens | Split into more pieces. Correct. |
+| f10-4-4 | Ids are arbitrary labels, so look up embeddings | As taught. Correct. |
+| f10-4-8 | Real embedding tables are learned by training | Embedding layer is a weight matrix. Correct. |
+| f10-5-3 | apple–pear most similar | Executed in its code (0.99 vs 0.12 vs 0.12). Correct. |
+| f10-5-7 | Cosine so length does not count | As taught (f10-5-2 executed). Correct. |
+| f10-6-7 | Simplest sentence vector: average token embeddings | Mean pooling. Correct. |
+| f10-6-8 | 10 M rows: exhaustive scoring too slow; approximate indexes | ANN indexes (HNSW, IVF). Correct. |
+| f10-7-4 | Never <unk>: falls back to characters/bytes | Byte-level BPE. Correct. |
+| f10-7-7 | Id → embedding is a row lookup | As f10-4-5. Correct. |
+| f10-7-10 | RAG retrieval uses embeddings and search | Unit E6. Correct. |

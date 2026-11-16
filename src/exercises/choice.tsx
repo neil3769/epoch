@@ -161,7 +161,10 @@ function ShapeInput({ value, onChange, locked }: { value: string | undefined; on
 export const predictShape: ExerciseKind<'predict-shape', OutputValue> = {
   Component: ({ ex, value, onChange, locked }: ExProps<ExerciseOf<'predict-shape'>, OutputValue>) => (
     <>
-      <CodeBlock code={ex.code} />
+      {ex.code.trim() !== '' && <CodeBlock code={ex.code} />}
+      <p className="shape-target">
+        Shape of <code>{ex.target}</code>
+      </p>
       {ex.options ? (
         <Choices
           options={ex.options}

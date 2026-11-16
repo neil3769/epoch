@@ -8,6 +8,7 @@ import { f6 } from './units/f6';
 import { f7 } from './units/f7';
 import { f8 } from './units/f8';
 import { f9 } from './units/f9';
+import { f10 } from './units/f10';
 import { e1 } from './units/e1';
 import { e2 } from './units/e2';
 import { e3 } from './units/e3';
@@ -32,7 +33,7 @@ export interface UnitEntry {
   unit?: Unit;
 }
 
-const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7, E8: e8, E9: e9, E10: e10, E11: e11 };
+const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, F10: f10, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7, E8: e8, E9: e9, E10: e10, E11: e11 };
 
 const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'F1', track: 'foundations', title: 'Python you will see in ML code', planned: 12 },

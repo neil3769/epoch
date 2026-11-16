@@ -2115,3 +2115,14 @@ mark {
   min-width: 0;
   width: 100%;
 }
+
+.shape-target {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.shape-target code {
+  font-family: var(--mono);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
