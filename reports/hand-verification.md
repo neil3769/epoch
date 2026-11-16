@@ -245,3 +245,29 @@ checks that each learner-written test fails on a deliberately broken function.
 
 TOML error texts shown in e1-2-4 and e1-8-6 are checked by prefix against the real error.
 Library forReal refers only to plan week 1.
+
+# Hand verification, Phase 4: unit E2 lessons 4 to 8, labs and Library
+
+Sources read on 2026-11-16: httpx "Async Support", "Timeouts", "Exceptions", "QuickStart" and
+"Transports" pages; Python's asyncio "Coroutines and Tasks" (timeouts); MDN on 429.
+`epoch_sim` gained `MockTransport`, `Request` (`.method`, `.url.path`, `.json`), `URL` and
+`Response(..., json=...)`, mirroring httpx; the sim self-test now covers them. The unit prelude
+adds `import epoch_sim as sim`. All snippets and both labs run (real `asyncio.wait_for` /
+`asyncio.timeout` in Pyodide; HTTP on the simulated client and virtual clock).
+
+| Exercise | Answer | Source / re-derivation |
+|---|---|---|
+| e2-4-3 | httpx times out after about 5 s by default | httpx Timeouts: TimeoutException after 5 seconds of network inactivity. Correct. |
+| e2-4-6 | Retry a few times, then report | Standard practice; consistent with lessons 6. Correct. |
+| e2-5-3 | raise_for_status raises for 4xx and 5xx | httpx Exceptions: "error HTTP status of 4xx or 5xx" (the quickstart says non-2xx; both include these). Correct. |
+| e2-5-6 | A client per request discards its connection pool | httpx Async page warning about creating clients in a hot loop. Correct. |
+| e2-6-3 | Do not retry 404 | The request is wrong and will fail the same way. Not stated on the pages read; standard HTTP semantics. Correct. |
+| e2-6-6 | Cap retries so a persistent outage fails clearly | Standard practice. Correct. |
+| e2-7-3 | Mocks are fast, free, repeatable and can stage failures | httpx Transports: MockTransport for testing. Correct. |
+| e2-7-7 | Assert the 200 arrived on the third call | Outcome plus call count pins the retry behaviour. Correct. |
+| e2-8-2 | Retry 503; not 401 or 400 | 503 is temporary; 400/401 mean fix the request or credentials. Correct. |
+| e2-8-6 | asyncio.gather for 20 independent calls | Lesson 3 (gather overlaps waits). Correct. |
+| e2-8-9 | gather / wait_for / backoff / MockTransport | Each tool's job as taught. Correct. |
+
+Not confirmed from the pages read (stated as practice, not as a quoted rule): which 4xx/5xx
+codes to retry beyond 429 and 5xx, and the HTTP-date form of Retry-After (lab 1 notes it).

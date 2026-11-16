@@ -86,3 +86,9 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - content/units/e1.ts (8 lessons; tomllib + pytest executed in Pyodide; verifier preloads pytest),
   labs/e1.ts (tests that must fail on a broken function; pyproject checker from empty functions), library/e1.ts.
 - Next: rest of E2 (lessons 4-8 + labs + library), rest of F1 (lessons 4-12), F2.
+
+## Phase 4, unit E2 completed (lessons 4-8, labs, Library), 2026-11-16 — DONE
+- content/units/e2-more.ts (timeouts, async client, retry/backoff, mock transport, checkpoint), labs/e2.ts, library/e2.ts.
+- epoch_sim: MockTransport, Request, URL, Response(json=); E2 prelude now imports epoch_sim as sim.
+- verify-content: last-lab empty-function rule accepts `async def`.
+- Next: F1 lessons 4-12 (+ labs, Library), then F2.

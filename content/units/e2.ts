@@ -1,11 +1,14 @@
+import { e2Labs } from '../labs/e2';
+import { e2Library } from '../library/e2';
 import type { Unit } from '../schema';
+import { e2More } from './e2-more';
 
 export const e2: Unit = {
   id: 'E2',
   track: 'engineering',
   title: 'Async and HTTP',
   blurb: 'Read async code, predict what runs when, and build a client with timeouts and retries.',
-  prelude: 'import asyncio',
+  prelude: 'import asyncio\nimport epoch_sim as sim',
   lessons: [
     // ------------------------------------------------------------------ 1
     {
@@ -549,5 +552,8 @@ asyncio.run(main())`,
         },
       ],
     },
+    ...e2More,
   ],
+  labs: e2Labs,
+  library: e2Library,
 };

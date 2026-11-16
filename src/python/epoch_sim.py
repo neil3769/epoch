@@ -235,10 +235,12 @@ class TimeoutException(Exception):
 
 
 class Response:
-    def __init__(self, status_code, body=None, headers=None):
+    """Like httpx.Response. `json=` sets a JSON body, as in httpx.Response(200, json={...})."""
+
+    def __init__(self, status_code, body=None, headers=None, json=None):
         self.status_code = status_code
         self.headers = dict(headers or {})
-        self._body = body
+        self._body = json if json is not None else body
 
     @property
     def text(self):
@@ -260,6 +262,41 @@ class Response:
         return f"<Response [{self.status_code}]>"
 
 
+class URL:
+    """The part of httpx.URL the labs use: `.path`, and str() for the whole URL."""
+
+    def __init__(self, url):
+        self._url = str(url)
+        if "://" in self._url:
+            rest = self._url.split("://", 1)[1]
+            path = "/" + rest.split("/", 1)[1] if "/" in rest else "/"
+        else:
+            path = self._url or "/"
+        self.path = path.split("?", 1)[0]
+
+    def __str__(self):
+        return self._url
+
+    def __repr__(self):
+        return f"URL({self._url!r})"
+
+
+class Request:
+    """What a MockTransport handler receives, like httpx.Request: .method, .url (.url.path), .json."""
+
+    def __init__(self, method, url, json_body=None):
+        self.method = method
+        self.url = URL(url)
+        self.json = json_body
+
+
+class MockTransport:
+    """Like httpx.MockTransport: every request goes to handler(request), which returns a Response."""
+
+    def __init__(self, handler):
+        self.handler = handler
+
+
 class Client:
     """Like httpx.Client, against a flaky endpoint.
 
@@ -272,7 +309,8 @@ class Client:
     virtual time it happened.
     """
 
-    def __init__(self, schedule=(200,), body=None, retry_after=None, latency=0.1, timeout=None):
+    def __init__(self, schedule=(200,), body=None, retry_after=None, latency=0.1, timeout=None, transport=None):
+        self.transport = transport
         self.schedule = list(schedule) or [200]
         self.body = {"ok": True} if body is None else body
         self.retry_after = retry_after
@@ -281,6 +319,12 @@ class Client:
         self.calls = []
 
     def _reply(self, method, url, json_body=None):
+        if self.transport is not None:
+            clock.advance(self.latency)
+            resp = self.transport.handler(Request(method, url, json_body))
+            status = getattr(resp, "status_code", None)
+            self.calls.append({"method": method, "url": url, "json": json_body, "at": clock.time(), "status": status})
+            return resp
         i = min(len(self.calls), len(self.schedule) - 1)
         status = self.schedule[i]
         self.calls.append({"method": method, "url": url, "json": json_body, "at": clock.time(), "status": status})

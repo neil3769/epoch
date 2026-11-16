@@ -128,3 +128,18 @@ assert sum(not r["ok"] for r in sim.LOGS) == 2
 assert len({r["model"] for r in sim.LOGS}) == 2
 
 print("epoch_sim self-test passed")
+
+# --- mock transport (like httpx.MockTransport) ---------------------------------
+def _handler(request):
+    if request.method == "POST":
+        return sim.Response(201, json=request.json)
+    if request.url.path == "/users/1":
+        return sim.Response(200, json={"name": "Ada"})
+    return sim.Response(404)
+
+
+mc = sim.Client(transport=sim.MockTransport(_handler))
+assert mc.get("https://api.example.com/users/1").json() == {"name": "Ada"}
+assert mc.get("/users/2").status_code == 404
+assert mc.post("/users", json={"name": "Bo"}).json() == {"name": "Bo"}
+assert [c["status"] for c in mc.calls] == [200, 404, 201]

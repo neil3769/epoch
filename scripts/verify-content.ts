@@ -441,7 +441,7 @@ function checkLabStructure(lab: Lab, where: string, unit: Unit, isLast: boolean)
     if (countSentences(st.goal) > 3) fail(w, 'goal is more than three sentences');
     if (!st.hints[1].includes('___')) fail(w, 'hint 2 should show the structure with ___ blanks');
     // The last lab of a unit starts every step from an empty function.
-    if (isLast && !/^def [^\n]+:\n {4}pass$/.test(st.starter)) fail(w, 'the last lab of a unit should start each step from an empty function');
+    if (isLast && !/^(async )?def [^\n]+:\n {4}pass$/.test(st.starter)) fail(w, 'the last lab of a unit should start each step from an empty function');
     if (!isLast && st.starter.trim() !== 'pass' && !st.starter.includes('___') && !/pass$/.test(st.starter))
       fail(w, 'starter should leave something to write (___ gaps or an empty function)');
   });
