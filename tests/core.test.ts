@@ -199,3 +199,24 @@ describe('gradient descent helper', () => {
     expect(LRS).toContain(0.5);
   });
 });
+
+import { neuronGoalReachable, outputGoalMet, outputs, preact, reachableWeights } from '../src/lib/neuron';
+
+describe('neuron figure', () => {
+  const layer = { x: [1, 2], W: [[0.5, -1], [1, 1]], b: [0.5, -1] };
+  it('computes W · x + b per neuron, then the activation', () => {
+    expect(preact(layer, layer.W, 0)).toBe(-1);
+    expect(preact(layer, layer.W, 1)).toBe(2);
+    expect(outputs(layer, layer.W)).toEqual([0, 2]);
+    expect(outputs({ ...layer, act: 'none' as const }, layer.W)).toEqual([-1, 2]);
+    expect(outputs({ ...layer, act: 'sigmoid' as const }, layer.W)[1]).toBeCloseTo(0.8808, 4);
+  });
+  it('checks output goals and their reachability', () => {
+    const s = { ...layer, editable: [[0, 1]] as [number, number][], goal: { neuron: 0, output: 3 } };
+    expect(outputGoalMet(s, s.W)).toBe(false);
+    expect(neuronGoalReachable(s)).toBe(true); // 0.5 + 2w + 0.5 = 3 at w = 1
+    expect([...reachableWeights({ ...s, step: 0.25 })].length).toBe(13);
+    expect(neuronGoalReachable({ ...s, goal: { neuron: 0, output: 1.5 } })).toBe(false); // needs w = 0.25
+    expect(neuronGoalReachable({ ...s, step: 0.25, goal: { neuron: 0, output: 1.5 } })).toBe(true);
+  });
+});

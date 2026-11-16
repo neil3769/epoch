@@ -33,6 +33,7 @@ import { fillGaps, countGaps, countSentences, splitLines } from '../src/lib/text
 import { shapeGoalReachable } from '../src/lib/shapes';
 import { resultGrid } from '../src/lib/broadcast';
 import { LRS, goalReachable, stepsToGoal } from '../src/lib/descent';
+import { neuronGoalReachable, outputGoalMet } from '../src/lib/neuron';
 
 const MAX_WIDTH = 38;
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -94,12 +95,21 @@ def _v_grid(a):
 
 let py: PyodideInterface;
 
+/** Every run that uses torch, replayed against real PyTorch by scripts/verify_torch.py. */
+const torchRuns: { where: string; fn: string; arg: unknown; result: unknown; probe?: { expect: string } }[] = [];
+let currentWhere = '';
+/** Set while running a wrong variant (a distractor or another line order) that must NOT give `expect`. */
+let probing: { expect: string } | null = null;
+
 async function call(fn: string, arg: unknown): Promise<any> {
   runs++;
   py.globals.set('_ARG', JSON.stringify(arg));
   const out = await py.runPythonAsync(`${fn}(json.loads(_ARG))`);
   const text = typeof out === 'string' ? out : await out;
-  return JSON.parse(text as string);
+  const result = JSON.parse(text as string);
+  const src = (arg as { src?: unknown }).src;
+  if (typeof src === 'string' && /\btorch\b/.test(src)) torchRuns.push({ where: currentWhere, fn: fn.replace('await ', ''), arg, result, ...(probing ? { probe: probing } : {}) });
+  return result;
 }
 
 interface RunResult {
@@ -149,6 +159,20 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
     if (f.editableLr && !LRS.includes(f.lr)) fail(where, `descent lr ${f.lr} is not a slider value`);
     if (f.goal && !goalReachable(f)) fail(where, 'descent goal is not reachable with any allowed rate');
     if (f.goal && f.editableLr && stepsToGoal(f, f.lr) !== null) fail(where, 'descent goal is already reachable at the starting rate');
+  } else if (f.kind === 'neuron') {
+    if (!rect(f.W)) return fail(where, 'neuron W must be rectangular');
+    if (f.W.length > 3) fail(where, 'neuron figure has at most 3 neurons');
+    if (f.W[0].length !== f.x.length) fail(where, 'neuron W needs one column per input');
+    if (f.b && f.b.length !== f.W.length) fail(where, 'neuron b needs one value per neuron');
+    for (const [i, j] of f.editable ?? []) if (i >= f.W.length || j >= f.x.length) fail(where, 'editable weight outside W');
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal && 'tap' in f.goal && f.goal.tap >= f.W.length) fail(where, 'tap goal is not a neuron');
+    if (f.goal && 'neuron' in f.goal) {
+      if (f.goal.neuron >= f.W.length) fail(where, 'goal neuron does not exist');
+      if (!(f.editable ?? []).length) fail(where, 'an output goal needs editable weights');
+      if (outputGoalMet(f, f.W)) fail(where, 'neuron goal is already met at the start');
+      if (!neuronGoalReachable(f)) fail(where, 'neuron goal is not reachable with the editable weights');
+    }
   } else if (f.kind === 'broadcast') {
     if (!rect(f.A) || !rect(f.B)) return fail(where, 'figure matrices must be rectangular');
     for (const k of f.oneD ?? []) if ((k === 'A' ? f.A : f.B).length !== 1) fail(where, `1-D operand ${k} must be one row`);
@@ -273,6 +297,7 @@ const describe = (ex: Exercise): string => {
 };
 
 async function verifyExercise(ex: Exercise, where: string, prelude: string) {
+  currentWhere = where;
   const P = prelude ? prelude + '\n' : '';
   const offset = prelude ? splitLines(prelude).length : 0;
   let verified = false;
@@ -325,7 +350,9 @@ async function verifyExercise(ex: Exercise, where: string, prelude: string) {
           if (tok === ex.answer[gi]) continue;
           const alt = ex.answer.slice();
           alt[gi] = tok;
+          probing = { expect: ex.expectOutput };
           const ra = await run(P + fillGaps(ex.code, alt));
+          probing = null;
           if (ra.ok && cleanOut(ra.stdout) === ex.expectOutput)
             fail(where, `also correct with "${tok}" in gap ${gi + 1}: the answer is not unique`);
         }
@@ -348,7 +375,9 @@ async function verifyExercise(ex: Exercise, where: string, prelude: string) {
         seen.add(key);
         const prog = texts.slice();
         slots.forEach((slot, k) => (prog[slot] = perm[k]));
+        probing = { expect: ex.expectOutput };
         const ra = await run(P + prog.join('\n'));
+        probing = null;
         if (ra.ok && cleanOut(ra.stdout) === ex.expectOutput) {
           fail(where, `another order also works:\n${prog.join('\n')}`);
           break;
@@ -432,6 +461,7 @@ async function verifyExercise(ex: Exercise, where: string, prelude: string) {
 }
 
 async function verifyCard(card: Card, where: string, prelude: string) {
+  currentWhere = where;
   if (!card.code) return;
   const r = await run((prelude ? prelude + '\n' : '') + card.code);
   if (!r.ok) fail(where, `card code raised ${r.type}: ${r.msg}`);
@@ -456,12 +486,13 @@ function checkLabStructure(lab: Lab, where: string, unit: Unit, isLast: boolean)
     if (!st.hints[1].includes('___')) fail(w, 'hint 2 should show the structure with ___ blanks');
     // The last lab of a unit starts every step from an empty function.
     if (isLast && !/^(async )?def [^\n]+:\n {4}pass$/.test(st.starter)) fail(w, 'the last lab of a unit should start each step from an empty function');
-    if (!isLast && st.starter.trim() !== 'pass' && !st.starter.includes('___') && !/pass$/.test(st.starter))
+    if (!isLast && st.starter.trim() !== 'pass' && !st.starter.includes('___') && !/\bpass$/.test(st.starter))
       fail(w, 'starter should leave something to write (___ gaps or an empty function)');
   });
 }
 
 async function verifyLab(lab: Lab, where: string, prelude: string) {
+  currentWhere = where;
   const P = prelude ? prelude + '\n' : '';
   let soFar = P + (lab.given ? lab.given + '\n' : '');
   for (const [i, st] of lab.steps.entries()) {
@@ -481,6 +512,7 @@ async function verifyLab(lab: Lab, where: string, prelude: string) {
 }
 
 async function verifyLibrary(page: LibraryPage, where: string, prelude: string) {
+  currentWhere = where;
   checkWidth(where, 'example', page.example.code);
   const r = await run((prelude ? prelude + '\n' : '') + page.example.code);
   if (!r.ok) fail(where, `example raised ${r.type}: ${r.msg}`);
@@ -535,7 +567,10 @@ async function main() {
 
   py = await loadPyodide();
   await py.loadPackage(['numpy', 'pydantic', 'pytest'], { messageCallback: () => {} });
-  installSim(py, readFileSync(join(root, 'src', 'python', 'epoch_sim.py'), 'utf8'));
+  installSim(py, readFileSync(join(root, 'src', 'python', 'epoch_sim.py'), 'utf8'), {
+    impl: readFileSync(join(root, 'src', 'python', 'epoch_torch.py'), 'utf8'),
+    facade: readFileSync(join(root, 'src', 'python', 'torch_facade.py'), 'utf8'),
+  });
   await py.runPythonAsync(HARNESS_PY);
   await py.runPythonAsync(VERIFY_PY);
 
@@ -586,6 +621,7 @@ async function main() {
   if (errors.length) lines.push('## Problems', '', ...errors.map((e) => `- ${e}`), '');
   mkdirSync(join(root, 'reports'), { recursive: true });
   writeFileSync(join(root, 'reports', 'content-verification.md'), lines.join('\n'));
+  writeFileSync(join(root, 'reports', 'torch-runs.json'), JSON.stringify(torchRuns, null, 1));
 
   const secs = ((Date.now() - t0) / 1000).toFixed(1);
   if (errors.length) {

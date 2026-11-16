@@ -129,3 +129,25 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   checked; E7 lab 2 step 1 passed in the app.
 - Written units now: F1-F7, E1-E7. Next per brief: F8 Neural networks (neuron/layer figure), F9 PyTorch
   (before January), exam mode (before January), E11 Interview practice (January), then F10, F11, E8-E10.
+
+## Phase 4, units F8 and F9, 2026-11-16 — DONE (exam mode next)
+- New figure: neuron and layer (src/figures/NeuronFigure.tsx, src/lib/neuron.ts; schema kind `neuron`:
+  inputs, W with one row per neuron, b, activation, optional W @ x + b matrix view, goals "tap a neuron"
+  or "nudge a weight until a neuron outputs N"; verifier checks reachability; unit tests).
+- F8 Neural networks (12 lessons; weights stored PyTorch-style, layer = X @ W.T + b). Labs: forward pass
+  with scaffolding; two-layer network learning |x| from empty functions (backward checked against
+  nudging in the tests). Library page.
+- F9 PyTorch (14 lessons; 12-14 rebuild the five-line loop with less help each time, ending at a blank
+  editor in the checkpoint). Labs: first model with scaffolding; classifier with DataLoader from empty
+  functions. Library page.
+- PyTorch in the app: src/python/epoch_torch.py, a NumPy stand-in with PyTorch's interface (tensors,
+  autograd, nn, optim, utils.data), loaded as `torch` by src/python/torch_facade.py in the worker and
+  the verifier. verify-content records every torch run (reports/torch-runs.json, not committed);
+  `npm run verify-torch` replays them with real PyTorch (local 2.7.1): 383 runs, 0 differences
+  (reports/torch-crosscheck.md). Wrong variants are only required to stay wrong.
+- Schema: run-code maxLines now 1-10 (whole-loop exercises); order-lines up to 16 lines.
+- Fixed an old control character in verify-content's lab-starter regex (/\bpass$/).
+- Browser at 390 px: 238 F8/F9 screens, no overflow (the symbol-key row scrolls by design); both neuron
+  figure goals checked; an F9 run-code exercise graded correct in the app's worker; labs open cleanly.
+- Written units now: F1-F9, E1-E7. Next: exam mode (before January), then E11 (January), F10, F11, E8-E10,
+  then the System Design track.

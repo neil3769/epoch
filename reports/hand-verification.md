@@ -513,3 +513,69 @@ Judgement items:
 | f7-9-7 | train / validation / test / shuffle jobs | Standard. Correct. |
 | f7-10-5 | Overfitting: keep the best epoch | Early stopping. Correct. |
 | f7-10-8 | Final score on the test set | Standard. Correct. |
+
+# Hand verification, Phase 4: units F8 and F9
+
+All numeric snippets, fill-ins, spot-the-bug errors, labs (F8 lab 2's backward pass is checked
+against nudging inside its tests) and Library examples are executed. New figure: neuron and layer;
+`src/lib/neuron.ts` is unit-tested, and the verifier checks each output goal is reachable with the
+editable weights and not met at the start. Figure goals: f8-1-3 (2·1 + 1·w = 3 at w = 1, from −1),
+f8-2-3 (relu(w − 2) = 2 at w = 4, from −1), f8-3-1 (row 2: −2 + 0.5 = −1.5 → 0; rows 1 and 3 give
+3 and 1.5), f8-12-2 (relu(w + 2) = 3 at w = 1, from −1).
+
+F9 runs on a NumPy stand-in for PyTorch (`src/python/epoch_torch.py`), since Pyodide has no PyTorch.
+`npm run verify-torch` replays every run that uses torch (383) with real PyTorch 2.7.1 on this
+machine: all printed output, error types and messages agree. Wrong variants (fill-in distractors,
+other line orders) are checked only to stay wrong on real PyTorch, since their random-weight
+results differ. Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| f8-1-2 | Bias shifts the sum | Added once, independent of inputs. Correct. |
+| f8-1-6 | 4 inputs: 4 weights + 1 bias | Definition. Correct. |
+| f8-2-4 | Probability output: sigmoid | Range (0, 1). Correct. |
+| f8-3-4 | 5 neurons on 3 inputs: W is (5, 3) | One row per neuron. Correct. |
+| f8-4-2 | (32, 10) @ (10, 64) = (32, 64) | Shapes. Correct. |
+| f8-5-2 | W2 for 1 output after 16 hidden: (1, 16) | (outputs, inputs). Correct. |
+| f8-5-6 | Forward pass: input to output | Definition. Correct. |
+| f8-6-1 | \|x\| needs a ReLU between layers | relu(x) + relu(−x). Correct. |
+| f8-6-4 | ReLU after hidden only, for prices | Output must reach any value. Correct. |
+| f8-6-7 | No activations: one linear layer | Product of matrices. Correct. |
+| f8-7-2 | forward returns Z1, H for backward | Used in dW1 and the ReLU mask. Correct. |
+| f8-7-7 | Loss is one number to minimise | Gradient descent on a scalar. Correct. |
+| f8-8-2 | dL/dw = −16: raise w | Step against the sign. Correct. |
+| f8-8-6 | Backwards: each step needs the gradient above | Chain rule. Correct. |
+| f8-9-2 | db sums over examples | b broadcast to every row. Correct. |
+| f8-10-2 | ReLU slope 1 if positive, else 0 | Definition (0 at 0, as in PyTorch). Correct. |
+| f8-10-5 | Always-negative input: weights stop changing | Dead ReLU. Correct. |
+| f8-11-2 | Rising loss after new backward: nudge-check | Gradient check. Correct. |
+| f8-11-6 | Nudge 6 vs backprop 3: bug | Central differences are accurate to ~1e-8. Correct. |
+| f8-12-4 | 10 neurons × 20 inputs: 200 weights, 10 biases | Counting. Correct. |
+| f8-12-6 | Activations stop layers merging | As f8-6-7. Correct. |
+| f9-1-3 | torch.tensor([1, 2, 3]) is int64 | PyTorch docs; executed in f9-02 card. Correct. |
+| f9-2-2 | backward: gradients for tracked tensors | Autograd docs. Correct. |
+| f9-2-7 | Autograd replaces hand-written dW | Same mathematics. Correct. |
+| f9-3-2 | Clear grads: they accumulate | Executed in f9-3-1. Correct. |
+| f9-3-7 | no_grad: not recorded | Docs. Correct. |
+| f9-4-2 | Linear(4, 8).weight is (8, 4) | Docs; executed in the f9-04 card. Correct. |
+| f9-4-7 | Linear computes x @ W.T + b | Docs. Correct. |
+| f9-5-3 | forward wires the layers | Docs. Correct. |
+| f9-6-2 | Digits: CrossEntropyLoss | Multi-class. Correct. |
+| f9-6-7 | No softmax before CrossEntropyLoss | It applies log-softmax (docs). Correct. |
+| f9-7-2 | step moves parameters downhill | SGD: p −= lr·grad. Correct. |
+| f9-7-6 | Adam adapts per-parameter steps | Kingma & Ba. Correct. |
+| f9-8-3 | zero_grad before backward | Accumulation. Correct. |
+| f9-8-6 | Full-batch epoch: one pass | Definition. Correct. |
+| f9-9-2 | Shuffle: new batches each epoch | Standard. Correct. |
+| f9-9-6 | Smaller batches: more, noisier steps | Standard. Correct. |
+| f9-10-2 | "same device" error: model and data apart | Message text. Correct. |
+| f9-10-4 | .to: model once, every batch | Standard. Correct. |
+| f9-10-7 | is_available keeps code portable | Standard. Correct. |
+| f9-11-1 | (64x3 and 4x8): 3 features, layer wants 4 | mat1 is the batch, mat2 is W.T. Correct. |
+| f9-11-6 | "expected Long": labels .long() | Executed in f9-6-3. Correct. |
+| f9-12-2 | five lines ↔ five jobs | As taught. Correct. |
+| f9-12-5 | First line: pred = model(x) | Everything depends on it. Correct. |
+| f9-12-7 | No zero_grad: gradients pile up | Executed in f9-7-3. Correct. |
+| f9-13-5 | Batch loop inside the epoch loop | Standard. Correct. |
+| f9-14-3 | predict, loss, zero_grad, backward, step | As taught (zero_grad may come first). Correct. |
+| f9-14-8 | No GPU: choose the device with is_available | As f9-10-7. Correct. |

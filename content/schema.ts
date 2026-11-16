@@ -90,12 +90,31 @@ export const DescentFigureSchema = z.object({
   goal: z.object({ within: z.number().positive(), maxSteps: z.number().int().min(1) }).optional(),
 });
 
+export const NeuronFigureSchema = z.object({
+  kind: z.literal('neuron'),
+  /** Input values. */
+  x: z.array(z.number()).min(1).max(4),
+  /** One row of weights per neuron (1 to 3 neurons). */
+  W: Matrix,
+  /** One bias per neuron (default 0). */
+  b: z.array(z.number()).optional(),
+  act: z.enum(['relu', 'sigmoid', 'none']).optional(),
+  /** Also show the layer as W @ x + b = z. */
+  matrix: z.boolean().optional(),
+  /** Weights the learner can nudge up and down by `step`, as [neuron, input]. */
+  editable: z.array(Cell).optional(),
+  step: z.number().positive().optional(),
+  /** Goal: tap this neuron, or get this neuron's output to this value. */
+  goal: z.union([z.object({ tap: z.number().int().min(0) }), z.object({ neuron: z.number().int().min(0), output: z.number() })]).optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
   ShapeFigureSchema,
   BroadcastFigureSchema,
   DescentFigureSchema,
+  NeuronFigureSchema,
 ]);
 
 // ---- exercises -------------------------------------------------------------
@@ -149,7 +168,7 @@ export const OrderLinesSchema = z.object({
   ...base,
   type: z.literal('order-lines'),
   /** Lines in the correct order. `fixed` lines stay in place and are not shuffled. */
-  lines: z.array(z.object({ text: z.string(), fixed: z.boolean().optional() })).min(3).max(8),
+  lines: z.array(z.object({ text: z.string(), fixed: z.boolean().optional() })).min(3).max(16),
   /** Output of the correct program. verify-content also checks no other order gives it. */
   expectOutput: z.string(),
   explain: z.string(),
@@ -196,7 +215,8 @@ export const RunCodeSchema = z.object({
   solution: z.string(),
   /** Hidden tests: Python asserts with a message describing the failing case. */
   tests: z.string(),
-  maxLines: z.union([z.literal(1), z.literal(2)]).optional(),
+  /** Rows in the editor: 1 or 2 for most exercises; up to 10 for writing a whole loop from memory. */
+  maxLines: z.number().int().min(1).max(10).optional(),
   placeholder: z.string().optional(),
   explain: z.string(),
 });
@@ -316,6 +336,7 @@ export type StepperFigureSpec = z.infer<typeof StepperFigureSchema>;
 export type ShapeFigureSpec = z.infer<typeof ShapeFigureSchema>;
 export type BroadcastFigureSpec = z.infer<typeof BroadcastFigureSchema>;
 export type DescentFigureSpec = z.infer<typeof DescentFigureSchema>;
+export type NeuronFigureSpec = z.infer<typeof NeuronFigureSchema>;
 export type Exercise = z.infer<typeof ExerciseSchema>;
 export type ExerciseType = Exercise['type'];
 export type ExerciseOf<T extends ExerciseType> = Extract<Exercise, { type: T }>;

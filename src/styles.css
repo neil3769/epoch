@@ -1997,3 +1997,96 @@ mark {
   font-size: 14px;
   color: var(--muted);
 }
+
+/* neuron and layer figure */
+.nf-plot {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-width: 420px;
+  margin: 0 auto 6px;
+}
+.nf-edge {
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.nf-edge.on {
+  stroke: var(--primary);
+  stroke-width: 2.5;
+}
+.nf-edge.off {
+  opacity: 0.45;
+}
+.nf-w {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--text);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+}
+.nf-in {
+  fill: var(--surface);
+  stroke: var(--muted);
+  stroke-width: 2;
+}
+.nf-node {
+  fill: var(--surface);
+  stroke: var(--text);
+  stroke-width: 2;
+}
+.nf-node.on {
+  stroke: var(--primary);
+  stroke-width: 3;
+}
+.nf-node.good {
+  stroke: var(--good);
+  stroke-width: 3;
+}
+.nf-node.bad {
+  stroke: var(--bad);
+  stroke-width: 3;
+}
+.nf-tap {
+  cursor: pointer;
+}
+.nf-tap:focus-visible {
+  outline: none;
+}
+.nf-tap:focus-visible .nf-node {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+.nf-val {
+  font-family: var(--mono);
+  font-size: 14px;
+  fill: var(--text);
+}
+.nf-out {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--text);
+}
+.nf-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 2px;
+  font-size: 15px;
+  color: var(--muted);
+}
+.nf-edit span {
+  flex: 1;
+}
+.nf-edit b {
+  min-width: 3ch;
+  text-align: center;
+  font-family: var(--mono);
+  color: var(--text);
+}
+.nf-edit .btn {
+  min-width: 44px;
+  min-height: 44px;
+}

@@ -3,6 +3,8 @@
 // this must be a module worker (classic importScripts workers are no longer
 // supported). Loaded only when a run-code exercise is reached.
 import SIM_PY from './epoch_sim.py?raw';
+import TORCH_PY from './epoch_torch.py?raw';
+import TORCH_FACADE_PY from './torch_facade.py?raw';
 import { HARNESS_PY, installSim } from './harness';
 import { PYODIDE_INDEX_URL } from './version';
 
@@ -21,7 +23,7 @@ async function init() {
   py = await mod.loadPyodide({ indexURL: PYODIDE_INDEX_URL });
   post({ type: 'stage', stage: 'Loading NumPy' });
   await py.loadPackage('numpy', { messageCallback: () => {} });
-  installSim(py, SIM_PY);
+  installSim(py, SIM_PY, { impl: TORCH_PY, facade: TORCH_FACADE_PY });
   await py.runPythonAsync(HARNESS_PY);
   // Import once now so the learner's first Run is not slowed by it.
   await py.runPythonAsync('import numpy');
@@ -44,7 +46,8 @@ self.onmessage = async (e: MessageEvent<Msg>) => {
       await (ready ??= init());
       // Packages beyond NumPy (e.g. pydantic) load the first time code imports them,
       // then come from the service-worker cache.
-      await py.loadPackagesFromImports(msg.code, { messageCallback: () => {} });
+      // `torch` is the local stand-in, not a Pyodide package.
+      await py.loadPackagesFromImports(msg.code.replace(/^\s*(import|from)\s+torch\b.*$/gm, ''), { messageCallback: () => {} });
       py.globals.set('_EPOCH_SRC', msg.code);
       const out = await py.runPythonAsync('await _epoch_run_json(_EPOCH_SRC)');
       post({ type: 'result', id: msg.id, result: JSON.parse(out) });

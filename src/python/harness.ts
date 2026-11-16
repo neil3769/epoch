@@ -22,8 +22,10 @@ def _epoch_prep(src):
 async def _epoch_exec(src, g=None):
     if g is None:
         g = {"__name__": "__main__"}
-    # Fresh simulated services (clock, scripts, call logs) for every run.
-    sys.modules.pop("epoch_sim", None)
+    # Fresh simulated services (clock, scripts, call logs) and a fresh
+    # PyTorch stand-in (random seed) for every run.
+    for _m in [m for m in sys.modules if m in ("epoch_sim", "epoch_torch", "torch") or m.startswith("torch.")]:
+        sys.modules.pop(_m, None)
     buf = io.StringIO()
     res = {"stdout": "", "ok": True, "type": None, "msg": None, "line": None}
     try:
@@ -52,8 +54,19 @@ async def _epoch_run_json(src):
     return json.dumps(res)
 `;
 
-/** Write the simulated-services module where `import epoch_sim` finds it. */
-export function installSim(py: { FS: { mkdirTree(p: string): void; writeFile(p: string, d: string): void } }, source: string) {
+/**
+ * Write the simulated-services module where `import epoch_sim` finds it, and
+ * the PyTorch stand-in where `import torch` finds it.
+ */
+export function installSim(
+  py: { FS: { mkdirTree(p: string): void; writeFile(p: string, d: string): void } },
+  source: string,
+  torch?: { impl: string; facade: string },
+) {
   py.FS.mkdirTree('/epoch');
   py.FS.writeFile('/epoch/epoch_sim.py', source);
+  if (torch) {
+    py.FS.writeFile('/epoch/epoch_torch.py', torch.impl);
+    py.FS.writeFile('/epoch/torch.py', torch.facade);
+  }
 }
