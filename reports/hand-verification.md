@@ -579,3 +579,61 @@ results differ. Judgement items:
 | f9-13-5 | Batch loop inside the epoch loop | Standard. Correct. |
 | f9-14-3 | predict, loss, zero_grad, backward, step | As taught (zero_grad may come first). Correct. |
 | f9-14-8 | No GPU: choose the device with is_available | As f9-10-7. Correct. |
+
+# Hand verification, Phase 4: unit E11 (Interview practice)
+
+Sources: the plan document's interview-prep list (topics only: RAG vs fine-tuning vs long context,
+evaluating an LLM app, reducing hallucinations, latency and cost, prompt injection, when not to use an
+agent; four practice designs: support chatbot over 10,000 documents, document extraction, data-analysis
+agent, code-review assistant); Anthropic, "Building effective agents"; OWASP Top 10 for LLM Applications
+2025 (LLM01 prompt injection, LLM06 excessive agency); units E3-E7 of this app. All arithmetic, design
+pipelines (written with step(), so a wrong order fails when run), coding patterns, labs and the Library
+example are executed. Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e11-1-1 | 10,000 changing pages: RAG | Large, changing, needs citations. Correct. |
+| e11-1-2 | Style still wrong after prompting, 5,000 examples: fine-tune | Behaviour, prompting exhausted. Correct. |
+| e11-1-3 | One fixed 40-page contract: long context | Fits the window (~30k tokens). Correct. |
+| e11-1-5 | changing → RAG; short manual → long context; style → fine-tuning | As taught. Correct. |
+| e11-2-1 | Start with a golden set of real questions | Standard practice. Correct. |
+| e11-2-2 | total → exact; answer → rubric judge; retrieval → hit rate; spam → P/R | E5. Correct. |
+| e11-2-5 | Check a judge against your own labels | Judge biases are documented. Correct. |
+| e11-2-8 | 82 → 84% on 50 is one question: look closer | 1/50 is within noise. Correct. |
+| e11-3-1 | Answer only from retrieved policy text | Grounding. Correct. |
+| e11-3-4 | Temperature: consistency, not truth | Greedy decoding still errs. Correct. |
+| e11-3-5 | Check claims against the cited text | Citation existence ≠ support. Correct. |
+| e11-3-8 | Uncovered questions: say so, offer a human | Refusal. Correct. |
+| e11-4-2 | p95: the mean hides the slow tail | Executed numbers in e11-4-3. Correct. |
+| e11-4-4 | Streaming improves time to first token | Same total generation. Correct. |
+| e11-4-7 | Repeated preamble: prompt caching, trim | Provider prompt caching. Correct. |
+| e11-4-8 | Routing: check quality on routed traffic | Before/after. Correct. |
+| e11-5-1 | Fetched page with instructions: injection | Indirect injection. Correct. |
+| e11-5-2 | Email-sending agent: human approval | Control outside the model. Correct. |
+| e11-5-4 | Indirect: arrives via fetched content | OWASP LLM01. Correct. |
+| e11-5-7 | Read-only DB user | Least privilege (LLM06). Correct. |
+| e11-5-8 | System prompts help but cannot be relied on | One token stream. Correct. |
+| e11-6-2 | Invoice fields: one structured call | Fixed steps. Correct. |
+| e11-6-3 | Unknown repo bug: agent | Steps depend on findings. Correct. |
+| e11-6-4 | Classify then route: workflow | Routing pattern. Correct. |
+| e11-6-6 | form → one call; summarise+translate → chain; web research → agent | As taught. Correct. |
+| e11-6-7 | Why no agent: fixed steps, cost and risk | Trade-off. Correct. |
+| e11-7-3 | Chunks of a few hundred tokens | Common default; tune on golden set. Correct. |
+| e11-7-4 | Error codes: hybrid search | Exact tokens + meaning (E6). Correct. |
+| e11-7-5 | Passage not retrieved: fix retrieval | Generation never saw it. Correct. |
+| e11-7-8 | Daily changes: re-embed changed pages | Incremental indexing. Correct. |
+| e11-8-2 | Schema checks shape, not truth | Business rules. Correct. |
+| e11-8-5 | Still failing after retry: human queue | Bounded retries. Correct. |
+| e11-8-7 | 50,000/day: small model, escalate failures | Routing on validation. Correct. |
+| e11-9-2 | Read-only with row and time limits | Least privilege. Correct. |
+| e11-9-3 | Schemas and sample rows in the prompt | Code reads the data. Correct. |
+| e11-9-6 | Show the query and result table | Verifiability. Correct. |
+| e11-9-8 | Injected cell: results are data, no email tool | Least privilege. Correct. |
+| e11-10-2 | Precision (comments acted on) | Noise gets ignored. Correct. |
+| e11-10-4 | Huge diff: per file, skip generated | Context limits. Correct. |
+| e11-10-5 | Bot can comment, never approve | Excessive agency. Correct. |
+| e11-10-8 | Same issue 12 times: one grouped comment | Noise. Correct. |
+| e11-11-8 | Retry 429 and 5xx | E2. Correct. |
+| e11-12-1 | 2 million pages, citations: RAG | As e11-1-1. Correct. |
+| e11-12-3 | Hallucinations: ground in sources | As e11-3-1. Correct. |
+| e11-12-10 | Five categories: one classification call | Fixed step. Correct. |

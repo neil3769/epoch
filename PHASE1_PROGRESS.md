@@ -163,3 +163,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - Tests: active range, review goal, streak on one review a day, allowed units, Continue after a paused
   unit, lab rewrites, import defaults. Checked in the browser at 390 px (settings, home, both tabs).
 - Next: E11 Interview practice (needed in January), then F10, F11, E8-E10, then System Design.
+
+## Phase 4, unit E11 (Interview practice), 2026-11-16 — DONE
+- 12 lessons from the plan's interview-prep list: RAG vs fine-tuning vs long context, evaluating an LLM
+  app, hallucinations, latency and cost, prompt injection, when not to use an agent; the four practice
+  designs (support chatbot over 10,000 docs, document extraction, data-analysis agent, code-review
+  assistant), built by ordering stages written with the prelude's step(name, *inputs) so data flow fixes
+  the order; coding patterns; checkpoint. Numbers in every answer (cost, p95, compounding reliability).
+- Labs: interview numbers (scaffolded); coding patterns from empty functions (backoff, chunking with
+  overlap, batching, cosine top-k, JSON from a reply, retry wrapper). Library page.
+- Browser at 390 px: 112 E11 screens and both labs, no overflow.
+- Written units now: F1-F9, E1-E7, E11. Next: F10 Text as numbers, F11 Attention and transformers,
+  E8-E10 (weeks 8-13, March), then the System Design track.

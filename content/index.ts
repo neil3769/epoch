@@ -15,6 +15,7 @@ import { e4 } from './units/e4';
 import { e5 } from './units/e5';
 import { e6 } from './units/e6';
 import { e7 } from './units/e7';
+import { e11 } from './units/e11';
 
 export type Track = 'foundations' | 'engineering';
 
@@ -28,7 +29,7 @@ export interface UnitEntry {
   unit?: Unit;
 }
 
-const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7 };
+const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7, E11: e11 };
 
 const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'F1', track: 'foundations', title: 'Python you will see in ML code', planned: 12 },
