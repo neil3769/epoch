@@ -310,3 +310,73 @@ result instead of an error. Judgement items:
 | f2-7-7 | Cosine 0.92 → nearly the same direction | cos θ = 0.92 ⇒ θ ≈ 23°. Correct. |
 | f2-8-4 | Cosine similarity for meaning | Direction comparison, standard for embeddings. Correct. |
 | f2-8-9 | a+b vector; 3a longer same direction; a@b one number; cosine in [-1, 1] | Definitions. Correct. |
+
+# Hand verification, Phase 4: unit F4 (NumPy)
+
+Every snippet, shape, number grid, fill-in, spot-the-bug error, both labs and the Library example
+are executed; f4-11-7 also carries an executed `check` (the right pair broadcasts, both wrong pairs
+raise ValueError). Integer dtype names are kept out of printed answers because Pyodide (wasm32)
+uses int32 where 64-bit computers use int64; f4-3-4's wrong option "int64" is wrong on both.
+The broadcasting figure's rules are unit-tested against NumPy's (tests/core.test.ts), and each
+figure goal is checked against its arrays. Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| f4-1-7 | Arrays let maths apply to every number at once | Vectorised ufuncs; the commas are cosmetic. Correct. |
+| f4-2-4 | 32 greyscale 28×28 images: (32, 28, 28) | Batch-first convention (NumPy/PyTorch data loaders). Correct. |
+| f4-6-4 | `batch = X[:32]; batch /= 10` changes X's first 32 rows | Basic slicing returns a view; in-place ops write through. Correct. |
+| f4-7-7 | `&` combines masks item by item; `and` needs one truth value | `and` calls `bool()` on the array → ambiguous-truth ValueError. Correct. |
+| f4-9-6 | `P.argmax(axis=1)` is the predicted class per example | Column index of each row's max. Correct. |
+| f4-11-1/2, f4-14-3 | Figure goals: A[1,2]+b[2] = 6+30; A[1,1]+B[1,0] = 5+200; c[2,0]+b[1] = 3+20 | Cells (1,2), (1,1), (2,1) of the stretched results. Correct. |
+| f4-12-7 | Standardise with axis=0 (per feature) | Each column has its own units/range. Correct. |
+| f4-13-6 | Vectorised code is faster because the loop runs in compiled code | Python per-iteration overhead vs one C loop. Correct. |
+| f4-14-9 | Replace the per-row loop with `X @ w` | Matrix-vector product = all row dot products. Correct. |
+
+# Hand verification, Phase 4: unit E6 (Retrieval)
+
+Sources used: standard RAG practice as described in provider and library documentation
+(chunking with overlap; BM25 for keyword search; reciprocal rank fusion with k = 60, from
+Cormack, Clarke and Büttcher 2009; cross-encoder rerankers applied to a retrieved candidate set).
+No provider-specific API is taught, so nothing here depends on an SDK version. All code runs
+against `sim.DOCS` and `sim.embed` and is executed; the probe of the toy embeddings that the
+lessons rely on: "reset my password" ranks d6 (0.949) above d1 (0.889); "What does the paid plan
+cost?" ranks d2 (1.0) above d7 (0.97); "capital of France" scores 0 everywhere; "login link
+expired" peaks at 0.808 (d1). Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e6-1-1 | Weekly-changing help pages: retrieve into the prompt | Fine-tuning needs retraining per change and gives no sources; full paste costs tokens and dilutes. Correct. |
+| e6-1-2 | chunk/embed/retrieve/generate jobs | Pipeline definitions. Correct. |
+| e6-1-4 | Passages in the prompt let the model answer from your text | In-context only; weights unchanged. Correct. |
+| e6-1-6 | Rewording a sentence gains nothing from retrieval | Needs no outside facts. Correct. |
+| e6-1-7 | 2M tokens of docs vs 200k context: retrieval picks the relevant passages | Selection, not compression. Correct. |
+| e6-2-3 | 5,000-token chunks mix topics and fill the prompt | One vector averages many topics; irrelevant text per hit. Correct. |
+| e6-2-4 | Split rule: overlap or split at paragraph ends | Keeps the exception with its rule. Correct. |
+| e6-3-2 | Chunk embeddings computed once, at indexing | Re-embed only on change. Correct. |
+| e6-3-5 | k = 3 when 5 chunks are needed: two chunks' facts never reach the model | Model sees only the prompt. Correct. |
+| e6-3-7 | A vector database finds nearest vectors fast | ANN indexes (HNSW, IVF). Correct. |
+| e6-4-2 | Error code E-4012: keyword search | Exact token match; embeddings blur codes. Correct. |
+| e6-4-3 | "stop paying" vs "cancel": vector search | No shared words; paraphrase. Correct. |
+| e6-4-5 | BM25 weights "refund" over "the": "the" is in almost every page | IDF term. Correct. |
+| e6-4-7 | codes/IDs → keyword; described problems/paraphrases → vector | As above. Correct. |
+| e6-5-2 | RRF uses ranks because BM25 and cosine scales differ | RRF needs no score normalisation. Correct. |
+| e6-5-4 | d1 (both lists) beats d6 (vector top only) | 1/61 + 1/62 > 1/61 (executed check). Correct. |
+| e6-5-7 | Hybrid worth it when queries mix meaning and exact terms | Covers both failure modes. Correct. |
+| e6-6-1 | Reranking everything is too slow | One model call per chunk. Correct. |
+| e6-6-2 | Rerankers read question and chunk together | Cross-encoder vs bi-encoder. Correct. |
+| e6-6-4 | Right chunk often missing after retrieve 5 / rerank 3: retrieve more first | Reranker only reorders candidates. Correct. |
+| e6-6-7 | Reranker sits between search and the prompt | Pipeline order. Correct. |
+| e6-7-4 | Citation of an id never sent: treat as unsupported | The model did not see it in this call. Correct. |
+| e6-7-6 | Citations let the user check the answer | Traceability. Correct. |
+| e6-8-1 | Off-topic question: say it cannot answer | Top-k always returns something; refuse. Correct. |
+| e6-8-3 | Good 0.6–0.9, off-topic 0.0–0.3: floor about 0.45 | Between the two groups. Correct. |
+| e6-8-5 | Floor passed but answer absent: instruct the model to say it does not know | Second guard after retrieval. Correct. |
+| e6-9-1 | Right page retrieved, wrong answer: generation failed | d2 says monthly plans are not refunded. Correct. |
+| e6-9-2 | Reset page not retrieved: retrieval failed | d6 retrieved instead of d1. Correct. |
+| e6-9-3 | Exact product names missed: add keyword search | Keyword strength. Correct. |
+| e6-9-4 | Right chunk at rank 9 with k = 5: retrieval; raise k or rerank | Never reaches the prompt. Correct. |
+| e6-9-7 | Log retrieved ids to tell the stages apart | Diagnosis. Correct. |
+| e6-10-1 | Annual refund within 14 days citing d2: no failure | d2: "Annual plans can be refunded within 14 days of purchase." Correct. |
+| e6-10-4 | Many phrasings of one intent: vector search | Paraphrases. Correct. |
+| e6-10-8 | 95% retrieval hit rate, 30% wrong answers: work on generation first | Most errors happen after retrieval. Correct. |
+| e6-10-9 | codes → keyword; rank 20 → retrieve more then rerank; off-topic → floor; cut rules → overlap | As taught. Correct. |

@@ -2,11 +2,13 @@ import type { Unit } from './schema';
 import { f1 } from './units/f1';
 import { f2 } from './units/f2';
 import { f3 } from './units/f3';
+import { f4 } from './units/f4';
 import { e1 } from './units/e1';
 import { e2 } from './units/e2';
 import { e3 } from './units/e3';
 import { e4 } from './units/e4';
 import { e5 } from './units/e5';
+import { e6 } from './units/e6';
 
 export type Track = 'foundations' | 'engineering';
 
@@ -20,7 +22,7 @@ export interface UnitEntry {
   unit?: Unit;
 }
 
-const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5 };
+const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6 };
 
 const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'F1', track: 'foundations', title: 'Python you will see in ML code', planned: 12 },
@@ -39,7 +41,7 @@ const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'E3', track: 'engineering', title: 'Calling an LLM', planned: 10 },
   { id: 'E4', track: 'engineering', title: 'Prompts and context', planned: 7 },
   { id: 'E5', track: 'engineering', title: 'Evaluation', planned: 11 },
-  { id: 'E6', track: 'engineering', title: 'Retrieval (RAG)', planned: 9 },
+  { id: 'E6', track: 'engineering', title: 'Retrieval (RAG)', planned: 10 },
   { id: 'E7', track: 'engineering', title: 'Agents', planned: 10 },
   { id: 'E8', track: 'engineering', title: 'Shipping a service', planned: 12 },
   { id: 'E9', track: 'engineering', title: 'Cost, latency, observability', planned: 8 },

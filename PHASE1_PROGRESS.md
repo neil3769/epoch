@@ -103,3 +103,16 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - Fixed: number-grid crashed for a scalar expression like `3 * v` (display and wrong-answer explanation); test added.
 - Note: NumPy in Pyodide (wasm) cannot raise floating-point errors (errstate / warnings-as-errors do nothing).
 - Written units now: F1, F2, F3, E1, E2, E3, E4, E5. Next per brief: F4 (NumPy), then E6 (week 5, 30 Nov), F5...
+
+## Phase 4, units F4 (NumPy) and E6 (Retrieval), 2026-11-16 — DONE
+- New figure: broadcasting visualiser (src/figures/BroadcastFigure.tsx, src/lib/broadcast.ts; schema kind
+  `broadcast` with A, B, optional oneD/op/goal; verifier checks shapes and goal; unit tests vs NumPy rules).
+- content/units/f4.ts + f4-more.ts (14 lessons), labs/f4.ts (grade book; vectorised pipeline from empty
+  functions), library/f4.ts. Integer dtype names kept out of printed answers (Pyodide is wasm32: int32).
+- content/units/e6.ts + e6-more.ts (10 lessons: planned count raised from 9 to give "which stage failed?"
+  its own lesson before the checkpoint), labs/e6.ts (chunk + keyword/vector/hybrid search; answer-or-refuse
+  pipeline with citation check and hit rate from empty functions), library/e6.ts.
+- Browser: 196 F4/E6 exercises swept at 390 px (no overflow); broadcast figure stretch/tap checked;
+  E6 lab 2 step 3 passed in the app.
+- Written units now: F1-F4, E1-E6. Next per brief: E7 Agents (weeks 5-7, by 20 Dec), F5..F11 (F9 before
+  January), exam mode before January.

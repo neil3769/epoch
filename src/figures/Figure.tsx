@@ -1,4 +1,5 @@
 import type { FigureSpec } from '../../content/schema';
+import { BroadcastFigure } from './BroadcastFigure';
 import { CompareFigure } from './CompareFigure';
 import { ShapeChecker } from './ShapeChecker';
 import { StepperFigure } from './StepperFigure';
@@ -12,5 +13,7 @@ export function Figure({ spec, onGoal }: { spec: FigureSpec; onGoal?: () => void
       return <StepperFigure spec={spec} onGoal={onGoal} />;
     case 'shape-checker':
       return <ShapeChecker spec={spec} onGoal={onGoal} />;
+    case 'broadcast':
+      return <BroadcastFigure spec={spec} onGoal={onGoal} />;
   }
 }

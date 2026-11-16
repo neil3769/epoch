@@ -31,6 +31,7 @@ import {
 import { HARNESS_PY, installSim } from '../src/python/harness';
 import { fillGaps, countGaps, countSentences, splitLines } from '../src/lib/text';
 import { shapeGoalReachable } from '../src/lib/shapes';
+import { resultGrid } from '../src/lib/broadcast';
 
 const MAX_WIDTH = 38;
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -142,6 +143,13 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
       if (f.kind === 'compare' && !(f.panels ?? ['elementwise', 'matmul']).includes(f.goal.panel))
         fail(where, 'goal panel is not shown');
     }
+  } else if (f.kind === 'broadcast') {
+    if (!rect(f.A) || !rect(f.B)) return fail(where, 'figure matrices must be rectangular');
+    for (const k of f.oneD ?? []) if ((k === 'A' ? f.A : f.B).length !== 1) fail(where, `1-D operand ${k} must be one row`);
+    const g = resultGrid(f.A, f.B);
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal && !g) fail(where, 'broadcast goal on arrays that cannot broadcast');
+    if (f.goal && g && (f.goal.cell[0] >= g[0] || f.goal.cell[1] >= g[1])) fail(where, 'goal cell outside the result');
   } else {
     if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
     if (f.goal && !shapeGoalReachable(f)) fail(where, 'shape-checker goal is not reachable with the editable dims');

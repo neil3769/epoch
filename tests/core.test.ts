@@ -164,3 +164,21 @@ describe('number grid with a scalar or a longer expression', () => {
     }
   });
 });
+
+import { broadcastShape, checkDims, resultGrid, stretch } from '../src/lib/broadcast';
+
+describe('broadcasting helper (matches NumPy rules)', () => {
+  it('lines shapes up from the right', () => {
+    expect(broadcastShape([2, 3], [3])).toEqual([2, 3]);
+    expect(broadcastShape([3, 1], [1, 4])).toEqual([3, 4]);
+    expect(broadcastShape([2, 3], [2])).toBeNull();
+    expect(broadcastShape([3, 1], [3])).toEqual([3, 3]);
+    expect(checkDims([2, 3], [3]).map((d) => d.verdict)).toEqual(['stretchB', 'match']);
+    expect(checkDims([2, 3], [2, 2]).map((d) => d.verdict)).toEqual(['match', 'clash']);
+  });
+  it('stretches grids by copying', () => {
+    expect(resultGrid([[1], [2]], [[10, 20, 30]])).toEqual([2, 3]);
+    expect(stretch([[1], [2]], 2, 3)).toEqual([[1, 1, 1], [2, 2, 2]]);
+    expect(resultGrid([[1, 2]], [[1, 2, 3]])).toBeNull();
+  });
+});

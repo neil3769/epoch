@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type CellTone = 'row' | 'col' | 'pair' | 'pick' | 'good' | 'bad' | 'dim' | undefined;
+export type CellTone = 'row' | 'col' | 'pair' | 'pick' | 'good' | 'bad' | 'dim' | 'copy' | undefined;
 
 export const fmt = (n: number) => (Number.isInteger(n) ? String(n) : String(+n.toFixed(2))).replace('-', '−');
 

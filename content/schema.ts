@@ -65,10 +65,22 @@ export const ShapeFigureSchema = z.object({
   goal: z.object({ result: Shape2.optional() }).optional(),
 });
 
+export const BroadcastFigureSchema = z.object({
+  kind: z.literal('broadcast'),
+  A: Matrix,
+  B: Matrix,
+  /** Operands that are 1-D arrays, drawn as one row: shape (n,). */
+  oneD: z.array(z.enum(['A', 'B'])).optional(),
+  op: z.enum(['+', '-', '*']).optional(),
+  /** Goal for exercises: tap this result cell (after stretching). */
+  goal: z.object({ cell: Cell }).optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
   ShapeFigureSchema,
+  BroadcastFigureSchema,
 ]);
 
 // ---- exercises -------------------------------------------------------------
@@ -287,6 +299,7 @@ export type FigureSpec = z.infer<typeof FigureSchema>;
 export type CompareFigureSpec = z.infer<typeof CompareFigureSchema>;
 export type StepperFigureSpec = z.infer<typeof StepperFigureSchema>;
 export type ShapeFigureSpec = z.infer<typeof ShapeFigureSchema>;
+export type BroadcastFigureSpec = z.infer<typeof BroadcastFigureSchema>;
 export type Exercise = z.infer<typeof ExerciseSchema>;
 export type ExerciseType = Exercise['type'];
 export type ExerciseOf<T extends ExerciseType> = Extract<Exercise, { type: T }>;
