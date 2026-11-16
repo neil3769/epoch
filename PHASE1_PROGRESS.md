@@ -191,3 +191,12 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   in the app's worker.
 - Written units now: F1-F9, E1-E8, E11. Next: E9 (weeks 11-12), E10 (week 13), F10, F11, then System
   Design.
+
+## Phase 4, unit E9 (Cost, latency, observability), 2026-11-16 — DONE
+- 8 lessons: cost per request, p50 and p95, traces and spans, what to log, routing to a small model
+  first, caching, before/after tables, checkpoint. All executed against sim.LOGS / sim.PRICES / FakeLLM;
+  the prelude adds span() (a tracer on the virtual clock), chat(llm, q), and LOGS/PRICES short names.
+- Labs: read the logs (scaffolded); cache, routed call with a JSON check, traced request and a
+  before/after report from empty functions. Library page.
+- Browser at 390 px: 76 E9 screens and labs, no overflow.
+- Written units now: F1-F9, E1-E9, E11. Next: E10 Safety (week 13), F10, F11, then System Design.

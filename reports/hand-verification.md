@@ -695,3 +695,36 @@ The Docker cache model `rebuilt()` is a simplification (COPY sources only). Judg
 | e8-12-6 | Compose: db:5432, not localhost | As e8-8-3. Correct. |
 | e8-12-8 | Key in the host's secret settings | As e8-5-2. Correct. |
 | e8-12-10 | Errors after deploy: roll back, then investigate | As e8-11-5. Correct. |
+
+# Hand verification, Phase 4: unit E9 (Cost, latency, observability)
+
+All cost, percentile, span, log, routing, cache and table exercises run against the simulated services
+(sim.LOGS, sim.PRICES, FakeLLM on the virtual clock; prelude span() and chat()). Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e9-1-2 | Output tokens cost several times more | Provider price lists (here 5×). Correct. |
+| e9-1-7 | Costs doubled, same traffic: check tokens per request | Cost = tokens × price. Correct. |
+| e9-2-2 | p95 2 s: 1 in 20 requests ≥ 2 s | Definition. Correct. |
+| e9-2-5 | Feels slow with streaming: time to first token | Perceived latency. Correct. |
+| e9-2-8 | Mean dragged by outliers | Executed in e9-2-1. Correct. |
+| e9-3-1 | Fix the 1.2 s llm span first | Largest span. Correct. |
+| e9-3-3 | Independent tools: run concurrently | max instead of sum. Correct. |
+| e9-3-6 | Traces show where the time went | Definition. Correct. |
+| e9-3-8 | Slow first token: long prompt or busy provider | Prefill time grows with prompt length. Correct. |
+| e9-4-2 | Request id finds one request's trace | Correlation ids. Correct. |
+| e9-4-5 | Log prompts only redacted, time-limited | Privacy practice (OWASP LLM02). Correct. |
+| e9-4-8 | "error" ×300 without fields: needs structure | Structured logging. Correct. |
+| e9-5-2 | Escalate on a check code can verify | Self-confidence unreliable. Correct. |
+| e9-5-4 | Before/after needs quality too | As taught. Correct. |
+| e9-5-8 | Routing not worth it when most need large | Every request pays twice. Correct. |
+| e9-6-3 | New system prompt: old entries stale; version the key | Cache invalidation. Correct. |
+| e9-6-4 | Do not cache live data (or short TTL) | Staleness. Correct. |
+| e9-6-7 | Semantic cache: close questions, different answers | Embedding near-misses. Correct. |
+| e9-7-1 | −65% cost, −53% p95, score 0.86→0.85 holds | Executed numbers. Correct. |
+| e9-7-3 | Two changes at once: effects not attributable | Experimental design. Correct. |
+| e9-7-6 | Same golden set so only the change differs | Experimental design. Correct. |
+| e9-7-8 | Table: cost, p50, p95, quality | As taught. Correct. |
+| e9-8-2 | p95 doubled: open the slowest traces | As e9-3. Correct. |
+| e9-8-7 | Key only on question: old model's answers return | As e9-6-3. Correct. |
+| e9-8-9 | Cheaper but worse: report the trade-off | As taught. Correct. |
