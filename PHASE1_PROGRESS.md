@@ -175,3 +175,19 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - Browser at 390 px: 112 E11 screens and both labs, no overflow.
 - Written units now: F1-F9, E1-E7, E11. Next: F10 Text as numbers, F11 Attention and transformers,
   E8-E10 (weeks 8-13, March), then the System Design track.
+
+## Phase 4, unit E8 (Shipping a service), 2026-11-16 — DONE
+- 12 lessons: FastAPI endpoints, request/response models, status codes, API tests, settings and
+  secrets, reading a Dockerfile, layers and caching, docker compose, GitHub Actions, a CI pipeline,
+  deploying to a managed host, checkpoint. Versions checked against current docs (uv 0.13.8,
+  actions/checkout@v7, astral-sh/setup-uv@v9, docker/build-push-action@v7, compose.yaml).
+- FastAPI 0.136, Pydantic and PyYAML run in Pyodide: endpoints are executed through httpx's
+  ASGITransport (prelude `send`), with `async def` handlers (no threads in Pyodide). Dockerfiles and
+  workflows are read as strings/YAML; `rebuilt()` models Docker's layer cache. verify-content now
+  preloads fastapi, httpx and pyyaml.
+- Labs: an /ask endpoint with tests (scaffolded); ready-to-ship pieces from empty functions (settings,
+  app factory, smoke test, Dockerfile checker, CI commands, image tags). Library page.
+- Browser at 390 px: 113 E8 screens and labs, no overflow; a FastAPI run-code exercise graded correct
+  in the app's worker.
+- Written units now: F1-F9, E1-E8, E11. Next: E9 (weeks 11-12), E10 (week 13), F10, F11, then System
+  Design.

@@ -637,3 +637,61 @@ example are executed. Judgement items:
 | e11-12-1 | 2 million pages, citations: RAG | As e11-1-1. Correct. |
 | e11-12-3 | Hallucinations: ground in sources | As e11-3-1. Correct. |
 | e11-12-10 | Five categories: one classification call | Fixed step. Correct. |
+
+# Hand verification, Phase 4: unit E8 (Shipping a service)
+
+Docs checked 2026-11-16: uv Docker guide (uv 0.13.8; `uv sync --locked`; copy lock files before the
+code for caching), uv GitHub Actions guide (actions/checkout v7, astral-sh/setup-uv v9,
+`uv sync --locked`, `enable-cache`), FastAPI async tests (`AsyncClient(transport=ASGITransport(app=app))`),
+Compose (compose.yaml preferred; top-level `version` obsolete; short `depends_on` does not wait for
+health), docker/build-push-action v7. FastAPI 0.136.1, Pydantic 2.12 and PyYAML run in Pyodide, so every
+endpoint, test, setting and YAML exercise is executed; handlers are `async def` (no threads in Pyodide).
+The Docker cache model `rebuilt()` is a simplification (COPY sources only). Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e8-1-2 | Sending a question: POST | HTTP semantics. Correct. |
+| e8-1-6 | 404: nothing at that path or id | RFC 9110. Correct. |
+| e8-1-7 | 200 OK, 404 not found, 422 invalid, 500 server error | FastAPI conventions. Correct. |
+| e8-2-4 | response_model: only declared fields leave | Executed in e8-2-3. Correct. |
+| e8-2-7 | Validation before the handler runs | FastAPI docs. Correct. |
+| e8-3-2 | Provider down: 503 | RFC 9110 (502/504 also defensible; 503 offered). Correct. |
+| e8-3-6 | Valid but empty: 400 (or min_length → 422) | Convention. Correct. |
+| e8-3-7 | order 404, missing field 422, provider 503, bug 500 | As taught. Correct. |
+| e8-4-2 | Test valid, missing field, blank | Coverage of each outcome. Correct. |
+| e8-4-6 | ASGITransport: fast, no ports or network | FastAPI docs. Correct. |
+| e8-5-2 | Production key in the host's secrets | Standard practice. Correct. |
+| e8-5-3 | .env in .gitignore | Standard practice. Correct. |
+| e8-5-7 | Model choice from an env var | Twelve-factor config. Correct. |
+| e8-6-1 | python:3.12-slim: small image with Python | Docker Hub image docs. Correct. |
+| e8-6-2 | RUN at build, CMD at start | Dockerfile reference. Correct. |
+| e8-6-3 | FROM base, COPY files, RUN build, CMD start | Dockerfile reference. Correct. |
+| e8-6-5 | Unreachable: port not published or bound to 127.0.0.1 | Docker networking. Correct. |
+| e8-6-6 | ModuleNotFoundError: code never copied | The Dockerfile shown copies only lock files. Correct. |
+| e8-6-7 | Pin versions for repeatable builds | uv docs pin uv. Correct. |
+| e8-7-3 | Lock files first: code edits skip install | Executed with rebuilt() in e8-7-1/2. Correct. |
+| e8-7-5 | .dockerignore: .venv, .git, .env | uv docs recommend .venv. Correct. |
+| e8-7-7 | .env in image via COPY . . | Build context. Correct. |
+| e8-8-1 | "8080:8000": host 8080 | Compose ports HOST:CONTAINER. Correct. |
+| e8-8-3 | Reach the db by service name | Compose networking. Correct. |
+| e8-8-4 | `version:` obsolete | Compose spec page. Correct. |
+| e8-8-6 | Short depends_on waits for start, not health | Compose spec page. Correct. |
+| e8-8-8 | Password from untracked .env | Compose interpolation. Correct. |
+| e8-9-1 | checkout first: runner starts empty | Actions docs. Correct. |
+| e8-9-3 | @v7 pins the major version | Actions docs. Correct. |
+| e8-9-4 | secrets.* from repository secrets | Actions docs. Correct. |
+| e8-9-6 | A failing step fails the job | Actions default. Correct. |
+| e8-9-8 | on / runs-on / uses / run | Actions syntax. Correct. |
+| e8-10-1 | Lint and test before the slow build | Fail fast. Correct. |
+| e8-10-3 | CI ModuleNotFoundError: dependency not declared | Clean environment. Correct. |
+| e8-10-5 | Push images only from main after tests | Standard practice. Correct. |
+| e8-10-7 | Slow installs: cache uv downloads | setup-uv enable-cache. Correct. |
+| e8-11-1 | Ignoring $PORT: health checks fail | Render/Cloud Run docs pattern. Correct. |
+| e8-11-3 | Health endpoint: readiness for the host | Standard practice. Correct. |
+| e8-11-5 | Broken deploy: roll back first | Standard practice. Correct. |
+| e8-11-7 | Errors after deploy: the host's logs | Standard practice. Correct. |
+| e8-11-8 | Managed host saves OS updates, TLS, scaling | Trade-off. Correct. |
+| e8-12-2 | Missing order: HTTPException(404) | As e8-3. Correct. |
+| e8-12-6 | Compose: db:5432, not localhost | As e8-8-3. Correct. |
+| e8-12-8 | Key in the host's secret settings | As e8-5-2. Correct. |
+| e8-12-10 | Errors after deploy: roll back, then investigate | As e8-11-5. Correct. |

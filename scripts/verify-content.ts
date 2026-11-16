@@ -566,7 +566,7 @@ async function main() {
   for (const t of EXERCISE_TYPES) if (!typeCount.get(t)) fail('coverage', `exercise type "${t}" is never used`);
 
   py = await loadPyodide();
-  await py.loadPackage(['numpy', 'pydantic', 'pytest'], { messageCallback: () => {} });
+  await py.loadPackage(['numpy', 'pydantic', 'pytest', 'fastapi', 'httpx', 'pyyaml'], { messageCallback: () => {} });
   installSim(py, readFileSync(join(root, 'src', 'python', 'epoch_sim.py'), 'utf8'), {
     impl: readFileSync(join(root, 'src', 'python', 'epoch_torch.py'), 'utf8'),
     facade: readFileSync(join(root, 'src', 'python', 'torch_facade.py'), 'utf8'),
