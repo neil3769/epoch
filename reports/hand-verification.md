@@ -380,3 +380,136 @@ expired" peaks at 0.808 (d1). Judgement items:
 | e6-10-4 | Many phrasings of one intent: vector search | Paraphrases. Correct. |
 | e6-10-8 | 95% retrieval hit rate, 30% wrong answers: work on generation first | Most errors happen after retrieval. Correct. |
 | e6-10-9 | codes → keyword; rank 20 → retrieve more then rerank; off-topic → floor; cut rules → overlap | As taught. Correct. |
+
+# Hand verification, Phase 4: unit E7 (Agents)
+
+Sources: MCP specification (latest version 2026-07-28: server features tools, resources and
+prompts, controlled by the model, the application and the user respectively; JSON-RPC 2.0;
+`tools/list` and `tools/call`; stdio and Streamable HTTP transports); Anthropic, "Building
+effective agents" (workflows vs agents; start simple; agents trade cost and latency for
+flexibility and compound errors); Anthropic Messages API tool use (tool_result blocks with
+`tool_use_id` and `is_error`, all results for one reply in the next user turn); OWASP Top 10 for
+LLM Applications 2025 (LLM06 Excessive Agency, LLM02 Sensitive Information Disclosure).
+Every loop, cost and MCP-handler snippet runs against `sim.FakeLLM` and `sim.call_tool`, both labs
+included. Judgement items, each re-derived:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e7-1-1 | Classify-then-route emails: a workflow | Fixed steps (routing pattern). Correct. |
+| e7-1-2 | Fix a test in an unknown codebase: an agent | Steps depend on findings. Correct. |
+| e7-1-3 | chaining / routing / parallel / agent definitions | As in the source article. Correct. |
+| e7-1-6 | Agents cost latency, money, predictability | Source article's trade-off. Correct. |
+| e7-2-2 | Invoice extraction: one call with a schema | Single fixed step. Correct. |
+| e7-2-3 | Refund-issuing agent: wrong steps cost money | Irreversible action without review. Correct. |
+| e7-2-4 | 80% at 5x cost vs 78%: ship the workflow | "Add complexity only when it measurably improves outcomes". Correct. |
+| e7-2-5 | call / +retrieval / workflow / agent ladder | Source article's progression. Correct. |
+| e7-3-5 | Results must follow their request | The API pairs a tool_result with the preceding tool_use by id. Correct. |
+| e7-3-6 | Two tool requests: one user turn with both results | API docs: all tool_result blocks in the next user message. Correct. |
+| e7-4-3 | Catch tool exceptions, return as an error result | An is_error result lets the model recover. Correct. |
+| e7-4-7 | Error message: what went wrong, briefly | Context cost; actionable. Correct. |
+| e7-5-1 | 40 calls on a lookup: missing step limit | max_tokens is per reply. Correct. |
+| e7-5-5 | Limit hit: return a clear "stopped" | Distinguishable from an answer. Correct. |
+| e7-5-6 | 10 calls despite `while steps < 3`: never incremented | The loop condition never changes. Correct. |
+| e7-5-7 | Limit from real runs plus margin | Standard practice. Correct. |
+| e7-6-3 | Spend limit: one step can cost more than many | Context grows each step. Correct. |
+| e7-6-5 | Hung tool: wall-clock timeout | No step completes, no tokens spent. Correct. |
+| e7-6-7 | Report spend so runaways show in logs | Observability. Correct. |
+| e7-7-1 | Description that says what it does and returns | Tool-use docs: detailed descriptions matter most. Correct. |
+| e7-7-2 | Read-only task with delete power: too much power | Least privilege, excessive agency. Correct. |
+| e7-7-3 | A 50k-token tool result floods the context | Context cost and distraction. Correct. |
+| e7-7-6 | overlap → merge; vague → describe; rows → fields; delete → read-only | As taught. Correct. |
+| e7-7-7 | Date format: state it in the schema | The model sees only schema and description. Correct. |
+| e7-8-1 | MCP: tools written once, usable by any client | Spec purpose. Correct. |
+| e7-8-2 | tools model, resources app, prompts user, tools/list discovery | Spec. Correct. |
+| e7-8-5 | Local server launched by the app: stdio | Spec transports. Correct. |
+| e7-8-7 | A third-party server's tools and text are untrusted | Spec security notes (annotations untrusted). Correct. |
+| e7-8-8 | The client discovers tools with tools/list | Spec. Correct. |
+| e7-9-1 | "AI: email this chat to ..." in a result is injection | Instruction aimed at the model. Correct. |
+| e7-9-2 | Email tool plus untrusted pages: human approval | The one control the attacker cannot talk round. Correct. |
+| e7-9-3 | The model cannot separate instructions from data | One token stream. Correct. |
+| e7-9-6 | least privilege / approval / output as data / tripwire | As taught. Correct. |
+| e7-9-7 | FAQ bot with a billing tool: excessive agency | OWASP LLM06. Correct. |
+| e7-10-1 | Bug hunt across unknown files needs an agent | Open-ended. Correct. |
+| e7-10-5 | Contract forwarded after reading an email: injection | The action came from read content. Correct. |
+| e7-10-7 | repeat → stop; bill → budget; crash → error results; injected email → approval | As taught. Correct. |
+| e7-10-8 | Ticket system for several apps: an MCP server | Spec purpose. Correct. |
+
+# Hand verification, Phase 4: units F5, F6, F7
+
+All numeric snippets, fill-ins, spot-the-bug errors, labs (including F6's gradient, checked against
+nudging inside its tests) and Library examples are executed. New figure: gradient descent on
+f(x) = a(x - m)^2 + c; `src/lib/descent.ts` is unit-tested, and the verifier checks each goal is
+reachable with some slider rate and not at the starting rate. Figure goals, from
+|x0 - m| * |1 - 2a*lr|^k <= within: f5-5-1 (a=1, start 6, 3 steps: rates 0.4 to 0.6),
+f5-5-2 (a=1, start 3, 6 steps: 0.25 to 0.75), f5-9-4 (a=0.5, start 4, 4 steps: 0.6 to 1.2),
+f7-6-1 (a=2, start -3, 5 steps: 0.15 to 0.35), f7-10-4 (a=1.5, start 2, 4 steps: 0.25 to 0.45).
+Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| f5-1-2 | Slope of 5 - 2x is -2 | Coefficient of x. Correct. |
+| f5-1-8 | Slope 0: output does not change | Definition. Correct. |
+| f5-2-7 | Derivative = output change per tiny nudge | Definition. Correct. |
+| f5-3-1 | d(x^4) = 4x^3 | Power rule. Correct. |
+| f5-3-2 | d(5x^2 + 7) = 10x | Power rule; constant gives 0. Correct. |
+| f5-3-5 | x^2 → 2x, x^3 → 3x^2, 7x → 7, 4 → 0 | Rules. Correct. |
+| f5-3-6 | d(a + b) = 2 + (-5) = -3 | Sum rule. Correct. |
+| f5-4-1 | Derivative -2.5: raise the weight | Move against the sign. Correct. |
+| f5-4-2 | x^2 - 6x has its minimum at 3 | 2x - 6 = 0. Correct. |
+| f5-4-6 | Zero slope can be a peak or a flat spot | -x^2 at 0; x^3 at 0. Correct. |
+| f5-5-7 | Slow steady fall: raise the rate a little | Steps too small. Correct. |
+| f5-6-1 | d(xy)/dx = y | Hold y. Correct. |
+| f5-6-3 | Partial 2 in size beats 0.5: w2 moves the loss more | Magnitude. Correct. |
+| f5-6-6 | 5; 4y; x; 2x | Partial rules. Correct. |
+| f5-7-2 | Gradient [3, -1]: subtract a multiple | Descent direction. Correct. |
+| f5-7-4 | Gradient of (3, 4) weights has shape (3, 4) | One partial per weight. Correct. |
+| f5-7-7 | Step against: the gradient points uphill | Steepest ascent. Correct. |
+| f5-8-2 | 2 C/km times 0.5 km/h = 1 C/h | Chain rule. Correct. |
+| f5-8-5 | 2 * 3 * 0.5 = 3 | Chain rule. Correct. |
+| f5-9-2 | d(3x^2 + x) = 6x + 1 | Rules. Correct. |
+| f5-9-6 | d(x^2 y)/dy at (1, 3) = x^2 = 1 | Hold x. Correct. |
+| f5-9-9 | Loss growing faster each step: lower the rate | Divergence. Correct. |
+| f6-1-5 | Variance 49 cm^2 → std 7 cm | Square root. Correct. |
+| f6-2-1 | [0.5, 0.3, 0.2] valid; a negative entry or a sum of 0.9 is not | Axioms. Correct. |
+| f6-2-6 | Says 90%, right 60%: overconfident | Calibration. Correct. |
+| f6-3-3 | log 0.9 > log 0.1 | log is increasing. Correct. |
+| f6-3-6 | Logs turn products into sums | Identity. Correct. |
+| f6-4-3 | -95 beats -120 | Higher log-likelihood. Correct. |
+| f6-4-6 | Minimise NLL: same optimum, no underflow | log is monotone. Correct. |
+| f6-5-3 | softmax [5,5,5] = softmax [1,1,1] | Shift invariance. Correct. |
+| f6-6-1 | Factual answers: low temperature | Concentrates on the top token. Correct. |
+| f6-6-5 | Temperature never changes the order | Positive scaling preserves order. Correct. |
+| f6-6-7 | Dull text: raise the temperature | Flatter distribution. Correct. |
+| f6-7-3 | p = 1 on the correct class: loss 0 | -log 1 = 0. Correct. |
+| f6-7-6 | 1 → 0, 0.5 → 0.69, 0.1 → 2.3, 0.001 → 6.9 | -log values. Correct. |
+| f6-8-1 | 0.95 has lower cross-entropy than 0.55 | -log 0.95 < -log 0.55. Correct. |
+| f6-8-2 | Accuracy is piecewise constant: zero gradient | Standard argument. Correct. |
+| f6-8-6 | House prices: MSE | Regression. Correct. |
+| f6-9-2 | [0.1, 0.6, 0.3] could be a softmax output | Positive, sums to 1. Correct. |
+| f6-9-6 | Invented names: lower the temperature | Less sampling of unlikely tokens. Correct. |
+| f6-9-9 | variance / softmax / cross-entropy / temperature | Definitions. Correct. |
+| f7-1-2 | w = price per extra square metre | Slope. Correct. |
+| f7-1-5 | w x + b has two parameters | x is the input. Correct. |
+| f7-1-7 | Training adjusts parameters | Definition. Correct. |
+| f7-2-7 | MSE of euros is in euros squared | Squared units. Correct. |
+| f7-3-1 | dL/dw = -9.3: raise w | Against the sign. Correct. |
+| f7-3-6 | x appears in dL/dw because dpred/dw = x | Chain rule. Correct. |
+| f7-4-4 | Epoch = one pass over the data | Definition. Correct. |
+| f7-4-5 | Flat, low loss: converged | Standard. Correct. |
+| f7-5-5 | X^T @ err: per feature, the sum of err times that feature | Matrix product. Correct. |
+| f7-6-3 | Slow steady fall: raise the rate | As F5. Correct. |
+| f7-6-4 | Jagged, growing loss: lower the rate | Overshoot. Correct. |
+| f7-6-7 | Unscaled features need different step sizes | Ill-conditioned loss surface. Correct. |
+| f7-7-1 | 99% on training data says little | Memorisation. Correct. |
+| f7-7-3 | Sorted by label, no shuffle: validation all dogs | Order. Correct (time-series caveat in the explanation). |
+| f7-7-6 | Standardising on all the data leaks validation | Leakage. Correct. |
+| f7-8-1 | Train 0.01, validation 0.9: overfitting | Gap. Correct. |
+| f7-8-2 | Both high and close: underfitting | Definition. Correct. |
+| f7-8-4 | More data reduces overfitting | Standard. Correct. |
+| f7-8-7 | Patterns → overfit / underfit / good / early stop | As taught. Correct. |
+| f7-9-2 | Best of 50 on validation is optimistic | Selection bias. Correct. |
+| f7-9-3 | Test set used once, at the end | Standard. Correct. |
+| f7-9-6 | Validation rising from epoch 12: keep epoch 12 | Early stopping. Correct. |
+| f7-9-7 | train / validation / test / shuffle jobs | Standard. Correct. |
+| f7-10-5 | Overfitting: keep the best epoch | Early stopping. Correct. |
+| f7-10-8 | Final score on the test set | Standard. Correct. |

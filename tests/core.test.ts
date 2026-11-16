@@ -182,3 +182,20 @@ describe('broadcasting helper (matches NumPy rules)', () => {
     expect(resultGrid([[1, 2]], [[1, 2, 3]])).toBeNull();
   });
 });
+
+import { LRS, goalReachable, path, stepsToGoal } from '../src/lib/descent';
+
+describe('gradient descent helper', () => {
+  const s = { a: 1, m: 2, start: 6, lr: 0.1, editableLr: true, goal: { within: 0.1, maxSteps: 3 } };
+  it('steps against the slope', () => {
+    expect(path(s, 0.25, 2)).toEqual([6, 4, 3]);
+    expect(path(s, 0.5, 1)).toEqual([6, 2]);
+  });
+  it('overshoots with a large rate and checks goals', () => {
+    expect(Math.abs(path(s, 1.1, 3)[3] - 2)).toBeGreaterThan(4);
+    expect(stepsToGoal(s, 0.1)).toBeNull();
+    expect(stepsToGoal(s, 0.5)).toBe(1);
+    expect(goalReachable(s)).toBe(true);
+    expect(LRS).toContain(0.5);
+  });
+});

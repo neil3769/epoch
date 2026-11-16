@@ -32,6 +32,7 @@ import { HARNESS_PY, installSim } from '../src/python/harness';
 import { fillGaps, countGaps, countSentences, splitLines } from '../src/lib/text';
 import { shapeGoalReachable } from '../src/lib/shapes';
 import { resultGrid } from '../src/lib/broadcast';
+import { LRS, goalReachable, stepsToGoal } from '../src/lib/descent';
 
 const MAX_WIDTH = 38;
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -143,6 +144,11 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
       if (f.kind === 'compare' && !(f.panels ?? ['elementwise', 'matmul']).includes(f.goal.panel))
         fail(where, 'goal panel is not shown');
     }
+  } else if (f.kind === 'descent') {
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.editableLr && !LRS.includes(f.lr)) fail(where, `descent lr ${f.lr} is not a slider value`);
+    if (f.goal && !goalReachable(f)) fail(where, 'descent goal is not reachable with any allowed rate');
+    if (f.goal && f.editableLr && stepsToGoal(f, f.lr) !== null) fail(where, 'descent goal is already reachable at the starting rate');
   } else if (f.kind === 'broadcast') {
     if (!rect(f.A) || !rect(f.B)) return fail(where, 'figure matrices must be rectangular');
     for (const k of f.oneD ?? []) if ((k === 'A' ? f.A : f.B).length !== 1) fail(where, `1-D operand ${k} must be one row`);

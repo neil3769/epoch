@@ -116,3 +116,16 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   E6 lab 2 step 3 passed in the app.
 - Written units now: F1-F4, E1-E6. Next per brief: E7 Agents (weeks 5-7, by 20 Dec), F5..F11 (F9 before
   January), exam mode before January.
+
+## Phase 4, units E7, F5, F6, F7, 2026-11-16 — DONE
+- E7 Agents (10 lessons): unit prelude defines ask(c, msgs) and tool_turns(r) (introduced in lesson 3).
+  Labs: sturdier loop (error results, repeat stop, step limit, error count); guarded agent from empty
+  functions (cost, tripwire, allowlist, step and spend limits). MCP checked against the 2026-07-28 spec.
+- New figure: gradient descent on a curve (src/figures/DescentFigure.tsx, src/lib/descent.ts; schema kind
+  `descent`; verifier checks each goal is reachable with some slider rate and not at the start rate).
+- F5 Change and gradients (9), F6 Probability and loss (9), F7 ML from scratch (10), each with two labs
+  (the last from empty functions) and a Library page.
+- Browser: 312 new exercises swept at 390 px (no overflow); descent figure goal, overshoot and reset
+  checked; E7 lab 2 step 1 passed in the app.
+- Written units now: F1-F7, E1-E7. Next per brief: F8 Neural networks (neuron/layer figure), F9 PyTorch
+  (before January), exam mode (before January), E11 Interview practice (January), then F10, F11, E8-E10.

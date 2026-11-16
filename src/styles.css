@@ -1943,3 +1943,57 @@ mark {
   display: block;
   margin: 0 auto;
 }
+
+/* gradient-descent figure */
+.gd-plot {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.gd-curve {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+.gd-min {
+  stroke: var(--line);
+  stroke-dasharray: 4 4;
+}
+.gd-trail {
+  fill: var(--accent);
+  opacity: 0.6;
+}
+.gd-ball {
+  fill: var(--primary);
+  transition: cx 0.3s, cy 0.3s;
+}
+.gd-ball.good {
+  fill: var(--good);
+}
+.gd-ball.bad {
+  fill: var(--bad);
+}
+.gd-lr {
+  display: grid;
+  gap: 4px;
+  margin: 8px 2px;
+  font-size: 15px;
+  color: var(--muted);
+}
+.gd-lr input {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--primary);
+}
+.gd-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.gd-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--muted);
+}

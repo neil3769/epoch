@@ -76,11 +76,26 @@ export const BroadcastFigureSchema = z.object({
   goal: z.object({ cell: Cell }).optional(),
 });
 
+export const DescentFigureSchema = z.object({
+  kind: z.literal('descent'),
+  /** The curve f(x) = a (x - m)^2 + c. */
+  a: z.number().positive(),
+  m: z.number(),
+  c: z.number().optional(),
+  start: z.number(),
+  /** Starting learning rate; must be one of the slider's values when editable. */
+  lr: z.number().positive(),
+  editableLr: z.boolean().optional(),
+  /** Goal: get within `within` of the minimum in at most `maxSteps` steps. */
+  goal: z.object({ within: z.number().positive(), maxSteps: z.number().int().min(1) }).optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
   ShapeFigureSchema,
   BroadcastFigureSchema,
+  DescentFigureSchema,
 ]);
 
 // ---- exercises -------------------------------------------------------------
@@ -300,6 +315,7 @@ export type CompareFigureSpec = z.infer<typeof CompareFigureSchema>;
 export type StepperFigureSpec = z.infer<typeof StepperFigureSchema>;
 export type ShapeFigureSpec = z.infer<typeof ShapeFigureSchema>;
 export type BroadcastFigureSpec = z.infer<typeof BroadcastFigureSchema>;
+export type DescentFigureSpec = z.infer<typeof DescentFigureSchema>;
 export type Exercise = z.infer<typeof ExerciseSchema>;
 export type ExerciseType = Exercise['type'];
 export type ExerciseOf<T extends ExerciseType> = Extract<Exercise, { type: T }>;
