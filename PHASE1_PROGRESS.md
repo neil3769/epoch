@@ -151,3 +151,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   figure goals checked; an F9 run-code exercise graded correct in the app's worker; labs open cleanly.
 - Written units now: F1-F9, E1-E7. Next: exam mode (before January), then E11 (January), F10, F11, E8-E10,
   then the System Design track.
+
+## Phase 4, exam mode, 2026-11-16 — DONE
+- Settings → Exams: a switch and a date range (default 7 Jan to 28 Feb 2027, the plan's exam weeks).
+  Stored in settings.exam, so sync and import merge it like the other settings (newest wins); old
+  progress files get the default (off).
+- While on and inside the dates: the daily goal is one review (quick or full; the ring shows 0/1), any
+  review keeps the streak, and Home, Continue, "next lesson" and lab rewrites offer only F9, E5 and
+  E11 (the plan's PyTorch-loop, leakage-and-metrics and interview-practice weeks), plus review. Home
+  says which units are paused and when they return; the done screen shows the review goal.
+- Tests: active range, review goal, streak on one review a day, allowed units, Continue after a paused
+  unit, lab rewrites, import defaults. Checked in the browser at 390 px (settings, home, both tabs).
+- Next: E11 Interview practice (needed in January), then F10, F11, E8-E10, then System Design.

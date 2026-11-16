@@ -44,10 +44,21 @@ export function DoneScreen({
           <span>day streak</span>
         </div>
         <div className="stat">
-          <GoalRing value={stats.todayMinutes} goal={stats.goal} size={52}>
-            <small>{Math.round(stats.todayMinutes)}</small>
-          </GoalRing>
-          <span>of {stats.goal} min today</span>
+          {stats.exam ? (
+            <>
+              <GoalRing value={stats.reviewedToday ? 1 : 0} goal={1} size={52}>
+                <small>{stats.reviewedToday ? 1 : 0}/1</small>
+              </GoalRing>
+              <span>review today</span>
+            </>
+          ) : (
+            <>
+              <GoalRing value={stats.todayMinutes} goal={stats.goal} size={52}>
+                <small>{Math.round(stats.todayMinutes)}</small>
+              </GoalRing>
+              <span>of {stats.goal} min today</span>
+            </>
+          )}
         </div>
       </div>
       <div className="action-bar" ref={barRef}>

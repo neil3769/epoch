@@ -1,6 +1,7 @@
 import { catalog, type Track, type UnitEntry } from '../../content/index';
 import type { Exercise, Lab, Lesson, Unit } from '../../content/schema';
-import { RETIRED, dueItems, type Progress } from './progress';
+import { dayKey } from './dates';
+import { EXAM_UNITS, RETIRED, dueItems, examActive, type Progress } from './progress';
 
 export interface LessonRef {
   unit: Unit;
@@ -24,19 +25,25 @@ function firstOpenIn(unit: Unit, p: Progress, after = -1): Lesson | undefined {
   return unit.lessons.find((l, i) => i > after && !p.completed[l.id]) ?? unit.lessons.find((l) => !p.completed[l.id]);
 }
 
-/** The lesson the "Continue" button opens. */
-export function continueLesson(p: Progress, track?: Track): LessonRef | undefined {
+/** In exam mode, the units on offer; otherwise undefined (all of them). */
+export function allowedUnits(p: Progress, today = dayKey()): Set<string> | undefined {
+  return examActive(p.settings, today) ? new Set(EXAM_UNITS) : undefined;
+}
+
+/** The lesson the "Continue" button opens (only from the allowed units in exam mode). */
+export function continueLesson(p: Progress, track?: Track, today = dayKey()): LessonRef | undefined {
+  const only = allowedUnits(p, today);
   const lessons = [...p.activity].reverse().filter((a) => a.kind === 'lesson');
   for (const a of lessons) {
     const ref = index.get(a.ref);
-    if (!ref || (track && ref.unit.track !== track)) continue;
+    if (!ref || (track && ref.unit.track !== track) || (only && !only.has(ref.unit.id))) continue;
     const next = firstOpenIn(ref.unit, p, ref.index);
     if (next) return index.get(next.id);
     break;
   }
   const order = [...catalog].sort((a, b) => (a.id === START_UNIT ? -1 : b.id === START_UNIT ? 1 : 0));
   for (const entry of order) {
-    if (!entry.unit || (track && entry.track !== track)) continue;
+    if (!entry.unit || (track && entry.track !== track) || (only && !only.has(entry.id))) continue;
     const next = firstOpenIn(entry.unit, p);
     if (next) return index.get(next.id);
   }
@@ -44,12 +51,14 @@ export function continueLesson(p: Progress, track?: Track): LessonRef | undefine
 }
 
 /** After finishing a lesson: the next open lesson in its unit, else anywhere on its track. */
-export function nextAfter(lessonId: string, p: Progress): LessonRef | undefined {
+export function nextAfter(lessonId: string, p: Progress, today = dayKey()): LessonRef | undefined {
   const ref = index.get(lessonId);
   if (!ref) return undefined;
+  const only = allowedUnits(p, today);
+  if (only && !only.has(ref.unit.id)) return continueLesson(p, undefined, today);
   const next = ref.unit.lessons.find((l, i) => i > ref.index && !p.completed[l.id]);
   if (next) return index.get(next.id);
-  return continueLesson(p, ref.unit.track);
+  return continueLesson(p, ref.unit.track, today) ?? (only ? continueLesson(p, undefined, today) : undefined);
 }
 
 // ----------------------------------------------------------------- exercises ---
@@ -134,8 +143,9 @@ export function labCodeBefore(lab: Lab, p: Progress, step: number): string {
 
 /** Lab steps done with a hint and due to be rewritten without help. */
 export function labRewrites(p: Progress, today: string): { labId: string; step: number }[] {
+  const only = allowedUnits(p, today);
   return dueItems(p, today, 'lab:')
     .map((key) => key.slice(4).split('#'))
-    .filter(([labId]) => labIndex.has(labId))
+    .filter(([labId]) => labIndex.has(labId) && (!only || only.has(labIndex.get(labId)!.unit.id)))
     .map(([labId, n]) => ({ labId, step: Number(n) }));
 }

@@ -3,11 +3,11 @@ import type { Track } from '../../content/index';
 import { CheckIcon, CodeIcon, GearIcon, GoalRing, LockIcon, MoonIcon, OrbitIcon, SparkIcon, SunIcon, go } from '../components/Bits';
 import { toggleTheme, useTheme } from '../lib/theme';
 import { useBarHeight } from '../components/useBarHeight';
-import { checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack } from '../lib/curriculum';
-import { dayKey } from '../lib/dates';
+import { allowedUnits, checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack } from '../lib/curriculum';
+import { addDays, dayKey, shortDate } from '../lib/dates';
 import { LibraryList } from './Library';
 import { planWeekOn, unitsThisWeek } from '../../content/plan';
-import { computeStats, dueItems, setDailyGoal, useProgress, type DailyGoal } from '../lib/progress';
+import { EXAM_UNITS, computeStats, dueItems, setDailyGoal, useProgress, type DailyGoal } from '../lib/progress';
 import { SyncBadge } from './SyncBadge';
 
 type Tab = Track | 'library';
@@ -45,7 +45,9 @@ export function Home() {
   };
 
   const cont = continueLesson(p);
-  const units = track === 'library' ? [] : unitsForTrack(track);
+  const only = allowedUnits(p);
+  const units = track === 'library' ? [] : unitsForTrack(track).filter((u) => !only || only.has(u.id));
+  const examEnd = shortDate(p.settings.exam.end);
   const rewrites = labRewrites(p, dayKey());
   const week = planWeekOn(dayKey());
   const thisWeek = new Set(unitsThisWeek(dayKey()));
@@ -95,6 +97,22 @@ export function Home() {
         </div>
       </header>
 
+      {stats.exam ? (
+        <section className="goal-card" aria-label="Daily goal">
+          <GoalRing value={stats.reviewedToday ? 1 : 0} goal={1} size={72}>
+            {stats.goalMet ? <CheckIcon size={26} /> : <strong>0/1</strong>}
+          </GoalRing>
+          <div className="goal-text">
+            <div className="goal-line">{stats.goalMet ? 'Review done: streak kept' : 'One short review today'}</div>
+            <p className="exam-note">
+              Exam mode until {examEnd}.{' '}
+              <button type="button" className="link-btn" onClick={() => go('#/settings')}>
+                Change
+              </button>
+            </p>
+          </div>
+        </section>
+      ) : (
       <section className="goal-card" aria-label="Daily goal">
         <GoalRing value={stats.todayMinutes} goal={stats.goal} size={72}>
           {stats.goalMet ? <CheckIcon size={26} /> : <strong>{Math.round(stats.todayMinutes)}</strong>}
@@ -119,17 +137,18 @@ export function Home() {
           </div>
         </div>
       </section>
+      )}
 
-      {canReview && (
+      {(canReview || stats.exam) && (
         <section className="review-card" aria-label="Review">
           <div className="review-text">
             <strong>Review</strong>
             <span>{due ? `${due} item${due > 1 ? 's' : ''} due` : 'Nothing due · practise anyway'}</span>
           </div>
-          <button className="btn btn-small" onClick={() => go('#/review/quick')}>
+          <button className={`btn btn-small${stats.exam ? ' btn-primary' : ''}`} onClick={() => go('#/review/quick')}>
             2 min
           </button>
-          <button className="btn btn-small btn-primary" onClick={() => go('#/review')}>
+          <button className={`btn btn-small${stats.exam ? '' : ' btn-primary'}`} onClick={() => go('#/review')}>
             Review
           </button>
         </section>
@@ -162,6 +181,12 @@ export function Home() {
         ))}
       </div>
 
+      {only && track !== 'library' && (
+        <p className="plan-line">
+          <strong>Paused for exams</strong> until {examEnd}: only {EXAM_UNITS.join(', ')} and review are on. The rest come back on{' '}
+          {shortDate(addDays(p.settings.exam.end, 1))}.
+        </p>
+      )}
       {track === 'library' && <LibraryList />}
       {track === 'engineering' && week && (
         <p className="plan-line">

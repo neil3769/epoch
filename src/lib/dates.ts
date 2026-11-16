@@ -12,3 +12,11 @@ export function addDays(key: string, n: number): string {
   date.setDate(date.getDate() + n);
   return dayKey(date);
 }
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "2027-02-28" -> "28 Feb". */
+export function shortDate(key: string): string {
+  const [, m, d] = key.split('-').map(Number);
+  return `${d} ${MONTHS[m - 1]}`;
+}

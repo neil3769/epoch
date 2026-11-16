@@ -1,7 +1,19 @@
 import { useRef, useState } from 'react';
 import { TopBar } from '../components/Bits';
-import { dayKey } from '../lib/dates';
-import { canonicalJson, getProgress, mergeIn, normalizeProgress, setDailyGoal, setSound, useProgress, type DailyGoal } from '../lib/progress';
+import { dayKey, shortDate } from '../lib/dates';
+import {
+  canonicalJson,
+  examActive,
+  getProgress,
+  mergeIn,
+  normalizeProgress,
+  setDailyGoal,
+  setExam,
+  setSound,
+  useProgress,
+  type DailyGoal,
+  type ExamMode,
+} from '../lib/progress';
 import { connect, disconnect, loadConfig, maskToken, syncNow, useSync } from '../lib/sync';
 import { setThemeChoice, useThemeChoice, type ThemeChoice } from '../lib/theme';
 import { SyncBadge } from './SyncBadge';
@@ -148,6 +160,43 @@ function SyncSection() {
   );
 }
 
+function ExamSection({ exam }: { exam: ExamMode }) {
+  const today = dayKey();
+  const valid = exam.start <= exam.end;
+  let status = 'Off.';
+  if (exam.on && !valid) status = 'The end date is before the start date.';
+  else if (exam.on && examActive({ ...getProgress().settings, exam }, today)) status = `On now, until ${shortDate(exam.end)}.`;
+  else if (exam.on && today < exam.start) status = `On from ${shortDate(exam.start)} to ${shortDate(exam.end)}.`;
+  else if (exam.on) status = `Ended on ${shortDate(exam.end)}.`;
+  return (
+    <>
+      <label className="switch-row">
+        <span>
+          Exam mode
+          <span className="muted small block">
+            For these dates the daily goal is one short review, which keeps your streak. Only review, F9 (PyTorch), E5 (Evaluation) and E11 (Interview
+            practice) are offered.
+          </span>
+        </span>
+        <input type="checkbox" className="switch" checked={exam.on} onChange={(e) => setExam({ on: e.target.checked })} />
+      </label>
+      <div className="date-row">
+        <label className="field">
+          <span>From</span>
+          <input className="text-input" type="date" value={exam.start} onChange={(e) => e.target.value && setExam({ start: e.target.value })} />
+        </label>
+        <label className="field">
+          <span>To</span>
+          <input className="text-input" type="date" value={exam.end} onChange={(e) => e.target.value && setExam({ end: e.target.value })} />
+        </label>
+      </div>
+      <p className={`note${exam.on && !valid ? ' note-bad' : ''}`} aria-live="polite">
+        {status}
+      </p>
+    </>
+  );
+}
+
 function BackupSection() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -221,6 +270,11 @@ export function Settings() {
           </span>
           <input type="checkbox" className="switch" checked={p.settings.sound} onChange={(e) => setSound(e.target.checked)} />
         </label>
+      </section>
+
+      <section className="panel">
+        <h2>Exams</h2>
+        <ExamSection exam={p.settings.exam} />
       </section>
 
       <section className="panel">

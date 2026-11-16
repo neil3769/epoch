@@ -42,11 +42,27 @@ export interface SavedCode {
 
 export type DailyGoal = 5 | 15 | 30;
 
+/**
+ * Exam mode: for the chosen days (inclusive), the daily goal is one short
+ * review, any review keeps the streak, and only review plus EXAM_UNITS are offered.
+ */
+export interface ExamMode {
+  on: boolean;
+  start: string;
+  end: string;
+}
+
+/** The units the learner's plan allows during exams: the PyTorch loop, leakage and metrics, interview practice. */
+export const EXAM_UNITS = ['F9', 'E5', 'E11'];
+/** The plan's exam period (content/plan.ts, weeks "jan" and "feb"). */
+export const EXAM_DEFAULT: ExamMode = { on: false, start: '2027-01-07', end: '2027-02-28' };
+
 export interface Settings {
   dailyGoal: DailyGoal;
   /** When any setting last changed (the name predates other settings). */
   goalUpdatedAt: string;
   sound: boolean;
+  exam: ExamMode;
 }
 
 export interface Progress {
@@ -71,7 +87,7 @@ export function emptyProgress(): Progress {
     activity: [],
     review: {},
     labCode: {},
-    settings: { dailyGoal: 15, goalUpdatedAt: EPOCH0, sound: false },
+    settings: { dailyGoal: 15, goalUpdatedAt: EPOCH0, sound: false, exam: { ...EXAM_DEFAULT } },
   };
 }
 
@@ -80,6 +96,18 @@ export function emptyProgress(): Progress {
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const str = (v: unknown, d = '') => (typeof v === 'string' ? v : d);
 const num = (v: unknown, d = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+function normalizeExam(v: unknown): ExamMode {
+  if (!isObj(v)) return { ...EXAM_DEFAULT };
+  const start = typeof v.start === 'string' && DAY.test(v.start) ? v.start : EXAM_DEFAULT.start;
+  const end = typeof v.end === 'string' && DAY.test(v.end) ? v.end : EXAM_DEFAULT.end;
+  return { on: v.on === true, start, end };
+}
+
+/** Exam mode is on and `day` is inside its range. */
+export const examActive = (s: Settings, day: string) => s.exam.on && s.exam.start <= day && day <= s.exam.end;
 
 /**
  * Accept anything that looks like progress (from storage, an imported file or
@@ -109,6 +137,7 @@ export function normalizeProgress(raw: unknown): Progress {
       dailyGoal: g === 5 || g === 30 ? g : 15,
       goalUpdatedAt: str(s.goalUpdatedAt, EPOCH0),
       sound: s.sound === true,
+      exam: normalizeExam(s.exam),
     };
   }
   return out;
@@ -320,6 +349,7 @@ function setSettings(patch: Partial<Settings>) {
 
 export const setDailyGoal = (dailyGoal: DailyGoal) => setSettings({ dailyGoal });
 export const setSound = (sound: boolean) => setSettings({ sound });
+export const setExam = (patch: Partial<ExamMode>) => setSettings({ exam: { ...state.settings.exam, ...patch } });
 
 /** Test helper. */
 export function replaceProgress(p: Progress) {
@@ -385,6 +415,9 @@ export interface Stats {
   activeToday: boolean;
   goal: DailyGoal;
   goalMet: boolean;
+  /** Exam mode is active today: the goal is one short review. */
+  exam: boolean;
+  reviewedToday: boolean;
 }
 
 export function computeStats(p: Progress, today = dayKey()): Stats {
@@ -392,6 +425,8 @@ export function computeStats(p: Progress, today = dayKey()): Stats {
   const todays = p.activity.filter((a) => a.day === today);
   const todayMinutes = todays.reduce((s, a) => s + a.minutes, 0);
   const info = computeStreakInfo(days, today);
+  const exam = examActive(p.settings, today);
+  const reviewedToday = todays.some((a) => a.kind === 'review');
   return {
     totalXp: p.activity.reduce((s, a) => s + a.xp, 0),
     todayXp: todays.reduce((s, a) => s + a.xp, 0),
@@ -401,7 +436,9 @@ export function computeStats(p: Progress, today = dayKey()): Stats {
     frozeYesterday: info.frozen.includes(addDays(today, -1)),
     activeToday: todays.length > 0,
     goal: p.settings.dailyGoal,
-    goalMet: todayMinutes >= p.settings.dailyGoal,
+    goalMet: exam ? reviewedToday : todayMinutes >= p.settings.dailyGoal,
+    exam,
+    reviewedToday,
   };
 }
 

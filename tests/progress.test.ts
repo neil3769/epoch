@@ -50,7 +50,7 @@ describe('merge: two devices offline', () => {
     activity: [...base.activity, act('c1', '2026-11-12', 'e2-01'), act('c2', '2026-11-12', 'review', 'review')],
     review: { 'f3-2-3': { box: 2, due: '2026-11-15', updatedAt: '2026-11-12T21:00:00.000Z' } },
     labCode: { 'f3-lab-1#1': { code: 'pc', updatedAt: '2026-11-12T21:30:00.000Z' } },
-    settings: { dailyGoal: 30, goalUpdatedAt: '2026-11-12T19:00:00.000Z', sound: false },
+    settings: { dailyGoal: 30, goalUpdatedAt: '2026-11-12T19:00:00.000Z', sound: false, exam: { on: false, start: '2027-01-07', end: '2027-02-28' } },
   };
 
   const merged = mergeProgress(phone, pc);
@@ -246,5 +246,66 @@ describe('plan weeks', () => {
     expect(unitsThisWeek('2027-06-01')).toEqual([]);
     // Weeks are contiguous and do not overlap.
     for (let i = 1; i < PLAN.length; i++) expect(PLAN[i].start > PLAN[i - 1].end).toBe(true);
+  });
+});
+
+import { allowedUnits, continueLesson, labRewrites } from '../src/lib/curriculum';
+import { examActive } from '../src/lib/progress';
+
+describe('exam mode', () => {
+  const day = '2027-01-20';
+  const withExam = (on: boolean, extra: Partial<ReturnType<typeof emptyProgress>> = {}) => {
+    const p = { ...emptyProgress(), ...extra };
+    return { ...p, settings: { ...p.settings, exam: { on, start: '2027-01-07', end: '2027-02-28' } } };
+  };
+  const act = (id: string, d: string, ref: string, kind: 'lesson' | 'review' = 'lesson', minutes = 3) => ({
+    id, at: `${d}T10:00:00.000Z`, day: d, kind, ref, xp: 10, minutes,
+  });
+
+  it('is active only when on and inside the dates', () => {
+    expect(examActive(withExam(true).settings, day)).toBe(true);
+    expect(examActive(withExam(true).settings, '2027-03-01')).toBe(false);
+    expect(examActive(withExam(false).settings, day)).toBe(false);
+  });
+
+  it('makes one review the daily goal', () => {
+    const lessonOnly = withExam(true, { activity: [act('a', day, 'f9-01', 'lesson', 20)] });
+    expect(computeStats(lessonOnly, day).goalMet).toBe(false);
+    const reviewed = withExam(true, { activity: [act('b', day, 'quick', 'review', 2)] });
+    const s = computeStats(reviewed, day);
+    expect(s.exam && s.goalMet && s.reviewedToday).toBe(true);
+    // Outside exam mode, two minutes are not a 15-minute goal.
+    expect(computeStats(withExam(false, { activity: reviewed.activity }), day).goalMet).toBe(false);
+  });
+
+  it('keeps the streak on one short review a day', () => {
+    const days = Array.from({ length: 10 }, (_, i) => addDays('2027-01-10', i));
+    const p = withExam(true, { activity: days.map((d, i) => act(`r${i}`, d, 'quick', 'review', 2)) });
+    expect(computeStats(p, days[9]).streak).toBe(10);
+  });
+
+  it('offers only F9, E5 and E11', () => {
+    const p = withExam(true);
+    expect([...allowedUnits(p, day)!].sort()).toEqual(['E11', 'E5', 'F9']);
+    expect(allowedUnits(withExam(false), day)).toBeUndefined();
+    expect(['F9', 'E5', 'E11']).toContain(continueLesson(p, undefined, day)!.unit.id);
+    // After an F3 lesson, Continue still stays inside the allowed units.
+    const p2 = withExam(true, { activity: [act('c', '2027-01-19', 'f3-01')] });
+    expect(['F9', 'E5', 'E11']).toContain(continueLesson(p2, undefined, day)!.unit.id);
+    expect(continueLesson(withExam(false), undefined, day)!.unit.id).toBe('F3');
+  });
+
+  it('hides lab rewrites from paused units', () => {
+    const review = { 'lab:f3-lab-1#1': { box: 1, due: '2027-01-01', updatedAt: '2027-01-01T00:00:00.000Z' } };
+    expect(labRewrites(withExam(true, { review }), day)).toEqual([]);
+    expect(labRewrites(withExam(false, { review }), day)).toHaveLength(1);
+  });
+
+  it('survives import, and fills in defaults for old files', () => {
+    const p = withExam(true);
+    expect(normalizeProgress(JSON.parse(JSON.stringify(p))).settings.exam).toEqual(p.settings.exam);
+    const old = JSON.parse(JSON.stringify(emptyProgress()));
+    delete old.settings.exam;
+    expect(normalizeProgress(old).settings.exam.on).toBe(false);
   });
 });
