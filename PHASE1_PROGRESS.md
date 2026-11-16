@@ -92,3 +92,8 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - epoch_sim: MockTransport, Request, URL, Response(json=); E2 prelude now imports epoch_sim as sim.
 - verify-content: last-lab empty-function rule accepts `async def`.
 - Next: F1 lessons 4-12 (+ labs, Library), then F2.
+
+## Phase 4, unit F1 completed (lessons 4-12, labs, Library), 2026-11-16 — DONE
+- content/units/f1-more.ts (unpacking/zip/enumerate, defaults/keywords, *args/**kwargs, classes, inheritance/super,
+  imports, type hints, tracebacks, checkpoint), labs/f1.ts (dataset class; helpers from empty functions), library/f1.ts.
+- Next: F2 Vectors (8 lessons + labs + Library).

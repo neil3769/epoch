@@ -271,3 +271,23 @@ adds `import epoch_sim as sim`. All snippets and both labs run (real `asyncio.wa
 
 Not confirmed from the pages read (stated as practice, not as a quoted rule): which 4xx/5xx
 codes to retry beyond 429 and 5xx, and the HTTP-date form of Retry-After (lab 1 notes it).
+
+# Hand verification, Phase 4: unit F1 lessons 4 to 12, labs and Library
+
+All snippets are plain Python and are executed, including both labs and the Library example.
+Judgement items re-derived by hand (Python language facts):
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| f1-5-6 | Keywords make clear which option each value sets | Keyword arguments name parameters; no speed effect. Correct. |
+| f1-6-6 | `**kwargs` takes any extra named options, as a dict | Language semantics. Correct. |
+| f1-7-5 | `__init__` runs when an object is created | Called by the class call `Model(2)`. Correct. |
+| f1-8-5 | nn.Module sets itself up in `super().__init__()` | PyTorch requires calling the parent initialiser before assigning submodules (it sets up parameter/module registries). Correct. |
+| f1-9-4 | `import numpy as np` | Universal convention. Correct. |
+| f1-9-7 | The guard stops training from starting on import | `__name__ == "__main__"` only when run directly. Correct. |
+| f1-10-1 | The input is a list of dicts from str to int | Reading the hint before `->`. Correct. |
+| f1-10-6 | Type checkers and editors check hints | Python stores but does not enforce annotations (typing docs). Correct. |
+| f1-11-2 | Look first at the last frame in your own file | The library raised; the bad arguments came from the caller. Correct. |
+| f1-11-5 | NameError/KeyError/IndexError/TypeError causes | Standard meanings of the built-in exceptions. Correct. |
+| f1-12-8 | Line 42 of forward multiplied mismatched shapes | Frame gives file/line/function; message gives the problem. Correct. |
+| f1-12-9 | `xs[-2:]`, `enumerate`, `**kwargs`, `super().__init__()` | As taught in lessons 1, 4, 6 and 8. Correct. |

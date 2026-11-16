@@ -1,4 +1,7 @@
+import { f1Labs } from '../labs/f1';
+import { f1Library } from '../library/f1';
 import type { Unit } from '../schema';
+import { f1More } from './f1-more';
 
 export const f1: Unit = {
   id: 'F1',
@@ -389,5 +392,8 @@ assert counts["cat"] == 2, "counts['cat'] should not change"`,
         },
       ],
     },
+    ...f1More,
   ],
+  labs: f1Labs,
+  library: f1Library,
 };
