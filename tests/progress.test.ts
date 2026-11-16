@@ -235,3 +235,16 @@ describe('labs', () => {
     expect(labCodeBefore(lab, p, 2)).toContain('[r[j] for r in M]');
   });
 });
+
+describe('plan weeks', () => {
+  it('marks the unit for the current plan week', async () => {
+    const { planWeekOn, unitsThisWeek, PLAN } = await import('../content/plan');
+    expect(planWeekOn('2026-11-16')?.id).toBe('3');
+    expect(unitsThisWeek('2026-11-22')).toEqual(['E5']);
+    expect(unitsThisWeek('2026-11-23').sort()).toEqual(['E4']);
+    expect(unitsThisWeek('2027-02-10').sort()).toEqual(['E11', 'E5']);
+    expect(unitsThisWeek('2027-06-01')).toEqual([]);
+    // Weeks are contiguous and do not overlap.
+    for (let i = 1; i < PLAN.length; i++) expect(PLAN[i].start > PLAN[i - 1].end).toBe(true);
+  });
+});

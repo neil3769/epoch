@@ -54,3 +54,13 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - src/python/epoch_sim.py installed to /epoch in worker + verifier; scripts/sim_selftest.py run by verify-content.
 - Browser-checked: lab 1 end to end, hints 1-3, error line mapping, rewrite card -> single step -> retired, Library
   unlock/search/page, dark mode, `import epoch_sim` in the app worker. Next: Phase 4 (content: E unit for current plan week).
+
+## Phase 4, unit E5 (Evaluation), 2026-11-16 — DONE
+- content/plan.ts: plan weeks (dates + topics only) and UNIT_WEEKS; Home shows "Week N of your plan" on the
+  AI Engineering tab and a "This week in your plan" tag on matching units. Checkpoint done screen shows the
+  unit's Library `forReal` ("To do this for real").
+- content/units/e5.ts (11 lessons, 89 exercises, prelude `import json`), content/labs/e5.ts (3 labs: eval harness,
+  judge with sim.FakeLLM, before/after + leaks from empty functions), content/library/e5.ts.
+- MCQ option lengths rebalanced (right answer not the longest by >1.2x). Hand checks in reports/hand-verification.md.
+- Gotcha: in this shell, bash heredocs turn `\` into `\`; write helper Python files with the Write tool instead.
+- Next unit (user asked to continue): E3 Calling an LLM (week 2). Check current Anthropic SDK / Pydantic docs first.

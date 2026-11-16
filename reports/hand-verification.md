@@ -82,3 +82,50 @@ What is not executed, re-derived by hand:
 `AsyncClient` follow httpx (`get`, `post`, `status_code`, `json()`, `raise_for_status()`,
 `HTTPStatusError`, `TimeoutException`). No engineering lab uses them yet; each lab that does
 must state its own differences (`differs` field) and be checked against current docs then.
+
+# Hand verification, Phase 4: unit E5 (Evaluation)
+
+`npm run verify-content` executes every E5 snippet whose output, error or result is an answer,
+all three labs (solutions pass, starters and hint-2 structures fail) and the Library example.
+The 27 judgement items it cannot run were re-derived by hand. Before this, the multiple-choice
+options were rebalanced so the right answer is not simply the longest (checked by script:
+no right option is more than about 1.2 times the longest wrong one).
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e5-1-2 | Same inputs and expected answers, scored the same way | An eval needs fixed inputs, expected outputs and a scoring rule; more hand tries or another model's opinion supply none of these. Correct. |
+| e5-1-7 | A against B | Only A and B were scored on the same items; C's set may be easier. Correct. |
+| e5-2-2 | 3, 14 and 15 days, plus one with no day count | Covers a common case, both sides of the 14-day boundary and an under-specified question; the others are all-easy or all-clear. Correct. |
+| e5-2-6 | A person who checked each one | Model or old-prompt labels make the eval measure self-agreement or copy old errors. Correct. |
+| e5-3-4 | Sorting tickets into billing, bug or other | Closed label set suits exact match; summaries and replies have many valid wordings. Correct. |
+| e5-4-1 | Accuracy | One right folder per email; a judge or confidence does not measure correctness more cheaply. Correct. |
+| e5-4-2 | One wrong field would fail the whole invoice | All-or-nothing scoring hides which field fails; speed and comparability are not the issue. Correct. |
+| e5-4-5 | A rubric or judge | Free-text summary; exact match and a fixed list do not fit. Correct. |
+| e5-4-6 | positive/negative → accuracy; extract fields → per-field; explain policy → rubric or judge | Each pairing follows the lesson's rule (closed label, several closed fields, free text). Correct. |
+| e5-5-4 | Recall (fraud) | Misses are costly, false alarms cheap; accuracy is inflated by the rare positive class. Correct. |
+| e5-5-5 | Precision (spam filter hiding mail) | False alarms (real mail flagged) are the costly error. Correct. |
+| e5-6-4 | Mentions the 14-day limit | A literal substring check; tone and intent need judgement. Correct. |
+| e5-7-3 | Retry or repair, report how many failed | Inventing a score or dropping items biases the result silently. Correct. |
+| e5-7-5 | Compare with your own scores, short answers included | Only comparison with known labels reveals a length bias; a bigger judge or an instruction proves nothing. Correct. |
+| e5-7-7 | Judge both orders; count consistent wins | Standard fix for position bias; 70% is far from the 50% of a fair coin. Correct. |
+| e5-8-1 | Keep them | Deleting failed items raises the score without improving the system. Correct. |
+| e5-8-3 | Fix it and bump the version | Wrong labels should be fixed; versioning stops old and new scores being mixed. Correct. |
+| e5-8-7 | In the model's prompt examples | Test items in the prompt are leakage; version control and the eval script must hold the set. Correct. |
+| e5-9-2 | The pair helped; not which change did | Two changes at once confound the cause. Correct. |
+| e5-9-3 | Maybe noise | A one-item difference on 50 items is within run-to-run variation (e5-9-6 shows two flips with no change). Correct. |
+| e5-10-2 | Yes: golden items now sit in the prompt | Few-shot examples taken from the test set are leakage. Correct. |
+| e5-10-3 | It tuned on the test | Selecting among 30 versions by test score fits the test; use a dev set for choosing. Correct. |
+| e5-10-5 | Tuning on a dev set, reporting once on an untouched golden set | The other two put test items or test-driven fixes into the build. Correct. |
+| e5-11-1 | Accuracy, with a count per team | Closed labels; a per-team count shows where errors land. Correct. |
+| e5-11-5 | Score a sample yourself and compare | A uniformly high judge must be checked against human labels first. Correct. |
+| e5-11-7 | Did any of the 50 come from the golden set? | A large jump after adding examples is the classic leakage sign. Correct. |
+| e5-11-9 | two changes → one per run; position bias → both orders; test items in prompt → dev set; "Yes." vs "yes" → normalise | Each fix is taught in lessons 9, 7, 10 and 3. Correct. |
+
+Other E5 text not executed:
+
+- Lesson cards and explanations re-read: precision = tp / (tp + fp), recall = tp / (tp + fn)
+  (card output executed); "dicts compare by keys and values, not order" (executed in e5-4-4).
+- Lab 2 `differs`: the call shape `client.messages.create(model=..., max_tokens=..., messages=[...])`
+  and `reply.content[0].text` matches the Anthropic Python SDK's Messages API as known at
+  writing; E3 (calling an LLM) re-checks current provider docs before teaching it directly.
+- Library forReal: refers only to the plan's week 3, week 6 and February topics (no personal details).

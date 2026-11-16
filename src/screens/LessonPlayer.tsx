@@ -50,6 +50,14 @@ export function LessonPlayer({ lessonId, previewFrom }: { lessonId: string; prev
         extra={
           <>
             {checkpointLine && <p className="done-note">{checkpointLine}</p>}
+            {lesson.checkpoint && unit.library?.forReal && (
+              <div className="done-note done-real">
+                <strong>To do this for real</strong>
+                <p>
+                  <Inline text={unit.library.forReal} />
+                </p>
+              </div>
+            )}
             {newLabs.map((lab) => (
               <button key={lab.id} className="rewrite-card" onClick={() => go(`#/lab/${lab.id}`)}>
                 <span>

@@ -1877,3 +1877,30 @@ mark {
   white-space: nowrap;
   padding: 0 8px;
 }
+
+/* ------------------------------------------------------ plan week marker --- */
+
+.week-tag {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--col-ink);
+  background: var(--col);
+}
+.plan-line {
+  margin: 0 2px 12px;
+  color: var(--muted);
+  font-size: 15px;
+}
+.plan-line strong {
+  color: var(--text);
+}
+.done-real {
+  text-align: left;
+}
+.done-real p {
+  margin: 4px 0 0;
+}

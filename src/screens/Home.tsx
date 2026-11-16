@@ -6,6 +6,7 @@ import { useBarHeight } from '../components/useBarHeight';
 import { checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack } from '../lib/curriculum';
 import { dayKey } from '../lib/dates';
 import { LibraryList } from './Library';
+import { planWeekOn, unitsThisWeek } from '../../content/plan';
 import { computeStats, dueItems, setDailyGoal, useProgress, type DailyGoal } from '../lib/progress';
 import { SyncBadge } from './SyncBadge';
 
@@ -46,6 +47,9 @@ export function Home() {
   const cont = continueLesson(p);
   const units = track === 'library' ? [] : unitsForTrack(track);
   const rewrites = labRewrites(p, dayKey());
+  const week = planWeekOn(dayKey());
+  const thisWeek = new Set(unitsThisWeek(dayKey()));
+  const weekTag = (id: string) => thisWeek.has(id) && <span className="week-tag">This week in your plan</span>;
   const hasHistory = p.activity.length > 0;
   const due = dueItems(p).filter((id) => findExercise(id)).length;
   const canReview = Object.keys(p.completed).length > 0 || Object.keys(p.review).length > 0;
@@ -159,6 +163,11 @@ export function Home() {
       </div>
 
       {track === 'library' && <LibraryList />}
+      {track === 'engineering' && week && (
+        <p className="plan-line">
+          <strong>{week.label}</strong> of your plan: {week.focus}.
+        </p>
+      )}
 
       <div className="path">
         {units.map((u) => {
@@ -170,6 +179,7 @@ export function Home() {
                   <div>
                     <h3>{u.title}</h3>
                     <span className="unit-meta">{u.planned} lessons · coming soon</span>
+                    {weekTag(u.id)}
                   </div>
                 </div>
               </section>
@@ -188,6 +198,7 @@ export function Home() {
                     {doneCount}/{lessons.length} done
                     {lessons.length < u.planned ? ` · ${u.planned - lessons.length} more lessons coming` : ''}
                   </span>
+                  {weekTag(u.id)}
                 </div>
                 {canTestOut && (
                   <button className="btn btn-small btn-ghost test-out" onClick={() => go(`#/lesson/${checkpoint.id}`)}>
