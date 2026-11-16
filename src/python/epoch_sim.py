@@ -102,6 +102,9 @@ class Usage:
     def __init__(self, input_tokens, output_tokens):
         self.input_tokens = input_tokens
         self.output_tokens = output_tokens
+        # The real API also reports prompt-cache tokens; nothing is cached here.
+        self.cache_creation_input_tokens = 0
+        self.cache_read_input_tokens = 0
 
     def __repr__(self):
         return f"Usage(input_tokens={self.input_tokens}, output_tokens={self.output_tokens})"
@@ -130,6 +133,7 @@ class ToolUseBlock:
 
 
 class Message:
+    type = "message"
     role = "assistant"
 
     def __init__(self, id, model, content, stop_reason, usage):

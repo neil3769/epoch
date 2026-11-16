@@ -42,6 +42,9 @@ self.onmessage = async (e: MessageEvent<Msg>) => {
   if (msg.type === 'run') {
     try {
       await (ready ??= init());
+      // Packages beyond NumPy (e.g. pydantic) load the first time code imports them,
+      // then come from the service-worker cache.
+      await py.loadPackagesFromImports(msg.code, { messageCallback: () => {} });
       py.globals.set('_EPOCH_SRC', msg.code);
       const out = await py.runPythonAsync('await _epoch_run_json(_EPOCH_SRC)');
       post({ type: 'result', id: msg.id, result: JSON.parse(out) });

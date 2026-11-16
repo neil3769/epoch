@@ -64,3 +64,13 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - MCQ option lengths rebalanced (right answer not the longest by >1.2x). Hand checks in reports/hand-verification.md.
 - Gotcha: in this shell, bash heredocs turn `\` into `\`; write helper Python files with the Write tool instead.
 - Next unit (user asked to continue): E3 Calling an LLM (week 2). Check current Anthropic SDK / Pydantic docs first.
+
+## Phase 4, unit E3 (Calling an LLM), 2026-11-16 — DONE
+- Docs checked (Messages API, tool use, pricing format, structured outputs, Pydantic v2, SDK errors/retries);
+  summary in reports/hand-verification.md. epoch_sim: Message.type, usage cache fields.
+- App worker now runs `loadPackagesFromImports` before each run (pydantic loads on first use, cached by the SW);
+  verifier preloads numpy + pydantic.
+- content/units/e3.ts (10 lessons, prelude `import json` + `import epoch_sim as sim`), labs/e3.ts (logged call,
+  schema-valid repair loop, tool loop from empty functions), library/e3.ts. MCQ lengths balanced.
+- Fixed: preview route past the last exercise crashed the app; now shows a message.
+- Next per brief order: remaining past-week units (E1, rest of E2, E4 for week 4), then F1, F2, F4...

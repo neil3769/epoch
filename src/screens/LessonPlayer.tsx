@@ -86,6 +86,17 @@ export function LessonPlayer({ lessonId, previewFrom }: { lessonId: string; prev
   };
 
   const items = lesson.exercises.slice(previewFrom ?? 0).map((ex) => ({ ex, prelude: unit.prelude ?? '' }));
+  if (items.length === 0)
+    return (
+      <main className="screen center">
+        <p>
+          {lesson.title} has {total} exercises, numbered from 0.
+        </p>
+        <button className="btn" onClick={() => go(`#/lesson/${lesson.id}`)}>
+          Open the lesson
+        </button>
+      </main>
+    );
 
   const intro = preview ? undefined : (
     <>

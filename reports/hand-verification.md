@@ -129,3 +129,42 @@ Other E5 text not executed:
   and `reply.content[0].text` matches the Anthropic Python SDK's Messages API as known at
   writing; E3 (calling an LLM) re-checks current provider docs before teaching it directly.
 - Library forReal: refers only to the plan's week 3, week 6 and February topics (no personal details).
+
+# Hand verification, Phase 4: unit E3 (Calling an LLM)
+
+Docs checked on 2026-11-16 before writing (via the provider's and Pydantic's own pages):
+the Messages API takes `model`, `max_tokens` and `messages` (roles "user" and "assistant"),
+with the system prompt as a separate top-level `system` parameter; replies carry `content`
+blocks (`text`, `tool_use`), `stop_reason` ("end_turn", "max_tokens", "tool_use", ...) and
+`usage.input_tokens` / `usage.output_tokens`; tools are `name`, `description`, `input_schema`,
+and results go back as a user message with a `tool_result` block and `tool_use_id`. Prices
+are quoted per million tokens. A structured-output mode exists (JSON schema). Pydantic v2:
+`model_validate_json`, `model_validate`, `model_dump`, `ValidationError`, `e.errors()`.
+`epoch_sim` follows these shapes (it gained `Message.type` and the cache usage fields).
+The app now loads Pydantic on demand (`loadPackagesFromImports`) and the verifier preloads it.
+
+All E3 snippets, labs (including Pydantic and the tool loop) and the Library example are
+executed. Judgement items re-derived by hand:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| e3-1-2 | The separate `system` parameter | Per the Messages API docs, the system prompt is top-level, not a message role. Correct. |
+| e3-1-5 | The API keeps no memory between calls | Each call sees only the messages sent with it. Correct. |
+| e3-1-7 | user → what you send; assistant → past replies; system → rules for the chat | Matches the API's roles. Correct. |
+| e3-2-5 | The first block may be a tool call | Replies can contain `tool_use` (and other) blocks before or instead of text. Correct. |
+| e3-3-3 | Raise max_tokens or ask for less | `stop_reason` "max_tokens" means the cap cut the reply. Correct. |
+| e3-3-6 | The system prompt and all past turns | Everything sent is input on that call. Correct. |
+| e3-4-5 | Drop or summarise the oldest turns | Standard context management; the system prompt carries the rules. Correct. |
+| e3-4-6 | Each call resends the growing history | Input tokens grow per turn (e3-4-1 executes the arithmetic). Correct. |
+| e3-5-3 | A reply 1,000 tokens shorter | At 3 / 15 per million, 1,000 output tokens cost 0.015, input 0.003. Correct. |
+| e3-6-5 | json.loads checks syntax, not the fields | `json.loads` accepts any JSON; the model enforces fields and types (e3-6-2 executes this). Correct. |
+| e3-7-3 | The bad reply and the validation error | Standard repair loop (lab 2 tests it). Correct. |
+| e3-7-6 | Return a clear failure and log it | Bounded retries; unbounded ones can loop and cost money. Correct. |
+| e3-8-3 | Your code runs the tool | For client tools the model only emits a `tool_use` request. Correct. |
+| e3-8-7 | Send the error as the tool_result | The docs allow error results (`is_error`); the model can then recover. Correct. |
+| e3-9-4 | Most are quick; 1 call in 20 is slow | Definition of p50/p95. Correct. |
+| e3-10-2 | The system parameter | `max_tokens` is a hard cap that truncates, not a length instruction. Correct. |
+| e3-10-6 | Trim or summarise old turns | The resent history is what grows. Correct. |
+| e3-10-9 | max_tokens → raise cap; ValidationError → send error back; tool_use → run tool; slower chats → trim | Each matches the lesson that taught it. Correct. |
+
+Library forReal refers only to the plan's week 2 topics (no personal details).
