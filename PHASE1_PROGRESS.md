@@ -226,3 +226,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   expression was never displayed before, in any unit), and hide an empty code block.
 - Browser at 390 px: 66 F10 screens and labs, no overflow.
 - Written units now: F1-F10, E1-E11. Next: F11 Attention and transformers, then System Design.
+
+## Phase 4, unit F11 (Attention and transformers), 2026-11-17 — DONE
+- 12 lessons: a weighted average of vectors, scores from dot products (Q @ K.T), softmax and the √d
+  scale, attention in one line, self-attention (Wq, Wk, Wv), the causal mask, multiple heads,
+  position information (permutation test executed with and without positions), the transformer
+  block (norm, residuals, per-token MLP), next-token scores, generating text (greedy, temperature),
+  checkpoint. Prelude: softmax, causal, attention, norm, and a stand-in next_logits lookup over a
+  tiny TOK vocabulary for the generation loop (stated plainly as not a transformer).
+- Labs: attention by hand (scaffolded); a tiny untrained GPT forward pass end to end plus a greedy
+  generation loop, each from an empty function.
+- Browser at 390 px: 107 F11 screens and labs, no overflow.
+- Written units now: F1-F11 and E1-E11 — both tracks complete. Next: the System Design track.

@@ -790,3 +790,40 @@ VOCAB/IDS, merge, pieces, toy table E with columns animal/fruit/vehicle, N, cos)
 | f10-7-4 | Never <unk>: falls back to characters/bytes | Byte-level BPE. Correct. |
 | f10-7-7 | Id → embedding is a row lookup | As f10-4-5. Correct. |
 | f10-7-10 | RAG retrieval uses embeddings and search | Unit E6. Correct. |
+
+# Hand verification, Phase 4: unit F11 (Attention and transformers)
+
+All weighted-average, score, softmax, attention, mask, head-shape, position, block, logit and
+generation exercises are executed (prelude: softmax, causal, attention, norm, and the stand-in
+next_logits lookup over TOK). Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| f11-1-4 | "it" should weight "cat" most | Coreference; the classic attention example. Correct. |
+| f11-1-6 | Weights sum to 1 so the result stays a blend | Convex combination. Correct. |
+| f11-2-4 | S[i, j]: query i against key j | Q @ K.T definition. Correct. |
+| f11-2-8 | Separate query and key: seeking ≠ offering | Vaswani et al. 2017 roles. Correct. |
+| f11-3-4 | √d because dot products grow with d | Vaswani et al. 2017 §3.2.1. Correct. |
+| f11-3-8 | Zero weight only from −∞ | exp is positive everywhere. Correct. |
+| f11-4-5 | V holds what each token passes on | Definition. Correct. |
+| f11-4-7 | Doubling length → 4× weight matrix | n × n. Correct. |
+| f11-5-2 | Wq, Wk, Wv set by training | Learned projections. Correct. |
+| f11-5-5 | "Self": Q, K, V from one text (cross-attention otherwise) | Definition. Correct. |
+| f11-6-3 | Mask stops reading the answer during training | Next-token objective. Correct. |
+| f11-6-8 | BERT-style encoders need no causal mask | Bidirectional encoders. Correct. |
+| f11-7-4 | Several heads track several relations | Multi-head attention rationale. Correct. |
+| f11-7-8 | Joined heads mixed by an output matrix Wo | Vaswani et al. 2017 MultiHead. Correct. |
+| f11-8-2 | Without positions, word order is lost | Permutation equivariance (card executes it). Correct. |
+| f11-8-7 | 1,024-row learned table: no vectors past 1,024 | GPT-2 n_ctx = 1024; RoPE rotates Q/K. Correct. |
+| f11-9-2 | Residual gives a direct path through the stack | He et al. 2016; gradient flow. Correct. |
+| f11-9-4 | MLP works on each token alone | Position-wise FFN (f11-9-5 executes it). Correct. |
+| f11-9-8 | Each block has its own weights | GPT-2: 12 distinct blocks. Correct. |
+| f11-10-3 | Last position alone has seen every token | Causal mask. Correct. |
+| f11-10-7 | Trained by predicting next tokens of real text | Language-model objective, cross-entropy. Correct. |
+| f11-11-2 | Stop at an end token or length limit | max_tokens / EOS. Correct. |
+| f11-11-7 | Sampling avoids repetitive greedy text | Holtzman et al. 2020 (degeneration). Correct. |
+| f11-11-8 | One model run per generated token | Autoregressive decoding; KV cache. Correct. |
+| f11-12-3 | Key decides weight, value is passed on | As taught. Correct. |
+| f11-12-5 | Scores 40, 10 with d = 1600 become 1 and 0.25 | √1600 = 40. Correct. |
+| f11-12-7 | No positions: order lost | As f11-8-2. Correct. |
+| f11-12-10 | Dull repeated answers: raise temperature | As f11-11-4. Correct. |
