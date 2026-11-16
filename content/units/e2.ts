@@ -153,7 +153,7 @@ asyncio.run(main())`,
           type: 'mcq',
           prompt: 'Why do LLM clients use async code?',
           options: [
-            { text: 'While one request waits for the network, the program can send or handle others.' },
+            { text: 'While one request waits, others can be sent or handled.' },
             { text: 'Async makes each request reach the server faster.', why: 'A single request takes just as long. Async helps by not sitting idle while it waits.' },
             { text: 'Async is required to send HTTP requests in Python.', why: 'Ordinary (sync) HTTP clients work fine. Async pays off when there are many requests waiting at once.' },
           ],

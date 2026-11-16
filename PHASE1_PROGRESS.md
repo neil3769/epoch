@@ -74,3 +74,9 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   schema-valid repair loop, tool loop from empty functions), library/e3.ts. MCQ lengths balanced.
 - Fixed: preview route past the last exercise crashed the app; now shows a message.
 - Next per brief order: remaining past-week units (E1, rest of E2, E4 for week 4), then F1, F2, F4...
+
+## Phase 4, unit E4 (Prompts and context), 2026-11-16 — DONE
+- Sources: provider prompting best practices + "Effective context engineering" article (summary in hand-verification).
+- content/units/e4.ts (7 lessons), labs/e4.ts (prompt builder; fit-the-context from empty functions), library/e4.ts.
+- verify-content now fails an MCQ whose right option is >1.25x longer than every wrong one.
+- User asked for 3-4 more units after E4: plan E1, rest of E2 (lessons 4-8), rest of F1 (lessons 4-12), F2.

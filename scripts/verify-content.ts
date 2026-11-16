@@ -171,10 +171,16 @@ function checkCard(where: string, card: Card) {
 function checkStructure(ex: Exercise, where: string) {
   checkWidth(where, 'code', 'code' in ex ? (ex.code as string | undefined) : undefined);
   switch (ex.type) {
-    case 'mcq':
+    case 'mcq': {
       if (ex.answer >= ex.options.length) return fail(where, 'answer index out of range');
       checkOptions(where, ex.options, ex.options[ex.answer].text, false);
+      // The right answer must not stand out as the longest, or it can be guessed without understanding.
+      const lens = ex.options.map((o) => o.text.length);
+      const longestWrong = Math.max(...lens.filter((_, i) => i !== ex.answer));
+      if (lens[ex.answer] > 1.25 * longestWrong)
+        fail(where, `right option is ${lens[ex.answer]} chars, far longer than any wrong one (${longestWrong}): guessable by length`);
       break;
+    }
     case 'predict-output':
     case 'predict-shape':
       if (ex.options) checkOptions(where, ex.options, ex.answer);

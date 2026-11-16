@@ -168,3 +168,39 @@ executed. Judgement items re-derived by hand:
 | e3-10-9 | max_tokens → raise cap; ValidationError → send error back; tool_use → run tool; slower chats → trim | Each matches the lesson that taught it. Correct. |
 
 Library forReal refers only to the plan's week 2 topics (no personal details).
+
+# Hand verification, Phase 4: unit E4 (Prompts and context)
+
+Sources read on 2026-11-16: the provider's prompt-engineering overview and "prompting best
+practices" page, and its engineering article "Effective context engineering for AI agents".
+All snippets, both labs and the Library example are executed. `verify-content` now also
+fails any multiple-choice question whose right option is more than 1.25 times longer than
+every wrong one (this caught one old E2 question, rewritten).
+
+| Exercise | Answer | Source / re-derivation |
+|---|---|---|
+| e4-1-1 | Task, reader and format stated | "Be clear and direct": state the task and the context. Correct. |
+| e4-1-3 | Give the reason (read aloud, so no ellipses) | The guide's own example: explaining why generalises better than "NEVER". Correct. |
+| e4-1-5 | Write in plain paragraphs | Guide: say what to do rather than what not to do. Correct. |
+| e4-2-2 | So it copies the pattern, not a quirk | Guide: examples should be diverse so unintended patterns are not learned. Correct. |
+| e4-2-3 | About three to five | Guide's tip: include 3 to 5 examples. Correct. |
+| e4-2-7 | one label → vary; read as input → tags; from test set → dev set | Guide (diverse, tagged) and E5 (leakage). Correct. |
+| e4-3-2 | Question at the end | Guide: long documents at the top, query at the end (reported up to 30% better). Correct. |
+| e4-3-6 | Quote the relevant passages first | Guide: for long documents ask for relevant quotes first. Correct. |
+| e4-4-1 | Specific job and limits | Article: the "right altitude" between brittle if-else logic and vague guidance. Correct. |
+| e4-4-2 | Trim to essentials and add a few examples | Article: avoid laundry lists of edge-case rules; use canonical examples. Correct. |
+| e4-4-7 | Start minimal, test, fix observed failures | Article: start with a minimal prompt, add for observed failure modes. Correct. |
+| e4-5-2 | Send the parts the question needs | Article: smallest set of high-signal tokens. Correct. |
+| e4-5-5 | Low-signal text dilutes attention | Article: context rot, the attention budget. Correct. |
+| e4-5-7 | policy → include; catalogue → leave out; old chat → summary at most | Follows from the high-signal principle for that question. Correct. |
+| e4-6-2 | Old tool results already used | Article: clearing old tool results is the safest light form of compaction. Correct. |
+| e4-6-4 | Notes it writes and rereads | Article: structured note-taking for iterative work with milestones. Correct. |
+| e4-6-6 | Search tools; open files as needed | Article: just-in-time retrieval with lightweight references. Correct. |
+| e4-7-1 | Classify as bug, billing or other; label only | Task, allowed answers and format. Correct. |
+| e4-7-4 | In the system prompt | Role and lasting rules go in the system prompt (guide; Messages API `system`). Correct. |
+| e4-7-7 | Summarise old turns, drop used results | Compaction, as in the article. Correct. |
+| e4-7-9 | examples → format; docs first → long inputs; compaction → near the window; just-in-time → huge bases | Each from the guide or article. Correct. |
+
+Also checked: the e4-4-4 note says the stand-in rejects a "system" role in the list and that the
+provider's docs recommend the separate `system` parameter (which they do); it does not claim the
+real API's behaviour for that role. Library forReal refers only to plan weeks 1 and 4.
