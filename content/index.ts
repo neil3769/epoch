@@ -21,8 +21,10 @@ import { e8 } from './units/e8';
 import { e9 } from './units/e9';
 import { e10 } from './units/e10';
 import { e11 } from './units/e11';
+import { s1 } from './units/s1';
+import { s2 } from './units/s2';
 
-export type Track = 'foundations' | 'engineering';
+export type Track = 'foundations' | 'engineering' | 'system-design';
 
 export interface UnitEntry {
   id: string;
@@ -34,7 +36,7 @@ export interface UnitEntry {
   unit?: Unit;
 }
 
-const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, F10: f10, F11: f11, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7, E8: e8, E9: e9, E10: e10, E11: e11 };
+const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, F10: f10, F11: f11, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7, E8: e8, E9: e9, E10: e10, E11: e11, S1: s1, S2: s2 };
 
 const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'F1', track: 'foundations', title: 'Python you will see in ML code', planned: 12 },
@@ -59,6 +61,20 @@ const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'E9', track: 'engineering', title: 'Cost, latency, observability', planned: 8 },
   { id: 'E10', track: 'engineering', title: 'Safety', planned: 7 },
   { id: 'E11', track: 'engineering', title: 'Interview practice', planned: 12 },
+  { id: 'S1', track: 'system-design', title: 'How a request travels', planned: 9 },
+  { id: 'S2', track: 'system-design', title: 'Back-of-envelope estimation', planned: 8 },
+  { id: 'S3', track: 'system-design', title: 'Scaling out', planned: 8 },
+  { id: 'S4', track: 'system-design', title: 'Caching and CDNs', planned: 10 },
+  { id: 'S5', track: 'system-design', title: 'Databases: modelling and queries', planned: 11 },
+  { id: 'S6', track: 'system-design', title: 'Databases: replication and partitioning', planned: 11 },
+  { id: 'S7', track: 'system-design', title: 'Consistency and coordination', planned: 10 },
+  { id: 'S8', track: 'system-design', title: 'Queues, streams and async work', planned: 10 },
+  { id: 'S9', track: 'system-design', title: 'APIs and service boundaries', planned: 10 },
+  { id: 'S10', track: 'system-design', title: 'Reliability and operations', planned: 10 },
+  { id: 'S11', track: 'system-design', title: 'Specialised building blocks', planned: 11 },
+  { id: 'S12', track: 'system-design', title: 'Designing AI systems', planned: 9 },
+  { id: 'S13', track: 'system-design', title: 'Low-level design in Python', planned: 10 },
+  { id: 'S14', track: 'system-design', title: 'The design interview', planned: 6 },
 ];
 
 export const catalog: UnitEntry[] = plan.map((u) => ({ ...u, unit: written[u.id] }));

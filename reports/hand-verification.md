@@ -827,3 +827,76 @@ next_logits lookup over TOK). Judgement items:
 | f11-12-5 | Scores 40, 10 with d = 1600 become 1 and 0.25 | √1600 = 40. Correct. |
 | f11-12-7 | No positions: order lost | As f11-8-2. Correct. |
 | f11-12-10 | Dull repeated answers: raise temperature | As f11-11-4. Correct. |
+
+# Hand verification, System Design SD-1: units S1 (How a request travels) and S2 (Estimation)
+
+Estimates are recomputed by the verifier from their Python expressions with the Numbers page values
+(content/numbers.ts; latency rows from the Dean/Norvig table, video from Netflix's "about 3 GB per
+hour for HD"). Diagram goals are checked structurally (nodes exist, paths follow edges, slot kind
+matches). Python snippets are executed. Judgement items below re-derived from the stated
+requirements; sources are general mechanisms (RFC 9110 HTTP semantics, RFC 8446 TLS 1.3,
+RFC 9293 TCP, RFC 1034/1035 DNS) rather than product behaviour.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s1-1-2 | Client: draw page, scroll position, play video; server: password check, store order, email | Trust and durability live server side. Correct. |
+| s1-1-3 | Browser not to DB: anyone could read/change everything | Server enforces authorisation. Correct. |
+| s1-1-5 | Request → check → write → respond → show | Respond after durable write. Unique order. Correct. |
+| s1-1-7 | One-phone offline to-do: keep on device | Needs exclude server (offline, no sharing). Correct. |
+| s1-1-8 | Server = program answering requests | Role definition. Correct. |
+| s1-2-1 | Resolver → root → TLD → authoritative → cache | RFC 1034 iterative resolution. Correct. |
+| s1-2-3 | Old address served from caches until TTL | RFC 1035 TTL semantics. Correct. |
+| s1-2-4 | Lower TTL days ahead | Standard migration practice; other options violate a stated need. Correct. |
+| s1-2-8 | Cache because lookups cost round trips | As taught. Correct. |
+| s1-3-3 | DNS → TCP → TLS → request → response | RFC 9293 / RFC 8446 ordering. Correct. |
+| s1-3-4 | Keep-alive skips setup round trips | RFC 9112 persistent connections. Correct. |
+| s1-3-6 | Edge servers near users | Handshakes over short distance; server time is only 50 ms. Correct. |
+| s1-3-8 | TLS 1.3 saves one round trip per new connection | RFC 8446 1-RTT full handshake vs 2-RTT in TLS 1.2. Correct. |
+| s1-4-1 | GET, PUT, DELETE idempotent; POST, POST, PATCH-add not | RFC 9110 §9.2.2. Correct. |
+| s1-4-2 | Create order: POST | RFC 9110 §9.3.3. Correct. |
+| s1-4-5 | Idempotency key for retried payments | Other options break a stated need. Correct. |
+| s1-4-8 | GET must be safe: caches/prefetchers repeat it | RFC 9110 §9.2.1. Correct. |
+| s1-5-1 | 200/301/404/429/503 meanings | RFC 9110, RFC 6585 (429). Correct. |
+| s1-5-2 | Retry later: 429, 503, 504; fix: 400, 404, 422 | Transient vs request errors. Correct. |
+| s1-5-4 | Honour Retry-After 30 | RFC 9110 §10.2.3. Correct. |
+| s1-5-5 | Wrong password: 401 | RFC 9110 §15.5.2. Correct. |
+| s1-5-8 | 500 on emoji: server bug | 5xx = server failure; bad input deserves 4xx. Correct. |
+| s1-6-3 | Latency: closer servers, fewer round trips, TLS 1.3; throughput: more servers, batches, workers | Definitions. Correct. |
+| s1-6-4 | More servers, not overloaded: same latency | Per-request work unchanged. Correct. |
+| s1-6-6 | Arrivals 500 > capacity 400: add capacity | Queueing: backlog grows otherwise. Correct. |
+| s1-6-8 | "Slow": look at time per request | Latency complaint. Correct. |
+| s1-7-4 | 1% of a million = 10,000 slow a day | Arithmetic. Correct. |
+| s1-7-6 | B (p99 300 ms) for 20 calls/page | 1 − 0.99²⁰ ≈ 18% of pages hit A's tail. Correct. |
+| s1-8-1 | Process: own memory, survives sibling crash; thread: shares memory, cheaper, can corrupt sibling | OS definitions. Correct. |
+| s1-8-3 | CPU-bound Python on 8 cores: 8 processes | Default CPython GIL (free-threaded build optional). Correct. |
+| s1-8-4 | Async: switches while each waits | Event loop. Correct. |
+| s1-8-7 | Threads share the process memory | Definition. Correct. |
+| s1-8-8 | Read, read, write, write: lost update | Matches executed s1-8-2. Correct. |
+| s1-9-1 | DNS → TCP/TLS → GET → DB → 200 | As s1-3-3 plus server work. Correct. |
+| s1-9-4 | Blind retry: GET, PUT, DELETE yes; POST messages/transfers no | RFC 9110 idempotency. Correct. |
+| s1-9-5 | 503 from partner: retry with growing waits | Backoff (E2); others break a need. Correct. |
+| s1-9-8 | TTL 6 h: caches may keep old record | As s1-2-3. Correct. |
+| s1-9-10 | Several processes: crash isolation | As s1-8. Correct. |
+| s2-1-1 | 2¹⁰…2⁴⁰ → thousand…trillion | Arithmetic. Correct. |
+| s2-1-4 | 8 GB packed array in 16 GB RAM: keep in memory | Fits; disk breaks latency need. Correct. |
+| s2-1-5 | 1 TB ≈ 10¹² bytes | SI prefixes. Correct. |
+| s2-1-8 | 3.7 vs 4.4 TB: useful, same magnitude | Estimation purpose. Correct. |
+| s2-2-3 | Day ≈ 10⁵ s: easy maths, ~16% off | 86,400 vs 100,000. Correct. |
+| s2-2-5 | Reads: feed, search, profile; writes: post, like, message | Definitions. Correct. |
+| s2-2-8 | 100:1 read-heavy, rare changes: cache reads | Others target 1% of load or are far costlier. Correct. |
+| s2-3-3 | Average sizing fails at peak | As taught. Correct. |
+| s2-3-4 | 7 servers (peak 6 + 1 spare) | Needs: peak and one failure. Correct. |
+| s2-3-7 | Users → per day → average → peak → servers | Unique dependency chain. Correct. |
+| s2-4-4 | ~1 KB: bio, chat, order; 100s KB+: photo, voice note, clip | Typical sizes (Numbers page). Correct. |
+| s2-4-6 | 100 TB/yr photos: object storage, ids in DB | Standard split; others break a need. Correct. |
+| s2-4-8 | 3 copies: hardware fails | Durability. Correct. |
+| s2-5-4 | 1 Gbps ≈ 125 MB/s | ÷ 8. Correct. |
+| s2-5-6 | 80 GB/s worldwide HD: CDN | Others break a stated need. Correct. |
+| s2-6-6 | Standby DB that takes over | Redundancy; others do not prevent failures. Correct. |
+| s2-6-7 | 2 h outage vs 99.9%/month (43 min): missed | Arithmetic. Correct. |
+| s2-7-3 | Under 1 ms: RAM, SSD, DC RTT; over: seek, world RTT, 1 MB @ 1 Gbit (8 ms) | Numbers page. Correct. |
+| s2-7-5 | 5 sequential cross-ocean queries: move app beside DB | 5 × 150 ms dominates. Correct. |
+| s2-7-7 | Memory ~1,000× faster than SSD | 100 ns vs 150 µs. Correct. |
+| s2-8-8 | 8 sequential calls 100 ms away: one batched call | 800 ms → ~100 ms. Correct. |
+| s2-8-9 | 2³⁰ ≈ a gigabyte | Arithmetic. Correct. |
+| s2-8-10 | Items → bytes → days → copies → units | Unique chain. Correct. |

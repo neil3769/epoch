@@ -1,6 +1,7 @@
 import type { Exercise, ExerciseType } from '../../content/schema';
 import { Figure } from '../figures/Figure';
 import { mcq, predictOutput, predictShape } from './choice';
+import { bucketSort, diagram, estimate, orderSteps, scenario } from './design';
 import { numberGrid } from './grid';
 import { runCode } from './runcode';
 import { fillBlank, matchPairs, orderLines, spotBug } from './tap';
@@ -30,6 +31,11 @@ export const registry: { [T in ExerciseType]: ExerciseKind<T, any> } = {
   'number-grid': numberGrid,
   'run-code': runCode,
   figure,
+  estimate,
+  'order-steps': orderSteps,
+  'bucket-sort': bucketSort,
+  scenario,
+  diagram,
 };
 
 export const kindOf = (ex: Exercise) => registry[ex.type] as ExerciseKind<ExerciseType, any>;

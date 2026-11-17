@@ -238,3 +238,32 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   generation loop, each from an empty function.
 - Browser at 390 px: 107 F11 screens and labs, no overflow.
 - Written units now: F1-F11 and E1-E11 — both tracks complete. Next: the System Design track.
+
+## System Design SD-1: plumbing, S1 and S2, 2026-11-17 — DONE
+- Third track `system-design` (unit ids S1-S14) in the schema and catalogue (all 14 units planned);
+  home tabs Foundations / AI Eng / Systems / Library (full names in aria-label and title) fit at
+  390 px; checked at 390 px, 800 px and desktop, light and dark. Progress, review, sync and export
+  need no special cases (records are keyed by lesson and exercise id as before).
+- Five new exercise types, registered and graded: `estimate` (options or typed with k/M/B, within a
+  factor; shows the worked arithmetic), `order-steps`, `bucket-sort`, `scenario` (every option shows
+  its cost), `diagram` (tap one node, tap a path in order, or fill an empty slot).
+- Diagram component (src/figures/Diagram.tsx + src/lib/diagram.ts): data-driven nodes and edges with
+  automatic top-to-bottom layering (no coordinates), return arrows on the right, an icon and shape per
+  kind (15 kinds), dashed/labelled edges, stages that grow a design step by step, light and dark.
+  Nodes are at least 44 px tall at 390 px; at most 3 nodes per layer and 6 layers (verified).
+- Numbers page (content/numbers.ts): open from the start in the Library; the same values are exposed
+  to Python by name, and the verifier runs them before every estimate expression and rejects time
+  and latency constants written as literals. Sources listed on the page.
+- verify-content: structural checks for all new types and diagrams (paths follow edges, slot kind
+  matches, every wrong node/option explained, right scenario option not the longest), estimate
+  reference values recomputed in Pyodide; scenario/order/bucket items go on the hand-check list.
+  Card and Library pages accept a diagram; Library pages accept sources.
+- S1 How a request travels (9 lessons) and S2 Back-of-envelope estimation (8 lessons), each with two
+  labs (the second from empty functions) and a Library page. Every new type and all three diagram
+  goal kinds are used. 61 judgement items hand-verified (reports/hand-verification.md).
+- Fixed in passing: the Library route now also opens #/library/numbers.
+- Browser at 390 px: 176 S1/S2 screens, labs and the Numbers page: no overflow, no clipped node
+  labels, every tappable node ≥ 44 px. Tap, path, estimate, order-steps and bucket-sort graded in the
+  app. Tests: 77 pass (new tests for estimate parsing, diagram layout, paths and problems).
+- Not done yet from SD-1's brief: nothing; walkthroughs start in SD-3. Next: SD-2 (S3 Scaling out,
+  S4 Caching and CDNs, with the load-balancer and cache figures and simulator additions).

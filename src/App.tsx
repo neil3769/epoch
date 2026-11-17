@@ -31,7 +31,7 @@ export function App() {
   }
   if (path === '/review' || path === '/review/quick') return <ReviewPlayer key={path} quick={path === '/review/quick'} />;
   if (path === '/settings') return <Settings />;
-  const lib = path.match(/^\/library\/([A-Z0-9]+)$/);
+  const lib = path.match(/^\/library\/([A-Z0-9]+|numbers)$/);
   if (lib) return <LibraryPageView unitId={lib[1]} />;
   // #/lab/<id> continues a lab, #/lab/<id>/again writes it again, #/lab/<id>/<n> rewrites step n.
   const lab = path.match(/^\/lab\/([a-z0-9-]+)(?:\/(again|\d+))?$/);

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { go } from '../components/Bits';
 import { CodeBlock, Inline, OutputBlock } from '../components/Text';
 import { Figure } from '../figures/Figure';
+import { DiagramView } from '../figures/Diagram';
 import { TEST_OUT, findLesson, labUnlocked, nextAfter } from '../lib/curriculum';
 import { computeStats, creditedMinutes, getProgress, lessonXp, recordLesson, recordMistake } from '../lib/progress';
 import { DoneScreen } from './DoneScreen';
@@ -110,6 +111,7 @@ export function LessonPlayer({ lessonId, previewFrom }: { lessonId: string; prev
       {lesson.card.code && <CodeBlock code={lesson.card.code} />}
       {lesson.card.output !== undefined && <OutputBlock text={lesson.card.output} />}
       {lesson.card.figure && <Figure spec={lesson.card.figure} />}
+      {lesson.card.diagram && <DiagramView spec={lesson.card.diagram} />}
       {lesson.checkpoint && (
         <p className="card-note">
           Get {Math.ceil(TEST_OUT * total)} of {total} right first time to test out of {unit.id}: every lesson in it then counts as done.

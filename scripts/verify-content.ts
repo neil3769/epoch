@@ -27,6 +27,7 @@ import {
   type Card,
   type Lab,
   type LibraryPage,
+  type DiagramSpec,
 } from '../content/schema';
 import { HARNESS_PY, installSim } from '../src/python/harness';
 import { fillGaps, countGaps, countSentences, splitLines } from '../src/lib/text';
@@ -34,6 +35,9 @@ import { shapeGoalReachable } from '../src/lib/shapes';
 import { resultGrid } from '../src/lib/broadcast';
 import { LRS, goalReachable, stepsToGoal } from '../src/lib/descent';
 import { neuronGoalReachable, outputGoalMet } from '../src/lib/neuron';
+import { diagramProblems, isPath } from '../src/lib/diagram';
+import { withinFactor } from '../src/lib/estimate';
+import { NUMBER_ROWS, NUMBERS_PY } from '../content/numbers';
 
 const MAX_WIDTH = 38;
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -204,6 +208,19 @@ function checkCard(where: string, card: Card) {
   checkWidth(where, 'card code', card.code);
   checkWidth(where, 'card output', card.output);
   if (card.figure) checkFigure(where, card.figure, false);
+  if (card.diagram) checkDiagram(where, card.diagram);
+}
+
+function checkDiagram(where: string, d: DiagramSpec) {
+  for (const pr of diagramProblems(d)) fail(where, `diagram: ${pr}`);
+}
+
+/** The right option must not stand out as the longest. */
+function checkLength(where: string, texts: string[], answer: number) {
+  const lens = texts.map((t) => t.length);
+  const longestWrong = Math.max(...lens.filter((_, i) => i !== answer));
+  if (lens[answer] > 1.25 * longestWrong)
+    fail(where, `right option is ${lens[answer]} chars, far longer than any wrong one (${longestWrong}): guessable by length`);
 }
 
 function checkStructure(ex: Exercise, where: string) {
@@ -271,6 +288,68 @@ function checkStructure(ex: Exercise, where: string) {
     case 'figure':
       checkFigure(where, ex.figure, true);
       break;
+    case 'estimate': {
+      if (ex.options) {
+        const hits = ex.options.filter((o) => withinFactor(o.value, ex.answer, ex.tolerance)).length;
+        if (hits !== 1) fail(where, `exactly one option must be within x${ex.tolerance} of the answer (found ${hits})`);
+        ex.options.forEach((o) => {
+          if (!withinFactor(o.value, ex.answer, ex.tolerance) && !o.why) fail(where, `option ${o.value} has no explanation`);
+        });
+      }
+      // Numbers from the Numbers page must be written by name, so every estimate uses the same values.
+      for (const lit of ex.expr.match(/(?<![A-Za-z_])\d[\d_]*(?:\.\d+)?(?:e[+-]?\d+)?/gi) ?? []) {
+        const v = Number(lit.replace(/_/g, ''));
+        const row = NUMBER_ROWS.find((r) => r.strict && Math.abs(r.value - v) <= 1e-9 * Math.abs(v));
+        if (row) fail(where, `write ${row.name} instead of the literal ${lit}`);
+      }
+      break;
+    }
+    case 'order-steps':
+      if (new Set(ex.steps).size !== ex.steps.length) fail(where, 'duplicate steps');
+      break;
+    case 'bucket-sort': {
+      ex.items.forEach((it) => {
+        if (it.bucket >= ex.buckets.length) fail(where, `item "${it.text}" has bucket ${it.bucket}, out of range`);
+      });
+      ex.buckets.forEach((b, i) => {
+        if (!ex.items.some((it) => it.bucket === i)) fail(where, `bucket "${b}" is empty`);
+      });
+      if (new Set(ex.items.map((i) => i.text)).size !== ex.items.length) fail(where, 'duplicate items');
+      break;
+    }
+    case 'scenario': {
+      if (ex.answer >= ex.options.length) return fail(where, 'answer index out of range');
+      if (new Set(ex.options.map((o) => o.text)).size !== ex.options.length) fail(where, 'duplicate option texts');
+      ex.options.forEach((o, i) => {
+        if (i !== ex.answer && !o.why) fail(where, `wrong option "${o.text}" has no explanation`);
+      });
+      checkLength(where, ex.options.map((o) => o.text), ex.answer);
+      if (ex.diagram) checkDiagram(where, ex.diagram);
+      break;
+    }
+    case 'diagram': {
+      checkDiagram(where, ex.diagram);
+      const ids = new Set(ex.diagram.nodes.map((n) => n.id));
+      const g = ex.goal;
+      if (g.kind === 'tap') {
+        if (!ids.has(g.answer)) fail(where, `tap answer ${g.answer} is not a node`);
+        for (const id of ids) if (id !== g.answer && !g.why[id]) fail(where, `node ${id} has no explanation`);
+        for (const k of Object.keys(g.why)) if (!ids.has(k) || k === g.answer) fail(where, `why key ${k} is invalid`);
+      } else if (g.kind === 'path') {
+        for (const id of g.answer) if (!ids.has(id)) fail(where, `path node ${id} is not a node`);
+        if (!isPath(ex.diagram, g.answer)) fail(where, `path ${g.answer.join(' -> ')} does not follow the edges`);
+      } else {
+        const slot = ex.diagram.nodes.find((n) => n.id === g.slot);
+        if (!slot) fail(where, `slot ${g.slot} is not a node`);
+        if (g.answer >= g.options.length) return fail(where, 'answer index out of range');
+        if (slot && g.options[g.answer].kind !== slot.kind) fail(where, `slot node is a ${slot.kind} but the answer is a ${g.options[g.answer].kind}`);
+        if (new Set(g.options.map((o) => o.label)).size !== g.options.length) fail(where, 'duplicate option labels');
+        g.options.forEach((o, i) => {
+          if (i !== g.answer && !o.why) fail(where, `option "${o.label}" has no explanation`);
+        });
+      }
+      break;
+    }
   }
 }
 
@@ -293,6 +372,10 @@ const describe = (ex: Exercise): string => {
   if (ex.type === 'mcq') parts.push(`Answer: ${ex.options[ex.answer].text}`);
   else if (ex.type === 'match-pairs') parts.push('Pairs: ' + ex.pairs.map((p) => `${p.left} -> ${p.right}`).join('; '));
   else if (ex.type === 'fill-blank') parts.push(`Answer: ${ex.answer.join(', ')}`);
+  else if (ex.type === 'order-steps') parts.push('Order: ' + ex.steps.map((st, i) => `${i + 1}. ${st}`).join(' '));
+  else if (ex.type === 'bucket-sort') parts.push('Buckets: ' + ex.items.map((it) => `${it.text} -> ${ex.buckets[it.bucket]}`).join('; '));
+  else if (ex.type === 'scenario')
+    parts.push(`Situation: ${ex.situation} Needs: ${ex.needs.join('; ')}`, `Answer: ${ex.options[ex.answer].text} (cost: ${ex.options[ex.answer].cost})`);
   return parts.join('\n\n');
 };
 
@@ -449,13 +532,32 @@ async function verifyExercise(ex: Exercise, where: string, prelude: string) {
       structural.push(`${where} (${ex.figure.kind}): goal checked against the figure's data`);
       verified = true;
       break;
+    case 'estimate': {
+      const r = await run(NUMBERS_PY + '\nprint(repr(float(' + ex.expr + ')))');
+      if (!r.ok) fail(where, `expression raised ${r.type}: ${r.msg}`);
+      else {
+        const ref = Number(cleanOut(r.stdout));
+        if (!(Math.abs(ex.answer - ref) <= 0.02 * Math.abs(ref))) fail(where, `expression gives ${ref}, answer says ${ex.answer}`);
+        verified = true;
+      }
+      break;
+    }
+    case 'diagram':
+      structural.push(`${where} (diagram ${ex.goal.kind}): nodes, edges and the goal checked against the graph`);
+      verified = true;
+      break;
   }
 
   if (verified) executed++;
   else
     manual.push({
       where,
-      reason: ex.type === 'mcq' ? 'conceptual multiple choice without a check' : `${ex.type} without executable expectation`,
+      reason:
+        ex.type === 'mcq'
+          ? 'conceptual multiple choice without a check'
+          : ex.type === 'scenario' || ex.type === 'order-steps' || ex.type === 'bucket-sort'
+            ? `${ex.type}: a design judgement, re-derive from the stated requirements`
+            : `${ex.type} without executable expectation`,
       detail: describe(ex),
     });
 }
@@ -514,6 +616,7 @@ async function verifyLab(lab: Lab, where: string, prelude: string) {
 async function verifyLibrary(page: LibraryPage, where: string, prelude: string) {
   currentWhere = where;
   checkWidth(where, 'example', page.example.code);
+  if (page.diagram) checkDiagram(where, page.diagram);
   const r = await run((prelude ? prelude + '\n' : '') + page.example.code);
   if (!r.ok) fail(where, `example raised ${r.type}: ${r.msg}`);
   else if (cleanOut(r.stdout) !== page.example.output)

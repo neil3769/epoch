@@ -11,17 +11,18 @@ import { EXAM_UNITS, computeStats, dueItems, setDailyGoal, useProgress, type Dai
 import { SyncBadge } from './SyncBadge';
 
 type Tab = Track | 'library';
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'foundations', label: 'Foundations' },
-  { id: 'engineering', label: 'AI Engineering' },
-  { id: 'library', label: 'Library' },
+const TABS: { id: Tab; label: string; full: string }[] = [
+  { id: 'foundations', label: 'Foundations', full: 'Foundations' },
+  { id: 'engineering', label: 'AI Eng', full: 'AI Engineering' },
+  { id: 'system-design', label: 'Systems', full: 'System Design' },
+  { id: 'library', label: 'Library', full: 'Library' },
 ];
 
 const TRACK_KEY = 'epoch.track';
 const readTrack = (): Tab => {
   try {
     const v = localStorage.getItem(TRACK_KEY);
-    return v === 'engineering' || v === 'library' ? v : 'foundations';
+    return v === 'engineering' || v === 'system-design' || v === 'library' ? v : 'foundations';
   } catch {
     return 'foundations';
   }
@@ -175,7 +176,15 @@ export function Home() {
 
       <div className="tabs" role="tablist">
         {TABS.map((t) => (
-          <button key={t.id} role="tab" aria-selected={track === t.id} className={`tab${track === t.id ? ' on' : ''}`} onClick={() => setTrack(t.id)}>
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={track === t.id}
+            aria-label={t.full}
+            title={t.full}
+            className={`tab${track === t.id ? ' on' : ''}`}
+            onClick={() => setTrack(t.id)}
+          >
             {t.label}
           </button>
         ))}

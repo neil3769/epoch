@@ -117,6 +117,52 @@ export const FigureSchema = z.discriminatedUnion('kind', [
   NeuronFigureSchema,
 ]);
 
+
+// ------------------------------------------------------------- diagrams ---
+
+/** Building blocks an architecture diagram can show. */
+export const NODE_KINDS = [
+  'client',
+  'dns',
+  'cdn',
+  'lb',
+  'service',
+  'cache',
+  'db',
+  'replica',
+  'queue',
+  'worker',
+  'store',
+  'search',
+  'model',
+  'vector',
+  'api',
+] as const;
+export const NodeKind = z.enum(NODE_KINDS);
+
+/**
+ * An architecture diagram. Authors list nodes in the order a request meets
+ * them and never give coordinates: the component lays them out in layers,
+ * top to bottom (an edge to an earlier node is drawn as a return arrow).
+ */
+export const DiagramSchema = z.object({
+  nodes: z
+    .array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/), kind: NodeKind, label: z.string().min(1).max(12) }))
+    .min(1)
+    .max(8),
+  edges: z.array(
+    z.object({
+      from: z.string(),
+      to: z.string(),
+      label: z.string().max(8).optional(),
+      /** Drawn dashed: asynchronous or background traffic. */
+      dashed: z.boolean().optional(),
+    }),
+  ),
+  /** A design growing: each stage lists the node ids shown, with a caption. */
+  stages: z.array(z.object({ nodes: z.array(z.string()).min(1), caption: z.string() })).min(2).max(6).optional(),
+});
+
 // ---- exercises -------------------------------------------------------------
 
 export const McqSchema = z.object({
@@ -227,6 +273,75 @@ export const FigureExerciseSchema = z.object({
   figure: FigureSchema,
 });
 
+
+// ---- system design exercises ---------------------------------------------
+
+/** A sizing question, checked against a reference computed in Python. */
+export const EstimateSchema = z.object({
+  ...base,
+  type: z.literal('estimate'),
+  /** Python expression for the reference value; may use the Numbers page names (DAY, MB, ...). */
+  expr: z.string(),
+  /** The reference value as stated (verified: within 2% of expr). */
+  answer: z.number().positive(),
+  /** Correct when within this factor of the answer (2 = from half to double). */
+  tolerance: z.number().min(1.1).max(10),
+  /** Unit shown after the number, e.g. "requests/s". */
+  unit: z.string(),
+  /** Order-of-magnitude choices; without them the learner types a number. */
+  options: z.array(z.object({ value: z.number().positive(), why: Why.optional() })).min(2).max(4).optional(),
+  /** The worked arithmetic, one line each, shown after answering. */
+  work: z.array(z.string()).min(1).max(6),
+});
+
+/** Prose steps to put in order (no code to run). Listed in the right order. */
+export const OrderStepsSchema = z.object({
+  ...base,
+  type: z.literal('order-steps'),
+  steps: z.array(z.string()).min(3).max(8),
+  explain: z.string(),
+});
+
+/** Sort items into two or three buckets. */
+export const BucketSortSchema = z.object({
+  ...base,
+  type: z.literal('bucket-sort'),
+  buckets: z.array(z.string().max(14)).min(2).max(3),
+  items: z.array(z.object({ text: z.string(), bucket: z.number().int().min(0), why: Why })).min(5).max(8),
+});
+
+/** A situation with concrete needs; every option says what it costs. */
+export const ScenarioSchema = z.object({
+  ...base,
+  type: z.literal('scenario'),
+  situation: z.string(),
+  needs: z.array(z.string()).min(1).max(5),
+  diagram: DiagramSchema.optional(),
+  options: z.array(z.object({ text: z.string(), cost: z.string().min(8), why: Why.optional() })).min(2).max(4),
+  answer: z.number().int().min(0),
+});
+
+const DiagramGoalSchema = z.discriminatedUnion('kind', [
+  /** Tap the one node that answers the question; every other node says why not. */
+  z.object({ kind: z.literal('tap'), answer: z.string(), why: z.record(z.string(), Why) }),
+  /** Tap the nodes a request passes through, in order (a real path in the graph). */
+  z.object({ kind: z.literal('path'), answer: z.array(z.string()).min(2) }),
+  /** Choose the component for the empty slot. */
+  z.object({
+    kind: z.literal('slot'),
+    slot: z.string(),
+    options: z.array(z.object({ kind: NodeKind, label: z.string().max(12), why: Why.optional() })).min(2).max(4),
+    answer: z.number().int().min(0),
+  }),
+]);
+
+export const DiagramExerciseSchema = z.object({
+  ...base,
+  type: z.literal('diagram'),
+  diagram: DiagramSchema,
+  goal: DiagramGoalSchema,
+});
+
 export const ExerciseSchema = z.discriminatedUnion('type', [
   McqSchema,
   PredictOutputSchema,
@@ -238,6 +353,11 @@ export const ExerciseSchema = z.discriminatedUnion('type', [
   NumberGridSchema,
   RunCodeSchema,
   FigureExerciseSchema,
+  EstimateSchema,
+  OrderStepsSchema,
+  BucketSortSchema,
+  ScenarioSchema,
+  DiagramExerciseSchema,
 ]);
 
 export const CardSchema = z.object({
@@ -248,6 +368,7 @@ export const CardSchema = z.object({
   /** What `code` prints, shown under it (verified). */
   output: z.string().optional(),
   figure: FigureSchema.optional(),
+  diagram: DiagramSchema.optional(),
 });
 
 export const LessonSchema = z.object({
@@ -310,11 +431,15 @@ export const LibraryPageSchema = z.object({
   mistakes: z.array(z.object({ mistake: z.string(), fix: z.string() })).min(2),
   /** "To do this for real": what the app cannot give, and where to go next. */
   forReal: z.string().optional(),
+  /** A reference diagram for the unit. */
+  diagram: DiagramSchema.optional(),
+  /** Primary sources for facts on the page. */
+  sources: z.array(z.object({ title: z.string(), url: z.string().url() })).optional(),
 });
 
 export const UnitSchema = z.object({
-  id: z.string().regex(/^[FE]\d+$/),
-  track: z.enum(['foundations', 'engineering']),
+  id: z.string().regex(/^[FES]\d+$/),
+  track: z.enum(['foundations', 'engineering', 'system-design']),
   title: z.string(),
   blurb: z.string(),
   prelude: z.string().optional(),
@@ -337,6 +462,8 @@ export type ShapeFigureSpec = z.infer<typeof ShapeFigureSchema>;
 export type BroadcastFigureSpec = z.infer<typeof BroadcastFigureSchema>;
 export type DescentFigureSpec = z.infer<typeof DescentFigureSchema>;
 export type NeuronFigureSpec = z.infer<typeof NeuronFigureSchema>;
+export type DiagramSpec = z.infer<typeof DiagramSchema>;
+export type NodeKindT = (typeof NODE_KINDS)[number];
 export type Exercise = z.infer<typeof ExerciseSchema>;
 export type ExerciseType = Exercise['type'];
 export type ExerciseOf<T extends ExerciseType> = Extract<Exercise, { type: T }>;
@@ -355,6 +482,11 @@ export const EXERCISE_TYPES: ExerciseType[] = [
   'number-grid',
   'run-code',
   'figure',
+  'estimate',
+  'order-steps',
+  'bucket-sort',
+  'scenario',
+  'diagram',
 ];
 
 /** Types that ask the learner to produce or predict, rather than recognise. */
@@ -367,4 +499,7 @@ export const PRODUCING_TYPES: ExerciseType[] = [
   'number-grid',
   'run-code',
   'figure',
+  'estimate',
+  'order-steps',
+  'diagram',
 ];

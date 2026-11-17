@@ -4,6 +4,8 @@ import { BookIcon, CheckIcon, CodeIcon, LockIcon, TopBar, go } from '../componen
 import { CodeBlock, Inline, OutputBlock } from '../components/Text';
 import { unitDone } from '../lib/curriculum';
 import { catalog } from '../../content/index';
+import { NUMBER_SECTIONS, NUMBER_SOURCES } from '../../content/numbers';
+import { DiagramView } from '../figures/Diagram';
 import { useProgress, type Progress } from '../lib/progress';
 
 /** Units that have a Library page, in curriculum order. */
@@ -86,6 +88,14 @@ export function LibraryList() {
       ) : (
         <>
           <p className="muted small">Finishing a unit opens its one-page summary here: the ideas, the rules, an example and the common mistakes.</p>
+          <button className="lib-row" onClick={() => go('#/library/numbers')}>
+            <span className="unit-id">#</span>
+            <span className="lib-title">
+              Numbers for estimates
+              <span className="unit-meta">Powers of two, time, latency, availability, sizes · always open</span>
+            </span>
+            <BookIcon />
+          </button>
           {all.map(({ unit }) => {
             const open = isOpen(unit, p);
             const done = unit.lessons.filter((l) => p.completed[l.id]).length;
@@ -109,6 +119,7 @@ export function LibraryList() {
 /** One unit's summary page. */
 export function LibraryPageView({ unitId }: { unitId: string }) {
   const p = useProgress();
+  if (unitId === 'numbers') return <NumbersPage />;
   const entry = pages().find((x) => x.unit.id === unitId);
   if (!entry)
     return (
@@ -185,12 +196,34 @@ export function LibraryPageView({ unitId }: { unitId: string }) {
         ))}
       </section>
 
+      {page.diagram && (
+        <section className="panel">
+          <h2>Reference design</h2>
+          <DiagramView spec={page.diagram} />
+        </section>
+      )}
+
       {page.forReal && (
         <section className="panel">
           <h2>Doing it for real</h2>
           <p>
             <Inline text={page.forReal} />
           </p>
+        </section>
+      )}
+
+      {page.sources && (
+        <section className="panel">
+          <h2>Sources</h2>
+          <ul className="sources">
+            {page.sources.map((src) => (
+              <li key={src.url}>
+                <a href={src.url} target="_blank" rel="noreferrer">
+                  {src.title}
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -208,6 +241,44 @@ export function LibraryPageView({ unitId }: { unitId: string }) {
           ))}
         </section>
       )}
+    </main>
+  );
+}
+
+/** The Numbers page: open from the start; every estimate exercise uses these values. */
+function NumbersPage() {
+  return (
+    <main className="screen lib-page">
+      <TopBar title="Numbers for estimates" />
+      <p className="muted small">
+        Rough orders of magnitude for back-of-envelope sizing. Every estimate in the System Design track uses exactly these values.
+      </p>
+      {NUMBER_SECTIONS.map((sec) => (
+        <section key={sec.title} className="panel">
+          <h2>{sec.title}</h2>
+          {sec.note && <p className="muted small">{sec.note}</p>}
+          <dl className="numbers">
+            {sec.rows.map((r) => (
+              <div key={r.name} className="num-row">
+                <dt>{r.shown}</dt>
+                <dd>{r.what}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+      <section className="panel">
+        <h2>Sources</h2>
+        <ul className="sources">
+          {NUMBER_SOURCES.map((src) => (
+            <li key={src.url}>
+              <a href={src.url} target="_blank" rel="noreferrer">
+                {src.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }
