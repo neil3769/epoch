@@ -2552,3 +2552,92 @@ mark {
   height: 22px;
   font-size: 12px;
 }
+
+/* ------------------------------------------------------------ walkthroughs --- */
+
+.walk-question {
+  font-size: 17px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-left: 4px solid var(--primary);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.walk-q {
+  margin: 6px 0 10px;
+}
+.walk-q summary {
+  cursor: pointer;
+  font-weight: 650;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.walk-strong h2 {
+  margin: 8px 0;
+}
+.strong-note {
+  font-size: 17px;
+  line-height: 1.5;
+}
+.walk-strong .action-bar .btn + .btn {
+  margin-top: 8px;
+}
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 14px;
+}
+.timer-face {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 700;
+  min-width: 4.2em;
+}
+.timer-face.over {
+  color: var(--bad);
+}
+.notes-input {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+}
+.palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip-toggle {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.chip-toggle.on {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.chip-toggle.right {
+  border-color: var(--good);
+  background: var(--good-soft);
+}
+.chip-toggle.missed {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.chip-toggle.extra {
+  text-decoration: line-through;
+  opacity: 0.7;
+}

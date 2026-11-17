@@ -16,9 +16,14 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadPyodide, type PyodideInterface } from 'pyodide';
-import { writtenUnits } from '../content/index';
+import { catalog, writtenUnits } from '../content/index';
+import { walkthroughs } from '../content/walkthroughs/index';
+import { SD_PRELUDE } from '../content/units/s1';
 import {
   UnitSchema,
+  WalkthroughSchema,
+  FRAMEWORK,
+  type Walkthrough,
   EXERCISE_TYPES,
   PRODUCING_TYPES,
   type Exercise,
@@ -682,6 +687,33 @@ async function main() {
     });
     if (u.library && u.library.unit !== u.id) fail(`${u.id}/library`, `page is for unit ${u.library.unit}`);
   }
+  // Design walkthroughs: the framework in order, exercises checked like lesson exercises.
+  const walks: Walkthrough[] = [];
+  const unitIds = new Set(catalog.map((c) => c.id));
+  for (const w of walkthroughs) {
+    const parsed = WalkthroughSchema.safeParse(w);
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) fail(`walkthrough ${w.id}`, `${issue.path.join('.')}: ${issue.message}`);
+      continue;
+    }
+    walks.push(parsed.data);
+    claim(w.id, `walkthrough ${w.id}`);
+    for (const u of w.needs) if (!unitIds.has(u)) fail(w.id, `needs unknown unit ${u}`);
+    w.steps.forEach((st, i) => {
+      if (st.title !== FRAMEWORK[i]) fail(`${w.id}/step ${i + 1}`, `should be "${FRAMEWORK[i]}", is "${st.title}"`);
+      if (countSentences(st.intro) > 3) fail(`${w.id}/step ${i + 1}`, 'intro is more than three sentences');
+      if (st.diagram) checkDiagram(`${w.id}/step ${i + 1}`, st.diagram);
+      for (const ex of st.exercises) {
+        const wh = `${w.id}/step ${i + 1}/${ex.id}`;
+        claim(ex.id, wh);
+        checkStructure(ex, wh);
+        total++;
+        typeCount.set(ex.type, (typeCount.get(ex.type) ?? 0) + 1);
+        if (PRODUCING_TYPES.includes(ex.type) || (ex.type === 'mcq' && ex.code)) producing++;
+      }
+    });
+    checkDiagram(`${w.id}/final`, w.final.diagram);
+  }
   for (const t of EXERCISE_TYPES) if (!typeCount.get(t)) fail('coverage', `exercise type "${t}" is never used`);
 
   py = await loadPyodide();
@@ -706,6 +738,9 @@ async function main() {
     for (const lab of u.labs ?? []) await verifyLab(lab, `${u.id}/${lab.id}`, prelude);
     if (u.library) await verifyLibrary(u.library, `${u.id}/library`, prelude);
   }
+  for (const w of walks)
+    for (const [i, st] of w.steps.entries())
+      for (const ex of st.exercises) await verifyExercise(ex, `${w.id}/step ${i + 1}/${ex.id}`, SD_PRELUDE);
 
   const ratio = total ? producing / total : 0;
   if (ratio < 0.5) fail('quality', `only ${(ratio * 100).toFixed(0)}% of exercises ask to produce or predict (need 50%)`);
@@ -721,6 +756,7 @@ async function main() {
     `- Exercises that produce or predict: ${producing} (${(ratio * 100).toFixed(0)}%)`,
     `- Labs: ${units.reduce((n, u) => n + (u.labs?.length ?? 0), 0)} (${labSteps} steps; each solution passes its tests, each starter and hint-2 structure fails them)`,
     `- Library pages: ${units.filter((u) => u.library).map((u) => u.id).join(', ') || 'none'} (example code executed)`,
+    `- Design walkthroughs: ${walks.map((w) => w.id).join(', ') || 'none'}`,
     `- Simulated services self-test: ${errors.some((e) => e.startsWith('epoch_sim')) ? 'FAILED' : 'passed'}`,
     `- Python runs: ${runs}`,
     `- Result: ${errors.length ? `**FAILED** (${errors.length} problems)` : 'passed'}`,

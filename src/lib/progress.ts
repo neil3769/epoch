@@ -343,6 +343,35 @@ export function recordLabStep(
   });
 }
 
+/**
+ * A finished walkthrough step ("<walk>#<n>"); the last one completes the
+ * walkthrough. Logged like a lab step, so it counts toward the daily goal,
+ * and merges across devices like any completion (resume where you stopped).
+ */
+export function recordWalkStep(walkId: string, step: number, isLast: boolean, xp: number, minutes: number, now = new Date()) {
+  const stepId = `${walkId}#${step}`;
+  commit({
+    ...state,
+    completed: markDone(state.completed, isLast ? [stepId, walkId] : [stepId], now.toISOString()),
+    activity: [...state.activity, activity('lab', stepId, xp, minutes, now)],
+  });
+}
+
+/** The blank-page pass of a walkthrough, self-checked. */
+export function recordBlankPass(walkId: string, minutes: number, now = new Date()) {
+  const id = `${walkId}:blank`;
+  commit({
+    ...state,
+    completed: markDone(state.completed, [id], now.toISOString()),
+    activity: [...state.activity, activity('lab', id, 10, minutes, now)],
+  });
+}
+
+/** Free-text notes (e.g. a blank-page pass), stored like lab code: newest wins on merge. */
+export function saveNote(key: string, text: string, now = new Date()) {
+  commit({ ...state, labCode: { ...state.labCode, [key]: { code: text, updatedAt: now.toISOString() } } });
+}
+
 function setSettings(patch: Partial<Settings>) {
   commit({ ...state, settings: { ...state.settings, ...patch, goalUpdatedAt: new Date().toISOString() } });
 }

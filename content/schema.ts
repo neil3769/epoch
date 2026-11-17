@@ -491,6 +491,50 @@ export const UnitSchema = z.object({
   library: LibraryPageSchema.optional(),
 });
 
+// ---------------------------------------------------------- walkthroughs ---
+
+/** The fixed framework every design walkthrough follows, in order. */
+export const FRAMEWORK = [
+  'Requirements',
+  'Estimation',
+  'API',
+  'Data model',
+  'High-level design',
+  'Deep dive',
+  'Bottlenecks and trade-offs',
+] as const;
+
+export const WalkStepSchema = z.object({
+  title: z.enum(FRAMEWORK),
+  /** One or two sentences framing this step for this problem. */
+  intro: z.string(),
+  exercises: z.array(ExerciseSchema).min(2).max(4),
+  /** "What a strong answer says here", shown after the step. */
+  strong: z.string(),
+  /** The design so far, shown with the strong-answer note. */
+  diagram: DiagramSchema.optional(),
+});
+
+/** A classic design problem taken through the framework, the learner deciding at each step. */
+export const WalkthroughSchema = z.object({
+  id: z.string().regex(/^w-[a-z0-9-]+$/),
+  title: z.string(),
+  /** The interview question, as an interviewer would put it. */
+  question: z.string(),
+  /** Units that must be finished first. */
+  needs: z.array(z.string()).min(1),
+  minutes: z.number().int().min(10).max(25),
+  steps: z.array(WalkStepSchema).length(7),
+  /** Added to the Library when finished. */
+  final: z.object({ diagram: DiagramSchema, decisions: z.array(z.string()).min(3) }),
+  /** The reference for the blank-page pass. */
+  blank: z.object({
+    requirements: z.array(z.string()).min(4),
+    components: z.array(NodeKind).min(3),
+    firstFive: z.array(z.string()).min(3).max(6),
+  }),
+});
+
 export type LabStep = z.infer<typeof LabStepSchema>;
 export type Lab = z.infer<typeof LabSchema>;
 export type LibraryPage = z.infer<typeof LibraryPageSchema>;
@@ -513,6 +557,8 @@ export type ExerciseOf<T extends ExerciseType> = Extract<Exercise, { type: T }>;
 export type Card = z.infer<typeof CardSchema>;
 export type Lesson = z.infer<typeof LessonSchema>;
 export type Unit = z.infer<typeof UnitSchema>;
+export type Walkthrough = z.infer<typeof WalkthroughSchema>;
+export type WalkStep = z.infer<typeof WalkStepSchema>;
 
 export const EXERCISE_TYPES: ExerciseType[] = [
   'mcq',

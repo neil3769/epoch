@@ -7,6 +7,7 @@ import { Settings } from './screens/Settings';
 
 // The lab player carries the code editor, so it loads separately (still precached for offline use).
 const LabPlayer = lazy(() => import('./screens/LabPlayer').then((m) => ({ default: m.LabPlayer })));
+const WalkPlayer = lazy(() => import('./screens/WalkPlayer').then((m) => ({ default: m.WalkPlayer })));
 
 // Hash routing: works under any GitHub Pages sub-path with no server rewrites.
 const subscribe = (cb: () => void) => {
@@ -40,6 +41,17 @@ export function App() {
     return (
       <Suspense fallback={<main className="screen center">Opening the lab…</main>}>
         <LabPlayer key={path} labId={lab[1]} mode={mode} step={mode === 'single' ? Number(lab[2]) : undefined} />
+      </Suspense>
+    );
+  }
+  // #/walk/<id> resumes a design walkthrough; /<n> opens step n; /summary and /blank.
+  const walk = path.match(/^\/walk\/(w-[a-z0-9-]+)(?:\/(\d+|summary|blank))?$/);
+  if (walk) {
+    const m = walk[2];
+    const mode = m === undefined ? { kind: 'resume' as const } : m === 'summary' ? { kind: 'summary' as const } : m === 'blank' ? { kind: 'blank' as const } : { kind: 'step' as const, n: Number(m) };
+    return (
+      <Suspense fallback={<main className="screen center">Opening the walkthrough…</main>}>
+        <WalkPlayer key={path} walkId={walk[1]} mode={mode} />
       </Suspense>
     );
   }

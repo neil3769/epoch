@@ -1,4 +1,6 @@
 import { catalog, type Track, type UnitEntry } from '../../content/index';
+import { walkthroughs } from '../../content/walkthroughs/index';
+import type { Walkthrough } from '../../content/schema';
 import type { Exercise, Lab, Lesson, Unit } from '../../content/schema';
 import { dayKey } from './dates';
 import { EXAM_UNITS, RETIRED, dueItems, examActive, type Progress } from './progress';
@@ -148,4 +150,35 @@ export function labRewrites(p: Progress, today: string): { labId: string; step: 
     .map((key) => key.slice(4).split('#'))
     .filter(([labId]) => labIndex.has(labId) && (!only || only.has(labIndex.get(labId)!.unit.id)))
     .map(([labId, n]) => ({ labId, step: Number(n) }));
+}
+
+// --------------------------------------------------------------- walkthroughs ---
+
+export const findWalk = (id: string): Walkthrough | undefined => walkthroughs.find((w) => w.id === id);
+export const allWalks = () => walkthroughs;
+
+/** Open once every unit it needs is finished. */
+export const walkUnlocked = (w: Walkthrough, p: Progress) =>
+  w.needs.every((id) => {
+    const u = catalog.find((c) => c.id === id)?.unit;
+    return !!u && unitDone(u, p);
+  });
+
+/** Steps finished so far (resume at this index). */
+export const walkStepsDone = (w: Walkthrough, p: Progress) => w.steps.filter((_, i) => p.completed[`${w.id}#${i + 1}`]).length;
+
+/** The first step not yet done, 0-based. */
+export const walkNextStep = (w: Walkthrough, p: Progress) => {
+  const i = w.steps.findIndex((_, k) => !p.completed[`${w.id}#${k + 1}`]);
+  return i < 0 ? w.steps.length : i;
+};
+
+/** The blank-page pass opens a week after the walkthrough is finished. */
+export const BLANK_AFTER_DAYS = 7;
+export function blankOpensOn(w: Walkthrough, p: Progress): string | null {
+  const at = p.completed[w.id];
+  if (!at) return null;
+  const d = new Date(at);
+  d.setDate(d.getDate() + BLANK_AFTER_DAYS);
+  return dayKey(d);
 }

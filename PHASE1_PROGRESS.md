@@ -289,3 +289,30 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   labels; every figure goal reached in the app. Tests: 83 pass.
 - Next: SD-3 (S5 Databases: modelling and queries, then the walkthrough player and the URL shortener
   walkthrough).
+
+
+## System Design SD-3: S5 Databases, the walkthrough player and the URL shortener, 2026-11-17 — DONE
+- S5 Databases: modelling and queries (11 lessons: tables and keys, joins and foreign keys, key-value
+  and document stores, wide-column and graph stores, indexes, composite indexes and their cost,
+  normalised or denormalised, transactions and ACID, isolation anomalies, preventing lost updates,
+  checkpoint) with real SQL in SQLite (Python's sqlite3 works in Pyodide with no extra package;
+  checked in the app's worker). Prelude helpers: shop(), q(), plan() (EXPLAIN QUERY PLAN without
+  details), bank()/move()/bal(), store(). Labs: Query the shop; Safe money and stock (empty
+  functions: checked transfer, atomic multi-unit sale, optimistic save with retry).
+- Walkthrough player: schema (FRAMEWORK of seven steps, 2-4 exercises each, a "what a strong answer
+  says" note and the design so far), content/walkthroughs/, verify-content checks (framework order,
+  exercises verified like lessons, diagrams, needed units exist). Routes #/walk/<id> (resume at the
+  first unfinished step; the resume point is fixed on opening so the strong-answer note always
+  shows), /<n>, /summary, /blank. Progress: steps are completions "<walk>#<n>" logged as lab
+  activity (count toward the daily goal, merge across devices, so resuming on another device works);
+  finishing adds the walkthrough to the Library (final diagram, decisions, step notes).
+- Blank-page pass: opens a week after finishing; 35-minute timer, requirements textarea and component
+  palette saved as notes (synced), then a self-check against the reference with matched, missed and
+  extra components, and "your first five minutes"; the app says plainly to do it out loud.
+- First walkthrough: URL shortener (unlocks after S1-S5). Home shows a "Design walkthroughs" section
+  on the Systems tab; the Library lists finished designs.
+- Checked in the browser at 390 px with temporarily injected progress (restored afterwards): steps
+  1-2 played and graded, strong-answer screens, summary, blank pass and Home section. Fixed: a
+  stale-state bug in the component palette. S5 sweep: 110 screens, no overflow. Tests: 87 pass.
+- Next: SD-4 onward, S6 (replication and partitioning) with the consistent-hashing and quorum
+  figures, then S7.

@@ -981,3 +981,67 @@ the general mechanisms (HTTP caching per RFC 9111 and MDN's HTTP caching guide f
 | s4-10-6 | Hot key expiry knocked DB over: single-flight missing | As s4-7. Correct. |
 | s4-10-9 | Cache: help article, currencies, trending; fresh: balance, admin rights | As s4-9-1. Correct. |
 | s4-10-10 | Versioned names: each release has a new name | As s4-8-4. Correct. |
+
+# Hand verification, System Design SD-3: S5 (Databases) and the URL shortener walkthrough
+
+SQL exercises run against real SQLite (Python's sqlite3 in Pyodide 314.0.8, SQLite 3.39); query
+plans are SQLite's own EXPLAIN QUERY PLAN output. Product-specific claims kept to one: PostgreSQL's
+default isolation level is Read Committed (PostgreSQL documentation, "Transaction Isolation").
+Judgement items:
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s5-1-4 | Good user key: a generated id | Names repeat; emails change. Correct. |
+| s5-1-6 | Good keys: auto-increment, UUID, shop order number; poor: full name, phone | Unique, non-null, immutable. Correct. |
+| s5-1-8 | Placeholders: values cannot change the query | SQL injection prevention. Correct. |
+| s5-2-3 | user_id instead of copies: each fact in one place | Normalisation. Correct. |
+| s5-2-8 | 51 queries for 50 rows: one join | N+1 problem. Correct. |
+| s5-3-1 | KV: sessions, page cache; document: varying products, post with comments; relational: payments, inventory | Access patterns. Correct. |
+| s5-3-3 | Sessions: key-value store with TTLs | Sub-ms lookups, expiry. Correct. |
+| s5-3-4 | KV gives up queries by anything but the key | Definition. Correct. |
+| s5-3-6 | Varying attributes, one read per page: a document per product | Schema flexibility. Correct. |
+| s5-3-8 | Joins, constraints, transactions: relational | As taught. Correct. |
+| s5-4-1 | Wide-column: sensor readings, chat history, click events; graph: friends of friends, fraud rings | Partition+sort vs traversal. Correct. |
+| s5-4-4 | 200,000 writes/s by sensor and time: wide-column | Beyond one relational node; no relationships. Correct. |
+| s5-4-6 | Each hop is another self-join | Relational traversal cost. Correct. |
+| s5-4-8 | Start with one store, add specialists for proven needs | Operational cost. Correct. |
+| s5-5-5 | Index maps values to locations | Book-index analogy. Correct. |
+| s5-5-6 | 40 M-row SCAN on user_id: add an index | Plan shows SCAN. Correct. |
+| s5-5-8 | Do not index everything: each slows writes | Write amplification. Correct. |
+| s5-6-2 | (user_id, day) helps user_id, user_id+day, user_id order by day; not day alone or total | Leftmost prefix (SQLite plans in s5-6 executed). Correct. |
+| s5-6-4 | Busy query user_id+day: one index (user_id, day) | Serves the busy query with one index; rationale for column order stated. Correct. |
+| s5-6-5 | (surname, first name) cannot find all Anas | Leftmost prefix. Correct. |
+| s5-6-7 | Write-heavy table read by key: no extra indexes | Primary key suffices. Correct. |
+| s5-7-3 | Normalised: once, one-row update; denormalised: no join, copies disagree, author name in post | Definitions. Correct. |
+| s5-7-4 | Feed join bottleneck, names rarely change: copy names with background update | Measured hot read path; staleness allowed. Correct. |
+| s5-7-5 | New schema: normalised by default | As taught. Correct. |
+| s5-7-8 | Price paid stored in the order: a different fact | Historical value. Correct. |
+| s5-8-3 | A/C/I/D meanings | Standard ACID definitions. Correct. |
+| s5-8-4 | Begin, check, debit, credit, commit | Transaction order. Correct. |
+| s5-8-6 | Order + stock change in one transaction | Atomicity requirement. Correct. |
+| s5-8-7 | Committed then power loss: kept (durability) | Write-ahead log before commit acknowledgement. Correct. |
+| s5-9-2 | Dirty read / non-repeatable read / lost update meanings | Standard anomaly definitions. Correct. |
+| s5-9-3 | Uncommitted 0, read 0, charge 0, rollback | Dirty read sequence. Correct. |
+| s5-9-4 | Read committed: no dirty reads but allows lost updates and non-repeatable reads; serializable: one-at-a-time, may abort | SQL standard levels. Correct. |
+| s5-9-5 | Last seat race: serializable with retries | Prevents oversell; retries acceptable per need. Correct. |
+| s5-9-7 | Strongest level costs waiting and retries | As taught. Correct. |
+| s5-10-4 | Atomic: stock count, like counter, balance payment; version: wiki edit, long form | Short vs long changes. Correct. |
+| s5-10-5 | Long admin edits: version column checked on save | Optimistic locking without blocking. Correct. |
+| s5-10-6 | select … for update locks the rows it reads | Row-level locking semantics. Correct. |
+| s5-10-8 | Read v7, other save v8, write where v7 matches 0 rows, reload, reapply | Optimistic retry. Correct. |
+| s5-11-2 | KV: carts, flags; relational: invoices, users/orders/payments; wide-column: billion log events | Access patterns. Correct. |
+| s5-11-6 | Last 100 tickets under load: atomic "where left > 0" | No oversell, no retries. Correct. |
+| s5-11-7 | Email index, transaction, atomic update, version check | Problem to tool. Correct. |
+| s5-11-10 | Unit price at purchase is not harmful denormalisation | As s5-7-8. Correct. |
+| wus-1-1 | v1: create, redirect, aliases; later: analytics, expiry, accounts | From the interviewer's statement. Correct. |
+| wus-1-2 | Most important NFR: fast, always-on redirects | Read path is the product. Correct. |
+| wus-1-3 | Features, scale, quality, edge cases | Framework order. Correct. |
+| wus-3-1 | POST 201; GET redirect; unknown 404; bad URL 400 | RFC 9110. Correct. |
+| wus-3-2 | 302 because analytics come later | 301 is cacheable by browsers (RFC 9110 §15.4.2). Correct. |
+| wus-3-3 | Request, lookup, found, 302 with Location, follow | Redirect flow. Correct. |
+| wus-4-3 | Counter in base 62 (guessable acceptable) | Unique by construction; others collide. Correct. |
+| wus-4-4 | Key-value or a simple table | Lookups by one key, 3 TB. Correct. |
+| wus-5-3 | Stateless servers scale out | As S3. Correct. |
+| wus-6-1 | Per-server blocks of 1,000 ids | No per-link coordination, unique. Correct. |
+| wus-7-2 | Hot key: short in-process caches | Links immutable; one node otherwise saturated. Correct. |
+| wus-7-3 | At 10×: more servers and cache first | Writes ~400/s still fine on one DB. Correct. |

@@ -3,7 +3,7 @@ import type { Track } from '../../content/index';
 import { CheckIcon, CodeIcon, GearIcon, GoalRing, LockIcon, MoonIcon, OrbitIcon, SparkIcon, SunIcon, go } from '../components/Bits';
 import { toggleTheme, useTheme } from '../lib/theme';
 import { useBarHeight } from '../components/useBarHeight';
-import { allowedUnits, checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack } from '../lib/curriculum';
+import { allWalks, allowedUnits, blankOpensOn, checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack, walkStepsDone, walkUnlocked } from '../lib/curriculum';
 import { addDays, dayKey, shortDate } from '../lib/dates';
 import { LibraryList } from './Library';
 import { planWeekOn, unitsThisWeek } from '../../content/plan';
@@ -284,6 +284,48 @@ export function Home() {
           );
         })}
       </div>
+
+      {track === 'system-design' && !only && (
+        <section className="unit walks">
+          <div className="unit-head">
+            <span className="unit-id">W</span>
+            <div>
+              <h3>Design walkthroughs</h3>
+              <span className="unit-meta">A classic problem, step by step through the interview framework</span>
+            </div>
+          </div>
+          <ol className="lessons">
+            {allWalks().map((w) => {
+              const open = walkUnlocked(w, p);
+              const done = !!p.completed[w.id];
+              const steps = walkStepsDone(w, p);
+              const opens = blankOpensOn(w, p);
+              const meta = !open
+                ? `Opens after ${w.needs.join(', ')}`
+                : p.completed[`${w.id}:blank`]
+                  ? 'Done · blank-page pass done'
+                  : done
+                    ? opens && opens > dayKey()
+                      ? `Done · blank-page pass opens ${shortDate(opens)}`
+                      : 'Done · blank-page pass ready'
+                    : `${steps}/${w.steps.length} steps · about ${w.minutes} min`;
+              return (
+                <li key={w.id}>
+                  <button className={`lesson-row lab-row${done ? ' done' : ''}${open ? '' : ' locked'}`} disabled={!open} onClick={() => go(`#/walk/${w.id}`)}>
+                    <span className="dot" aria-hidden="true">
+                      {done ? <CheckIcon size={14} /> : open ? <SparkIcon size={14} /> : <LockIcon size={12} />}
+                    </span>
+                    <span className="lesson-title">
+                      {w.title}
+                      <span className="unit-meta">{meta}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      )}
 
       <div className="action-bar" ref={barRef}>
         {cont ? (

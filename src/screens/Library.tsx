@@ -2,7 +2,7 @@ import { Fragment, useMemo, useState, type ReactNode } from 'react';
 import type { LibraryPage, Unit } from '../../content/schema';
 import { BookIcon, CheckIcon, CodeIcon, LockIcon, TopBar, go } from '../components/Bits';
 import { CodeBlock, Inline, OutputBlock } from '../components/Text';
-import { unitDone } from '../lib/curriculum';
+import { allWalks, unitDone } from '../lib/curriculum';
 import { catalog } from '../../content/index';
 import { NUMBER_SECTIONS, NUMBER_SOURCES } from '../../content/numbers';
 import { DiagramView } from '../figures/Diagram';
@@ -96,6 +96,19 @@ export function LibraryList() {
             </span>
             <BookIcon />
           </button>
+          {allWalks().map((w) => {
+            const open = !!p.completed[w.id];
+            return (
+              <button key={w.id} className={`lib-row${open ? '' : ' locked'}`} onClick={() => go(open ? `#/walk/${w.id}/summary` : '#/')}>
+                <span className="unit-id">W</span>
+                <span className="lib-title">
+                  Design: {w.title}
+                  <span className="unit-meta">{open ? 'The finished design and its decisions' : 'Finish the walkthrough to add it here'}</span>
+                </span>
+                {open ? <BookIcon /> : <LockIcon />}
+              </button>
+            );
+          })}
           {all.map(({ unit }) => {
             const open = isOpen(unit, p);
             const done = unit.lessons.filter((l) => p.completed[l.id]).length;
