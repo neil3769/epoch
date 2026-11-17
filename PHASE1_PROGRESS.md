@@ -337,3 +337,19 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   instead), the quorum and partition figures (S7), the rate-limiter and queue figures (S8/S9).
 - Next: S7 Consistency and coordination (quorum and partition figures), then S8 onward and the
   remaining walkthroughs.
+
+
+## System Design SD-5: S7 Consistency and coordination, 2026-11-17 — DONE
+- New figure `quorum`: N replicas with W and R steppers (and optionally replicas down); the write
+  lands on the first W up replicas and the read asks the last R, so the read is fresh exactly when
+  W + R > N; goals: fresh read, or fresh with replicas down. src/lib/quorum.ts, verified against
+  every reachable state and unit-tested.
+- S7 (10 lessons: CAP as a choice during a partition, the latency side (PACELC), strong, eventual and
+  causal consistency, quorums, logical clocks, what consensus gives, leader election and locks with
+  fencing tokens, checkpoint). Labs: Quorums (scaffolded); Clocks and fences (empty functions).
+  Library page. 45 judgement items hand-verified.
+- Browser at 390 px: 101 S7 screens and labs, no overflow; both quorum goals reached in the app.
+  Tests: 91 pass.
+- Still to build from the brief: the partition (CAP) figure, rate-limiter, queue and sharding
+  figures; units S8 to S14; walkthroughs 2 to 14 and the four AI designs in the walkthrough player.
+  Next session: S8 Queues, streams and async work (queue figure), then S9 (rate-limiter figure).

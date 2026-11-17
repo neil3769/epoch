@@ -44,6 +44,7 @@ import { diagramProblems, isPath } from '../src/lib/diagram';
 import { lbGoalMet, lbStart, lbStates } from '../src/lib/lbsim';
 import { cacheGoalMet, cacheStart, cacheStates } from '../src/lib/cachesim';
 import { ringGoalMet, ringStart, ringStates } from '../src/lib/ringsim';
+import { quorumGoalMet, quorumStart, quorumStates } from '../src/lib/quorum';
 import { withinFactor } from '../src/lib/estimate';
 import { NUMBER_ROWS, NUMBERS_PY } from '../content/numbers';
 
@@ -192,6 +193,14 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
     if (f.goal) {
       if (lbGoalMet(f, lbStart(f))) fail(where, 'balancer goal is already met at the start');
       if (!lbStates(f).some((s) => lbGoalMet(f, s))) fail(where, 'balancer goal is not reachable with the controls');
+    }
+  } else if (f.kind === 'quorum') {
+    if (f.w > f.n || f.r > f.n) fail(where, 'W and R cannot exceed N');
+    for (const d of f.down ?? []) if (d >= f.n) fail(where, `down replica ${d} does not exist`);
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (quorumGoalMet(f, quorumStart(f))) fail(where, 'quorum goal is already met at the start');
+      if (!quorumStates(f).some((s) => quorumGoalMet(f, s))) fail(where, 'quorum goal is not reachable with the controls');
     }
   } else if (f.kind === 'ring') {
     if (new Set(f.keys).size !== f.keys.length) fail(where, 'ring keys must be unique');

@@ -5,6 +5,7 @@ import { CacheFigure } from './CacheFigure';
 import { CompareFigure } from './CompareFigure';
 import { DescentFigure } from './DescentFigure';
 import { NeuronFigure } from './NeuronFigure';
+import { QuorumFigure } from './QuorumFigure';
 import { RingFigure } from './RingFigure';
 import { ShapeChecker } from './ShapeChecker';
 import { StepperFigure } from './StepperFigure';
@@ -30,5 +31,7 @@ export function Figure({ spec, onGoal }: { spec: FigureSpec; onGoal?: () => void
       return <CacheFigure spec={spec} onGoal={onGoal} />;
     case 'ring':
       return <RingFigure spec={spec} onGoal={onGoal} />;
+    case 'quorum':
+      return <QuorumFigure spec={spec} onGoal={onGoal} />;
   }
 }

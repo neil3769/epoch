@@ -67,3 +67,19 @@ describe('consistent hashing ring', () => {
     expect(many).toBeLessThan(one);
   });
 });
+
+import { quorumGoalMet, quorumStart, simulateQuorum, type QuorumSpecLike } from '../src/lib/quorum';
+
+describe('quorum figure', () => {
+  it('reads are fresh exactly when W + R > N (worst case)', () => {
+    const spec: QuorumSpecLike = { n: 3, w: 1, r: 1, goal: { fresh: true } };
+    for (let w = 1; w <= 3; w++)
+      for (let r = 1; r <= 3; r++) expect(simulateQuorum(spec, { w, r, down: [] }).seen === 2).toBe(w + r > 3);
+    expect(quorumGoalMet(spec, quorumStart(spec))).toBe(false);
+  });
+  it('writes fail when fewer than W replicas are up', () => {
+    const spec: QuorumSpecLike = { n: 5, w: 5, r: 1, down: [4] };
+    expect(simulateQuorum(spec, quorumStart(spec)).writeOk).toBe(false);
+    expect(simulateQuorum(spec, { w: 3, r: 3, down: [4] }).seen).toBe(2);
+  });
+});

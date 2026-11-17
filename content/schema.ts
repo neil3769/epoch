@@ -164,6 +164,17 @@ export const RingFigureSchema = z.object({
     .optional(),
 });
 
+/** Quorums: N replicas, a write acknowledged by W, a read asking R. */
+export const QuorumFigureSchema = z.object({
+  kind: z.literal('quorum'),
+  n: z.number().int().min(2).max(5),
+  w: z.number().int().min(1),
+  r: z.number().int().min(1),
+  down: z.array(z.number().int().min(0)).optional(),
+  killable: z.boolean().optional(),
+  goal: z.union([z.object({ fresh: z.literal(true) }), z.object({ freshWithDown: z.number().int().min(1) })]).optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
@@ -174,6 +185,7 @@ export const FigureSchema = z.discriminatedUnion('kind', [
   BalancerFigureSchema,
   CacheFigureSchema,
   RingFigureSchema,
+  QuorumFigureSchema,
 ]);
 
 
@@ -568,6 +580,7 @@ export type NeuronFigureSpec = z.infer<typeof NeuronFigureSchema>;
 export type BalancerFigureSpec = z.infer<typeof BalancerFigureSchema>;
 export type CacheFigureSpec = z.infer<typeof CacheFigureSchema>;
 export type RingFigureSpec = z.infer<typeof RingFigureSchema>;
+export type QuorumFigureSpec = z.infer<typeof QuorumFigureSchema>;
 export type DiagramSpec = z.infer<typeof DiagramSchema>;
 export type NodeKindT = (typeof NODE_KINDS)[number];
 export type Exercise = z.infer<typeof ExerciseSchema>;

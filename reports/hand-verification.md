@@ -1098,3 +1098,58 @@ Kleppmann, Designing Data-Intensive Applications, chapters 5 and 6, and the Dyna
 | s6-11-5 | Replication: reads, survival, regions; partitioning: writes, size | As s6-6-2. Correct. |
 | s6-11-6 | Orders: shard by customer id | Main query; even writes. Correct. |
 | s6-11-10 | 2 nodes split: each may think it leads | Split brain. Correct. |
+
+# Hand verification, System Design SD-5: S7 (Consistency and coordination)
+
+Quorum figure goals checked against every reachable W, R and down set (worst-case overlap: write on
+the first W up replicas, read from the last R), unit-tested. Lamport, fencing and merge examples are
+executed. Judgement items, re-derived from the mechanisms (Brewer/Gilbert-Lynch CAP, Abadi's
+PACELC, Lamport 1978, Raft paper, Kleppmann's DDIA chapter 8-9 on leases and fencing tokens):
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s7-1-1 | Bank withdrawal during a split: refuse | Never negative: consistency. Correct. |
+| s7-1-2 | Likes during a split: keep accepting, merge | Mergeable, harmless: availability. Correct. |
+| s7-1-3 | Refuse: last seat, money, unique name; answer: feed, cart, page views | Unmergeable harm vs mergeable. Correct. |
+| s7-1-4 | No partition: both possible | CAP applies only during a partition. Correct. |
+| s7-1-7 | Consistent choice: some users see errors | The side that cannot be sure refuses. Correct. |
+| s7-2-2 | Latency: product page, chat history, likes; consistency: last ticket, password change | Cost of being wrong. Correct. |
+| s7-2-3 | Nearby replica is fast because it asks no other replica | No coordination. Correct. |
+| s7-2-4 | Global profiles, lag allowed: nearest replica | Needs accept staleness. Correct. |
+| s7-2-6 | ELC: else, latency or consistency | PACELC definition. Correct. |
+| s7-3-2 | Strong: usernames, locks, balances; not: follower count, last seen | As taught. Correct. |
+| s7-3-3 | Completed write: later reads never return the old value | Linearizability. Correct. |
+| s7-3-4 | Unique names across regions: strongly consistent claim | Local checks race. Correct. |
+| s7-3-5 | Strong consistency costs coordination round trips | As taught. Correct. |
+| s7-3-6 | Send to leader, replicate, majority acks, confirm, later reads see it | Majority-replicated write. Correct. |
+| s7-4-3 | Offline to-do edits: merge item by item | LWW on the whole list loses items. Correct. |
+| s7-4-4 | Eventual: agreement once updates stop | Definition. Correct. |
+| s7-4-5 | Fine: likes, DNS, cart; not: cash withdrawal, unique order number | Mergeability. Correct. |
+| s7-4-7 | LWW drops one concurrent write | Definition (plus clock skew). Correct. |
+| s7-5-2 | Linked: post/comment, question/reply, unfriend then post; independent: strangers' posts, unrelated likes | Causality. Correct. |
+| s7-5-3 | Unfriend then post, eventual only: Bo may see the post | Classic causal anomaly. Correct. |
+| s7-5-4 | Reply arrives first, held, question shown, reply after | Causal delivery. Correct. |
+| s7-5-5 | Global forum threads: causal consistency | Enough ordering without global coordination. Correct. |
+| s7-5-6 | Unrelated posts in different orders: allowed | Causal orders only linked events. Correct. |
+| s7-5-8 | Causal sits between eventual and strong | Consistency hierarchy. Correct. |
+| s7-6-4 | W1R3 cheap writes; W3R1 cheap reads; W2R2 majority both | Quorum trade-offs. Correct. |
+| s7-6-5 | N3 W3 with one down: writes fail | Too few acknowledgements. Correct. |
+| s7-6-7 | 5 replicas, read-heavy, survive one down: W4 R2 | 4 + 2 > 5; both work with 4 up. Correct. |
+| s7-7-2 | Wall clocks drift apart | Clock skew. Correct. |
+| s7-7-4 | Send 5, receive 6, reply 7: question before reply | Lamport rules. Correct. |
+| s7-7-6 | Counter 8 vs 5: not necessarily later | Lamport clocks give cause ⇒ smaller only. Correct. |
+| s7-7-8 | Wall: "5 minutes ago", cache expiry; logical: reply order, concurrent writes, replicated log | As taught. Correct. |
+| s7-8-2 | Consensus: leader election, exclusive lock, membership; not: page views, cached page | Agreement on one value. Correct. |
+| s7-8-3 | Leader election: use etcd or ZooKeeper | Proven implementations. Correct. |
+| s7-8-5 | Survive one failure, three zones: three nodes | 2f + 1. Correct. |
+| s7-8-6 | Consensus costs round trips to a majority | As taught. Correct. |
+| s7-8-7 | Timeout, request votes, majority, leader heartbeats | Raft election (simplified). Correct. |
+| s7-9-1 | Token 33, pause, expiry, token 34 writes, 33 tries, refused | Fencing tokens. Correct. |
+| s7-9-3 | Leases free a dead holder's lock | As taught. Correct. |
+| s7-9-5 | Exactly-one nightly job: lease plus fencing tokens | Meets both needs. Correct. |
+| s7-9-7 | 15 s pause, 10 s lease, no fencing: two writers | Paused holder anomaly. Correct. |
+| s7-10-1 | Last seat during split: refuse on the minority side | As s7-1. Correct. |
+| s7-10-4 | Strong: usernames, withdrawals; causal: threads, chat; eventual: counters, review averages | As taught. Correct. |
+| s7-10-5 | Worldwide strong writes wait on a far majority | Latency side. Correct. |
+| s7-10-8 | Fencing order | As s7-9-1. Correct. |
+| s7-10-10 | Wall clocks drift | As s7-7-2. Correct. |
