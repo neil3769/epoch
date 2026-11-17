@@ -900,3 +900,84 @@ RFC 9293 TCP, RFC 1034/1035 DNS) rather than product behaviour.
 | s2-8-8 | 8 sequential calls 100 ms away: one batched call | 800 ms → ~100 ms. Correct. |
 | s2-8-9 | 2³⁰ ≈ a gigabyte | Arithmetic. Correct. |
 | s2-8-10 | Items → bytes → days → copies → units | Unique chain. Correct. |
+
+# Hand verification, System Design SD-2: units S3 (Scaling out) and S4 (Caching and CDNs)
+
+Balancer and cache figure goals are checked by the verifier against every state the controls can
+reach (goal reachable, not met at the start); the same simulators are unit-tested
+(tests/figures-sd.test.ts). Estimates are recomputed from their expressions; code runs in Pyodide
+with sim.FakeDB on the virtual clock. Judgement items, re-derived from the stated requirements and
+the general mechanisms (HTTP caching per RFC 9111 and MDN's HTTP caching guide for CDN items):
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s3-1-1 | Vertical: no code change, ceiling, pricier per core; horizontal: survives a failure, needs a balancer, needs statelessness | Definitions. Correct. |
+| s3-1-2 | 80% CPU, 10%/month growth: bigger DB machine first | Cheapest option meeting "a year of headroom, little effort". Correct. |
+| s3-1-4 | App servers scale out easily: they keep no data | Statelessness. Correct. |
+| s3-1-7 | Beyond the biggest machine: scale out | Only remaining option. Correct. |
+| s3-1-8 | One box, separate DB, balancer and app servers, read replicas, sharding | Common growth order; each step depends on the previous. Correct. |
+| s3-2-4 | Shared: session, cart, upload; per server: template cache, start-up config | Loss test. Correct. |
+| s3-2-5 | Random logouts after adding a server: shared session store | Pinning breaks "survive restarts". Correct. |
+| s3-2-6 | Stateless: nothing kept between requests | Definition. Correct. |
+| s3-2-8 | Upload on one server, shown by another: object storage | Shared, durable. Correct. |
+| s3-3-4 | 50 ms vs 30 s reports: least connections | Uneven costs (figure s3-3-1 demonstrates). Correct. |
+| s3-3-5 | Round robin fine when requests cost the same | As taught. Correct. |
+| s3-3-8 | Server twice as powerful: weighted round robin | Standard balancer feature. Correct. |
+| s3-4-2 | Crash, failed checks, removed, others serve, passes, back | Health-check lifecycle. Correct. |
+| s3-4-4 | Health check tests the server's own critical parts briefly | Avoids false passes and fleet-wide removal on shared outages. Correct. |
+| s3-4-5 | Several failures before removal: ignore blips | Threshold rationale. Correct. |
+| s3-4-7 | Removal does not restore lost capacity | As taught (s3-4-6 estimate). Correct. |
+| s3-5-3 | SPOF: single DB, shared power feed, one person; not: 3 app servers, 3-node queue | SPOF definition incl. shared dependencies. Correct. |
+| s3-5-5 | Minutes after machine fault: standby to promote | Backups take hours; reliable hardware still fails. Correct. |
+| s3-5-6 | Primary dies, heartbeats missed, promote, reconnect, new standby | Failover order. Correct. |
+| s3-5-7 | Two servers, one switch: partly redundant | Shared switch is a SPOF. Correct. |
+| s3-5-8 | Cost of removing a SPOF: another copy plus switching logic | As taught. Correct. |
+| s3-6-3 | Known 20:00 spike, 5-minute autoscale lag: pre-scale at 19:45 | Others break a stated need. Correct. |
+| s3-6-4 | Do not scale down at once: load bounces (flapping) | Cool-down rationale. Correct. |
+| s3-6-5 | Good signals: CPU, requests per server, backlog per worker; poor: registered users, log size | Current load per unit. Correct. |
+| s3-6-8 | Target 60% CPU: headroom during start-up | Lag coverage. Correct. |
+| s3-7-4 | Pinning downsides: uneven load, fragile state | As taught. Correct. |
+| s3-7-5 | Chat connections: route by user with a hash ring | Message must reach the connection's server; servers added later. Correct. |
+| s3-7-6 | Sticky: chat connection, per-user cache shard; any: stateless API, image, shared-session login | As taught. Correct. |
+| s3-7-8 | Prefer stateless: any server can take over | As taught. Correct. |
+| s3-8-1 | Full stateless app servers, growth, survive a failure: scale out | Cheaper and no ceiling; browser caching adds no capacity. Correct. |
+| s3-8-5 | 10 ms to 20 s requests: least connections | As s3-3-4. Correct. |
+| s3-8-7 | Threshold, start, boot, health checks, traffic | Autoscaling order. Correct. |
+| s3-8-10 | Black Friday: autoscaling too slow; scale ahead | As s3-6-3. Correct. |
+| s4-1-5 | A miss costs the full slow path | Definition. Correct. |
+| s4-1-6 | Good: product page, countries, exchange rates (short TTL); poor: one-off report, balance in transfer | Read often, changes rarely, tolerates age. Correct. |
+| s4-1-8 | Indexed 800 ms aggregate, 500 views/min, minutes-old fine: cache 5 minutes | Others fail the needs. Correct. |
+| s4-2-1 | Look, miss, read DB, store, return | Cache-aside. Correct. |
+| s4-2-5 | Cache down in cache-aside: reads slower via DB | App falls back. Correct. |
+| s4-2-6 | Bot misses: cache "not found" for 60 s | Negative caching; forever breaks the new-user need. Correct. |
+| s4-3-1 | Write-through: waits for DB, never behind; write-back: fastest, can lose, coalesces | Definitions. Correct. |
+| s4-3-2 | View counters: count in cache, save often | Write-back; loss tolerated by need. Correct. |
+| s4-3-3 | Balances: write-through or no cache | "No lost money, current balances". Correct. |
+| s4-3-6 | Fresh after every write: write-through | As taught (delete-on-write noted). Correct. |
+| s4-3-7 | Write cache, mark dirty, acknowledge, flush later | Write-back order. Correct. |
+| s4-4-4 | Short: stock price, weather; long: description, countries, published article | Rate of change. Correct. |
+| s4-4-6 | TTL limits staleness, no guarantee | RFC 9111 freshness lifetime. Correct. |
+| s4-4-8 | Checkout reads price fresh | Exact where money changes hands. Correct. |
+| s4-5-3 | Write DB, delete, miss, read, store | Delete after write avoids re-caching the old value. Correct. |
+| s4-5-6 | TTL as safety net for missed deletes | Crash between write and delete. Correct. |
+| s4-5-7 | 20 local caches, stale prices: one shared cache | Meets "everywhere within seconds" and fast reads. Correct. |
+| s4-6-5 | Hit rate fell after catalogue doubled: more cache memory | Working set outgrew cache. Correct. |
+| s4-6-7 | FIFO about equals LRU when keys are rarely reread | No reuse to exploit. Correct. |
+| s4-6-8 | Full cache, 30% hits: hot data does not fit | Working set vs size. Correct. |
+| s4-7-3 | First miss marks, others wait, read DB, write and clear, others read | Single-flight. Correct. |
+| s4-7-5 | Synchronised 10-minute expiry spikes: jitter | Cause is aligned expiry. Correct. |
+| s4-7-6 | Stale-while-revalidate: old value now, refresh behind | RFC 5861 semantics. Correct. |
+| s4-8-3 | CDN: logo, versioned script, product photo; not: account page, POST checkout, personalised feed | Public and identical vs private or writes. Correct. |
+| s4-8-4 | Versioned names cache for a year | Content-hashed names change per release. Correct. |
+| s4-8-5 | Unversioned logo fix within minutes: purge | Others fail the need. Correct. |
+| s4-8-8 | Per-user pages not safely cached at a CDN by default | Cache-Control: private (RFC 9111). Correct. |
+| s4-9-1 | Cache: fragment, feature flags, top 10; fresh: permission check, seats during booking | Exactness. Correct. |
+| s4-9-2 | Order history under a shared key: user id in the key | Privacy. Correct. |
+| s4-9-3 | Cache vs DB disagree: DB is right | Source of truth. Correct. |
+| s4-9-4 | Stock on pages: brief cache, exact at checkout | Checkout enforces correctness. Correct. |
+| s4-9-7 | Default for a new endpoint: no cache until needed | Correctness before speed. Correct. |
+| s4-10-3 | Likes at millions a second, loss tolerated: write-back | As s4-3-2. Correct. |
+| s4-10-5 | Write DB, delete, miss, refill | As s4-5-3. Correct. |
+| s4-10-6 | Hot key expiry knocked DB over: single-flight missing | As s4-7. Correct. |
+| s4-10-9 | Cache: help article, currencies, trending; fresh: balance, admin rights | As s4-9-1. Correct. |
+| s4-10-10 | Versioned names: each release has a new name | As s4-8-4. Correct. |

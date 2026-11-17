@@ -143,3 +143,11 @@ assert mc.get("https://api.example.com/users/1").json() == {"name": "Ada"}
 assert mc.get("/users/2").status_code == 404
 assert mc.post("/users", json={"name": "Bo"}).json() == {"name": "Bo"}
 assert [c["status"] for c in mc.calls] == [200, 404, 201]
+
+
+# FakeDB: slow and countable on the virtual clock.
+sim.clock.reset()
+db = sim.FakeDB({"a": 1}, delay=0.1)
+assert db.get("a") == 1 and db.get("b") is None
+db.put("b", 2)
+assert db.queries == 3 and abs(sim.clock.time() - 0.3) < 1e-9

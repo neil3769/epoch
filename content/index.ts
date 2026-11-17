@@ -23,6 +23,8 @@ import { e10 } from './units/e10';
 import { e11 } from './units/e11';
 import { s1 } from './units/s1';
 import { s2 } from './units/s2';
+import { s3 } from './units/s3';
+import { s4 } from './units/s4';
 
 export type Track = 'foundations' | 'engineering' | 'system-design';
 
@@ -36,7 +38,7 @@ export interface UnitEntry {
   unit?: Unit;
 }
 
-const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, F10: f10, F11: f11, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7, E8: e8, E9: e9, E10: e10, E11: e11, S1: s1, S2: s2 };
+const written: Record<string, Unit> = { F1: f1, F2: f2, F3: f3, F4: f4, F5: f5, F6: f6, F7: f7, F8: f8, F9: f9, F10: f10, F11: f11, E1: e1, E2: e2, E3: e3, E4: e4, E5: e5, E6: e6, E7: e7, E8: e8, E9: e9, E10: e10, E11: e11, S1: s1, S2: s2, S3: s3, S4: s4 };
 
 const plan: Omit<UnitEntry, 'unit'>[] = [
   { id: 'F1', track: 'foundations', title: 'Python you will see in ML code', planned: 12 },

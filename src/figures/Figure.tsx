@@ -1,5 +1,7 @@
 import type { FigureSpec } from '../../content/schema';
+import { BalancerFigure } from './BalancerFigure';
 import { BroadcastFigure } from './BroadcastFigure';
+import { CacheFigure } from './CacheFigure';
 import { CompareFigure } from './CompareFigure';
 import { DescentFigure } from './DescentFigure';
 import { NeuronFigure } from './NeuronFigure';
@@ -21,5 +23,9 @@ export function Figure({ spec, onGoal }: { spec: FigureSpec; onGoal?: () => void
       return <DescentFigure spec={spec} onGoal={onGoal} />;
     case 'neuron':
       return <NeuronFigure spec={spec} onGoal={onGoal} />;
+    case 'balancer':
+      return <BalancerFigure spec={spec} onGoal={onGoal} />;
+    case 'cache':
+      return <CacheFigure spec={spec} onGoal={onGoal} />;
   }
 }

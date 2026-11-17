@@ -11,7 +11,7 @@ import { s1More } from './s1-more';
  * checkpoint. The prelude holds the Numbers page values (DAY, MB,
  * WORLD_ROUND_TRIP, ...) so code can use the same names as the estimates.
  */
-export const SD_PRELUDE = NUMBERS_PY + '\nimport numpy as np';
+export const SD_PRELUDE = NUMBERS_PY + '\nimport numpy as np\nimport epoch_sim as sim';
 
 const lessons: Lesson[] = [
   // ------------------------------------------------------------------ 1

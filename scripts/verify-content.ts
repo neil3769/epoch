@@ -36,6 +36,8 @@ import { resultGrid } from '../src/lib/broadcast';
 import { LRS, goalReachable, stepsToGoal } from '../src/lib/descent';
 import { neuronGoalReachable, outputGoalMet } from '../src/lib/neuron';
 import { diagramProblems, isPath } from '../src/lib/diagram';
+import { lbGoalMet, lbStart, lbStates } from '../src/lib/lbsim';
+import { cacheGoalMet, cacheStart, cacheStates } from '../src/lib/cachesim';
 import { withinFactor } from '../src/lib/estimate';
 import { NUMBER_ROWS, NUMBERS_PY } from '../content/numbers';
 
@@ -176,6 +178,20 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
       if (!(f.editable ?? []).length) fail(where, 'an output goal needs editable weights');
       if (outputGoalMet(f, f.W)) fail(where, 'neuron goal is already met at the start');
       if (!neuronGoalReachable(f)) fail(where, 'neuron goal is not reachable with the editable weights');
+    }
+  } else if (f.kind === 'balancer') {
+    for (const d of f.down ?? []) if (d >= f.servers) fail(where, `down server ${d} does not exist`);
+    if (f.algorithms && !f.algorithms.includes(f.algorithm)) fail(where, 'the starting algorithm is not among the choices');
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (lbGoalMet(f, lbStart(f))) fail(where, 'balancer goal is already met at the start');
+      if (!lbStates(f).some((s) => lbGoalMet(f, s))) fail(where, 'balancer goal is not reachable with the controls');
+    }
+  } else if (f.kind === 'cache') {
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (cacheGoalMet(f, cacheStart(f))) fail(where, 'cache goal is already met at the start');
+      if (!cacheStates(f).some((s) => cacheGoalMet(f, s))) fail(where, 'cache goal is not reachable with the controls');
     }
   } else if (f.kind === 'broadcast') {
     if (!rect(f.A) || !rect(f.B)) return fail(where, 'figure matrices must be rectangular');

@@ -267,3 +267,25 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   app. Tests: 77 pass (new tests for estimate parsing, diagram layout, paths and problems).
 - Not done yet from SD-1's brief: nothing; walkthroughs start in SD-3. Next: SD-2 (S3 Scaling out,
   S4 Caching and CDNs, with the load-balancer and cache figures and simulator additions).
+
+
+## System Design SD-2: S3 Scaling out and S4 Caching and CDNs, 2026-11-17 — DONE
+- Two new figures, both data-driven and verified against every state their controls can reach:
+  `balancer` (2-4 servers; round robin, least connections or hash; tap servers down; health checks;
+  goals: every user sticky, a maximum per-server peak, no failures with a server down) and `cache`
+  (reads one per second; size, LRU/FIFO and TTL controls; changes to the source show stale hits;
+  goals: hit rate, no stale reads with a minimum hit rate, or produce a stale read). Shared logic in
+  src/lib/lbsim.ts and src/lib/cachesim.ts, unit-tested.
+- Simulated services: `sim.FakeDB` (slow, countable, on the virtual clock) for cache labs; the
+  System Design prelude now imports `epoch_sim as sim`.
+- S3 Scaling out (8 lessons: bigger or more, stateless servers, load-balancing algorithms, health
+  checks, single points of failure, autoscaling and its lag, keeping a user on one server,
+  checkpoint) with labs Balancers and Scaling decisions; S4 Caching and CDNs (10 lessons: why cache,
+  cache-aside, write-through and write-back, TTL and stale data, invalidation, eviction, stampedes,
+  CDNs, what to cache and what never, checkpoint) with labs Cache-aside and An LRU cache. Library
+  pages with reference diagrams. 70 judgement items hand-verified.
+- Fixed: the cache figure's "hit" class collided with the Library search's `.hit` style.
+- Browser at 390 px: 184 S3/S4 screens and labs, no overflow, controls at least 44 px, no clipped
+  labels; every figure goal reached in the app. Tests: 83 pass.
+- Next: SD-3 (S5 Databases: modelling and queries, then the walkthrough player and the URL shortener
+  walkthrough).

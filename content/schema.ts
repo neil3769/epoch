@@ -108,6 +108,45 @@ export const NeuronFigureSchema = z.object({
   goal: z.union([z.object({ tap: z.number().int().min(0) }), z.object({ neuron: z.number().int().min(0), output: z.number() })]).optional(),
 });
 
+const LbAlgo = z.enum(['round-robin', 'least-conn', 'hash']);
+
+/** Load balancer: requests from users routed to 2-4 servers by a chosen algorithm. */
+export const BalancerFigureSchema = z.object({
+  kind: z.literal('balancer'),
+  servers: z.number().int().min(2).max(4),
+  /** One request per tick; `cost` is how many ticks it keeps its server busy. */
+  requests: z.array(z.object({ user: z.string().regex(/^[A-Z]$/), cost: z.number().int().min(1).max(6) })).min(4).max(12),
+  algorithm: LbAlgo,
+  /** Algorithms the learner may choose between. */
+  algorithms: z.array(LbAlgo).min(2).optional(),
+  down: z.array(z.number().int().min(0)).optional(),
+  /** Servers can be tapped to take them down or bring them back. */
+  killable: z.boolean().optional(),
+  health: z.boolean().optional(),
+  toggleHealth: z.boolean().optional(),
+  goal: z
+    .union([z.object({ sticky: z.literal(true) }), z.object({ maxPeak: z.number().int().min(1) }), z.object({ noFailures: z.literal(true) })])
+    .optional(),
+});
+
+/** Cache: a stream of reads against a small cache with a size, policy and TTL. */
+export const CacheFigureSchema = z.object({
+  kind: z.literal('cache'),
+  reads: z.string().regex(/^[a-z]( [a-z])*$/),
+  changes: z.array(z.object({ key: z.string(), at: z.number().int().min(0) })).optional(),
+  size: z.number().int().min(1).max(5),
+  policy: z.enum(['lru', 'fifo']),
+  ttl: z.union([z.literal(10), z.literal(5), z.literal(2), z.null()]),
+  editable: z.array(z.enum(['size', 'policy', 'ttl'])).optional(),
+  goal: z
+    .union([
+      z.object({ hitRate: z.number().gt(0).max(1) }),
+      z.object({ noStale: z.literal(true), minHitRate: z.number().gt(0).max(1).optional() }),
+      z.object({ stale: z.literal(true) }),
+    ])
+    .optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
@@ -115,6 +154,8 @@ export const FigureSchema = z.discriminatedUnion('kind', [
   BroadcastFigureSchema,
   DescentFigureSchema,
   NeuronFigureSchema,
+  BalancerFigureSchema,
+  CacheFigureSchema,
 ]);
 
 
@@ -462,6 +503,8 @@ export type ShapeFigureSpec = z.infer<typeof ShapeFigureSchema>;
 export type BroadcastFigureSpec = z.infer<typeof BroadcastFigureSchema>;
 export type DescentFigureSpec = z.infer<typeof DescentFigureSchema>;
 export type NeuronFigureSpec = z.infer<typeof NeuronFigureSchema>;
+export type BalancerFigureSpec = z.infer<typeof BalancerFigureSchema>;
+export type CacheFigureSpec = z.infer<typeof CacheFigureSchema>;
 export type DiagramSpec = z.infer<typeof DiagramSchema>;
 export type NodeKindT = (typeof NODE_KINDS)[number];
 export type Exercise = z.infer<typeof ExerciseSchema>;

@@ -475,6 +475,33 @@ def call_tool(name, args):
         return {"error": f"bad arguments: {e}"}
 
 
+# --------------------------------------------------------------- database ---
+
+
+class FakeDB:
+    """A slow, countable database for system design labs.
+
+    Every get or put advances the virtual clock by `delay` seconds and adds
+    one to `queries`, so a lab can measure what a cache saves. Rows are a
+    plain dict: db.rows["user:1"] = {...}.
+    """
+
+    def __init__(self, rows=None, delay=0.05):
+        self.rows = dict(rows or {})
+        self.delay = delay
+        self.queries = 0
+
+    def get(self, key):
+        self.queries += 1
+        clock.advance(self.delay)
+        return self.rows.get(key)
+
+    def put(self, key, value):
+        self.queries += 1
+        clock.advance(self.delay)
+        self.rows[key] = value
+
+
 # ------------------------------------------------------------------- logs ---
 
 # Made-up prices in euros per million tokens: (input, output).
