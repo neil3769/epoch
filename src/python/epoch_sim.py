@@ -502,6 +502,39 @@ class FakeDB:
         self.rows[key] = value
 
 
+class Replicas:
+    """A leader and followers for replication lessons, on the virtual clock.
+
+    Writes go to the leader (node 0) and reach each follower `lag` seconds
+    later (one lag per follower, or one for all). read(key, node) reads one
+    node; a node in `down` raises ConnectionError.
+    """
+
+    def __init__(self, followers=2, lag=1.0):
+        self.lags = list(lag) if isinstance(lag, (list, tuple)) else [lag] * followers
+        self.log = []
+        self.down = set()
+
+    @property
+    def nodes(self):
+        return 1 + len(self.lags)
+
+    def write(self, key, value):
+        if 0 in self.down:
+            raise ConnectionError("node 0 is down")
+        self.log.append((clock.time(), key, value))
+
+    def read(self, key, node=0):
+        if node in self.down:
+            raise ConnectionError(f"node {node} is down")
+        delay = 0 if node == 0 else self.lags[node - 1]
+        value = None
+        for t, k, v in self.log:
+            if k == key and t + delay <= clock.time():
+                value = v
+        return value
+
+
 # ------------------------------------------------------------------- logs ---
 
 # Made-up prices in euros per million tokens: (input, output).

@@ -43,6 +43,7 @@ import { neuronGoalReachable, outputGoalMet } from '../src/lib/neuron';
 import { diagramProblems, isPath } from '../src/lib/diagram';
 import { lbGoalMet, lbStart, lbStates } from '../src/lib/lbsim';
 import { cacheGoalMet, cacheStart, cacheStates } from '../src/lib/cachesim';
+import { ringGoalMet, ringStart, ringStates } from '../src/lib/ringsim';
 import { withinFactor } from '../src/lib/estimate';
 import { NUMBER_ROWS, NUMBERS_PY } from '../content/numbers';
 
@@ -191,6 +192,14 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
     if (f.goal) {
       if (lbGoalMet(f, lbStart(f))) fail(where, 'balancer goal is already met at the start');
       if (!lbStates(f).some((s) => lbGoalMet(f, s))) fail(where, 'balancer goal is not reachable with the controls');
+    }
+  } else if (f.kind === 'ring') {
+    if (new Set(f.keys).size !== f.keys.length) fail(where, 'ring keys must be unique');
+    if (f.servers > f.maxServers) fail(where, 'ring starts with more servers than allowed');
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (ringGoalMet(f, ringStart(f))) fail(where, 'ring goal is already met at the start');
+      if (!ringStates(f).some((s) => ringGoalMet(f, s))) fail(where, 'ring goal is not reachable with the controls');
     }
   } else if (f.kind === 'cache') {
     if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');

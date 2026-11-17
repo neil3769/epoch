@@ -49,3 +49,21 @@ describe('cache simulation', () => {
     expect(cacheStates(spec).filter((s) => cacheGoalMet(spec, s)).map((s) => s.ttl)).toEqual([2]);
   });
 });
+
+import { moved as ringMoved, maxShare, ringGoalMet, ringStart, ringStates, type RingSpecLike } from '../src/lib/ringsim';
+
+describe('consistent hashing ring', () => {
+  const keys = Array.from({ length: 16 }, (_, i) => `user${i + 1}`);
+  const spec: RingSpecLike = { keys, servers: 3, maxServers: 5, mode: 'mod', switchable: true, goal: { servers: 4, maxMoved: 5 } };
+  it('modulo moves most keys when a server joins; the ring moves few', () => {
+    expect(ringMoved(spec, { servers: 4, mode: 'mod', vnodes: 1 })).toBeGreaterThan(10);
+    expect(ringMoved(spec, { servers: 4, mode: 'ring', vnodes: 1 })).toBeLessThanOrEqual(5);
+    expect(ringGoalMet(spec, ringStart(spec))).toBe(false);
+    expect(ringStates(spec).some((s) => ringGoalMet(spec, s))).toBe(true);
+  });
+  it('virtual nodes even out the load', () => {
+    const one = maxShare(spec, { servers: 3, mode: 'ring', vnodes: 1 });
+    const many = maxShare(spec, { servers: 3, mode: 'ring', vnodes: 16 });
+    expect(many).toBeLessThan(one);
+  });
+});

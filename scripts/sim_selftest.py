@@ -151,3 +151,18 @@ db = sim.FakeDB({"a": 1}, delay=0.1)
 assert db.get("a") == 1 and db.get("b") is None
 db.put("b", 2)
 assert db.queries == 3 and abs(sim.clock.time() - 0.3) < 1e-9
+
+
+# Replicas: followers see writes `lag` seconds later; down nodes raise.
+sim.clock.reset()
+rs = sim.Replicas(followers=2, lag=[0.5, 2.0])
+rs.write("x", 1)
+assert rs.read("x", 0) == 1 and rs.read("x", 1) is None
+sim.clock.advance(1.0)
+assert rs.read("x", 1) == 1 and rs.read("x", 2) is None
+rs.down.add(2)
+try:
+    rs.read("x", 2)
+    raise AssertionError("down node should raise")
+except ConnectionError:
+    pass

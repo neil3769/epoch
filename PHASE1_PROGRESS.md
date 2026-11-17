@@ -316,3 +316,24 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   stale-state bug in the component palette. S5 sweep: 110 screens, no overflow. Tests: 87 pass.
 - Next: SD-4 onward, S6 (replication and partitioning) with the consistent-hashing and quorum
   figures, then S7.
+
+
+## System Design SD-4: S6 Databases: replication and partitioning, 2026-11-17 — DONE
+- New figure `ring` (consistent hashing): 6-20 keys on servers by hash % n or on a hash ring; add or
+  remove servers, switch placement, choose virtual nodes; moved keys are outlined; goals: grow to n
+  servers moving at most k keys, or keep the busiest server under a share. Shared logic in
+  src/lib/ringsim.ts (FNV-1a with MurmurHash3's finaliser, so short similar keys spread evenly),
+  verified against every reachable state and unit-tested.
+- Simulated services: `sim.Replicas(followers, lag)`, a leader and followers on the virtual clock,
+  with nodes that can be marked down; self-tested.
+- S6 (11 lessons: leader and followers, replication lag, reading your own writes, synchronous or
+  asynchronous, failover and split brain, why partition, range or hash, choosing a shard key, hot
+  keys, consistent hashing, checkpoint). Labs: Reads across replicas (scaffolded); A hash ring (empty
+  functions, tested by properties). Library page with a reference diagram. 42 judgement items
+  hand-verified.
+- Browser at 390 px: 110 S6 screens and labs, no overflow; both ring goals reached in the app.
+  Tests: 89 pass.
+- Not built yet from the brief: the sharding figure (S6 teaches hot shards with code and diagrams
+  instead), the quorum and partition figures (S7), the rate-limiter and queue figures (S8/S9).
+- Next: S7 Consistency and coordination (quorum and partition figures), then S8 onward and the
+  remaining walkthroughs.

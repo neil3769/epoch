@@ -1045,3 +1045,56 @@ Judgement items:
 | wus-6-1 | Per-server blocks of 1,000 ids | No per-link coordination, unique. Correct. |
 | wus-7-2 | Hot key: short in-process caches | Links immutable; one node otherwise saturated. Correct. |
 | wus-7-3 | At 10×: more servers and cache first | Writes ~400/s still fine on one DB. Correct. |
+
+# Hand verification, System Design SD-4: S6 (Databases: replication and partitioning)
+
+Replication exercises run against sim.Replicas (leader plus followers on the virtual clock, unit
+self-tested); the ring figure is checked against every state its controls reach and unit-tested;
+the hash-ring lab is tested by its properties (moved keys go only to the new server, virtual nodes
+lower the busiest share). Judgement items, re-derived from the general mechanisms (as described in
+Kleppmann, Designing Data-Intensive Applications, chapters 5 and 6, and the Dynamo paper):
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s6-1-3 | Leader at its write limit: followers do not help | All writes go through the leader. Correct. |
+| s6-1-4 | Leader: accepts writes, one per set; follower: applies, can be stale, can be promoted | Definitions. Correct. |
+| s6-1-5 | Heavy reports: run them on a follower | Isolates read load; staleness allowed. Correct. |
+| s6-2-3 | Follower OK: listings, old reports, public profiles; leader only: balance check, username check | Exactness per read. Correct. |
+| s6-2-4 | Lag grows when followers fall behind under load | Load-dependent lag. Correct. |
+| s6-2-5 | Change on leader, in flight, read on follower, old value, applied | Stale-read sequence. Correct. |
+| s6-2-6 | Pages from followers; checkout on the leader | Approximate to show, exact to decide. Correct. |
+| s6-3-3 | Leader reads just after the user's own write | Read-your-writes, per user. Correct. |
+| s6-3-4 | Only the writer needs read-your-writes | Per-user guarantee. Correct. |
+| s6-3-6 | Note time, request in window, read leader, sees write, back to followers | Time-window routing. Correct. |
+| s6-3-8 | Cross-device: keep last-write time per user | Session-scoped state misses other devices. Correct. |
+| s6-4-2 | Sync: no confirmed loss, slow follower slows writes; async: fastest, can lose, fine far away | Definitions. Correct. |
+| s6-4-3 | Payments: sync near follower, async far | Semi-synchronous; meets both needs. Correct. |
+| s6-4-5 | Not all sync: one slow follower stalls writes | Availability/latency cost. Correct. |
+| s6-4-6 | Send, write locally, send to follower, confirm, tell app | Synchronous order. Correct. |
+| s6-5-1 | Missed heartbeats, majority agrees, promote, fence, switch | Failover with fencing. Correct. |
+| s6-5-4 | 2 nodes: no majority when split | Quorum arithmetic. Correct. |
+| s6-5-6 | Three nodes with majority vote | Survives one failure without split brain. Correct. |
+| s6-5-8 | Promote the most up-to-date follower | Least data lost. Correct. |
+| s6-6-2 | Replication: reads, survival, regional copies; partitioning: data size, writes | As taught. Correct. |
+| s6-6-3 | 300 GB at 40% CPU: not yet, scale up and add replicas | Sharding cost not justified. Correct. |
+| s6-6-6 | Harder after sharding: cross-shard queries | Scatter-gather and distributed transactions. Correct. |
+| s6-6-8 | Router picks shard, leader write, copy, confirm | Sharded + replicated write. Correct. |
+| s6-7-2 | Range: ordered queries, hot newest range, splitting; hash: even load, ranges scatter | Definitions. Correct. |
+| s6-7-3 | IoT: hash device id, sort by time | Spreads writes, keeps a device together. Correct. |
+| s6-7-6 | Ranges unbalance as data piles into some | As taught. Correct. |
+| s6-8-1 | Good: author id, random post id; poor: country, timestamp, boolean | Cardinality and spread. Correct. |
+| s6-8-2 | Chat: shard by conversation id | Main query on one shard. Correct. |
+| s6-8-4 | Sharded by user: "signed up today" is expensive | Not keyed by user. Correct. |
+| s6-8-7 | Keep buyer key; add a seller index | Main path on one shard; derived data for the other. Correct. |
+| s6-8-8 | Changing the shard key moves nearly all data | Redistribution. Correct. |
+| s6-9-3 | Hot profile reads: cache in front | Reads of rarely changing data. Correct. |
+| s6-9-4 | Cache: viral page, top 10, famous profile; split: like counter, flash-sale stock | Reads vs writes. Correct. |
+| s6-9-6 | Splitting costs: reads combine pieces | As taught (s6-9-5 executed). Correct. |
+| s6-10-5 | Moved keys must be refilled or copied | Cache miss storms. Correct. |
+| s6-10-7 | Changing cache cluster: ring with virtual nodes | Few moves, even load (figure executed). Correct. |
+| s6-10-8 | Modulo: moves most, simplest, fine if n fixed; ring: neighbours only, virtual nodes | As taught. Correct. |
+| s6-11-2 | Old avatar after upload: leader reads after own write | Read-your-writes. Correct. |
+| s6-11-3 | Async leader dies: confirmed writes can be lost | As s6-4. Correct. |
+| s6-11-5 | Replication: reads, survival, regions; partitioning: writes, size | As s6-6-2. Correct. |
+| s6-11-6 | Orders: shard by customer id | Main query; even writes. Correct. |
+| s6-11-10 | 2 nodes split: each may think it leads | Split brain. Correct. |

@@ -147,6 +147,23 @@ export const CacheFigureSchema = z.object({
     .optional(),
 });
 
+/** Consistent hashing: keys on servers by hash % n or on a ring, with servers added or removed. */
+export const RingFigureSchema = z.object({
+  kind: z.literal('ring'),
+  keys: z.array(z.string().regex(/^[a-z0-9]{1,8}$/)).min(6).max(20),
+  servers: z.number().int().min(1).max(5),
+  maxServers: z.number().int().min(2).max(5),
+  mode: z.enum(['mod', 'ring']),
+  switchable: z.boolean().optional(),
+  vnodes: z.array(z.number().int().min(1).max(32)).min(1).max(3).optional(),
+  goal: z
+    .union([
+      z.object({ servers: z.number().int().min(1), maxMoved: z.number().int().min(0) }),
+      z.object({ servers: z.number().int().min(1), maxShare: z.number().gt(0).max(1) }),
+    ])
+    .optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
@@ -156,6 +173,7 @@ export const FigureSchema = z.discriminatedUnion('kind', [
   NeuronFigureSchema,
   BalancerFigureSchema,
   CacheFigureSchema,
+  RingFigureSchema,
 ]);
 
 
@@ -549,6 +567,7 @@ export type DescentFigureSpec = z.infer<typeof DescentFigureSchema>;
 export type NeuronFigureSpec = z.infer<typeof NeuronFigureSchema>;
 export type BalancerFigureSpec = z.infer<typeof BalancerFigureSchema>;
 export type CacheFigureSpec = z.infer<typeof CacheFigureSchema>;
+export type RingFigureSpec = z.infer<typeof RingFigureSchema>;
 export type DiagramSpec = z.infer<typeof DiagramSchema>;
 export type NodeKindT = (typeof NODE_KINDS)[number];
 export type Exercise = z.infer<typeof ExerciseSchema>;
