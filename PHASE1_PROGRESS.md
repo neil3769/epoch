@@ -393,3 +393,13 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   screens; S10 lists after S9 on the Systems tab. Tests: 96 pass.
 - Still to build: partition (CAP) and sharding figures; units S11 to S14; walkthroughs 2 to 14 and
   the four AI designs in the walkthrough player. Next: S11 Specialised building blocks (11 lessons).
+
+## System Design SD-9: S11 Specialised building blocks, 2026-11-19 — DONE
+- S11 (11 lessons: inverted indexes, ranking, geospatial indexing, real-time delivery, object storage
+  and media, unique ids, Bloom filters, counting at scale, batch and stream, analytical and
+  transactional, checkpoint). No new figure. Labs: Search and maps (scaffolded); Ids and Bloom filters
+  (empty functions). Library page. 50 judgement items hand-verified.
+- Browser at 390 px: 110 S11 screens and lab steps plus the Library page, no overflow or error
+  screens. Tests: 96 pass.
+- Still to build: partition (CAP) and sharding figures; units S12 to S14; walkthroughs 2 to 14 and
+  the four AI designs in the walkthrough player. Next: S12 Designing AI systems (9 lessons).

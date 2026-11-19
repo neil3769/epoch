@@ -1338,3 +1338,69 @@ Google SRE book (chapters on SLOs, handling overload, addressing cascading failu
 | s10-10-7 | Failing search: breaker, hide suggestions | As s10-3-5. Correct. |
 | s10-10-9 | Trace shows which service was slow | As s10-7-7. Correct. |
 | s10-10-10 | Short tokens because they cannot be revoked early | Stateless validation. Correct. |
+
+# Hand verification, System Design SD-9: S11 (Specialised building blocks)
+
+No new figure. Code examples (including the Bloom filter's false positive, the false-positive formula,
+the count-min minimum and Snowflake bit packing), estimates and both labs are executed. Judgement items,
+re-derived from: Manning, Raghavan & Schütze, Introduction to Information Retrieval (inverted index,
+tf-idf); Robertson & Zaragoza 2009 (BM25); geohash description (Niemeyer) and Finkel & Bentley 1974
+(quadtrees); WHATWG HTML spec (server-sent events, EventSource reconnection) and RFC 6455 (WebSocket);
+RFC 9562 (UUIDv4 has 122 random bits, UUIDv7 is time-ordered); Twitter's Snowflake announcement (41-bit
+ms, 10-bit worker, 12-bit sequence); Bloom 1970 and Broder & Mitzenmacher 2004 (≈9.6 bits/item for 1%);
+Flajolet et al. 2007 (HyperLogLog, mergeable by register max); Cormode & Muthukrishnan 2005 (count-min
+never undercounts); Akidau et al. 2015 (Dataflow: event time, watermarks); Stonebraker et al. 2005
+(C-Store, column stores).
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s11-1-4 | Normalise so "Shoes" matches "shoe" | Query and index normalised alike. Correct. |
+| s11-1-5 | Split, lowercase, stem, add id to lists | Indexing pipeline. Correct. |
+| s11-1-6 | LIKE '%shoe%' slow: inverted index | Leading wildcard defeats a B-tree. Correct. |
+| s11-1-7 | Keep index current by streaming DB changes | Derived data. Correct. |
+| s11-1-8 | Search: full text, typos, facets; DB: payment status, unique usernames | Source of truth vs derived. Correct. |
+| s11-2-2 | "the" scores ~0 because it is in every document | idf = log(N/N). Correct. |
+| s11-2-4 | BM25: repeats stop adding much | Term-frequency saturation (k1). Correct. |
+| s11-2-5 | Spammy old listing: BM25 plus popularity and freshness | As taught. Correct. |
+| s11-2-6 | Normalise, look up, combine, score, top 10 | Query pipeline. Correct. |
+| s11-3-2 | Search neighbours: close places straddle edges | Geohash edge cases. Correct. |
+| s11-3-4 | Longer geohash: smaller cell | Each char adds 5 bits. Correct. |
+| s11-3-5 | Ride app: in-memory grid of drivers | As taught. Correct. |
+| s11-3-6 | Quadtree: dense areas get smaller cells | Adaptive split. Correct. |
+| s11-4-1 | Polling asks again; SSE pushes on one response; WebSocket two-way | Specs. Correct. |
+| s11-4-2 | Polling: report ready, order status; SSE: score, ticker; WS: game, chat | Direction and freshness. Correct. |
+| s11-4-4 | Polling waste: most requests return nothing | As taught. Correct. |
+| s11-4-5 | Cross-server chat: pub-sub between servers | Common design. Correct. |
+| s11-5-1 | Ask URL, signed URL, direct upload, event, thumbnails | Presigned upload flow. Correct. |
+| s11-5-2 | Store: photo bytes, videos, backups; DB: owner/caption, like count | Blobs vs metadata. Correct. |
+| s11-5-4 | Direct upload so app servers don't relay big files | As taught. Correct. |
+| s11-5-5 | Slow phones: transcode to several bitrates | Adaptive bitrate streaming. Correct. |
+| s11-5-7 | Object stores are bad at in-place partial changes | Objects written whole. Correct. |
+| s11-6-1 | Auto-increment central; UUIDv4 random; Snowflake time+machine+seq | RFC 9562, Snowflake. Correct. |
+| s11-6-4 | Random UUID keys scatter B-tree inserts | Page splits, cache misses. Correct. |
+| s11-6-5 | Sequential public ids leak volume: opaque ids | As taught. Correct. |
+| s11-6-8 | Counter: gapless invoices, small app; anywhere: 500 servers, global chat, 3 regions | As taught. Correct. |
+| s11-7-2 | Trust "definitely not" | No false negatives. Correct. |
+| s11-7-4 | Absent-key disk reads: Bloom filter in front | LSM engines do this. Correct. |
+| s11-7-5 | Plain Bloom filter: no deletes, bits shared | Counting variant exists. Correct. |
+| s11-7-6 | Good: absent keys, crawled URLs, seen articles; poor: friend list, balance | Membership only. Correct. |
+| s11-8-2 | HyperLogLog trades small error for tiny memory | As taught. Correct. |
+| s11-8-4 | Daily uniques don't add: repeat visitors | As taught. Correct. |
+| s11-8-5 | Exact: balance, seats; estimate: uniques, top terms, distinct IPs | As taught. Correct. |
+| s11-8-7 | Per-page uniques over 50 servers: HyperLogLog per page, merged | Mergeable sketches. Correct. |
+| s11-9-1 | Batch: invoices, nightly retrain, tax; stream: fraud, live viewers, error alert | Freshness. Correct. |
+| s11-9-3 | Watermark: events before T have (mostly) arrived | Dataflow model. Correct. |
+| s11-9-5 | Fraud before approval: score as it streams | As taught. Correct. |
+| s11-9-6 | Batch advantage: easy to rerun | As taught. Correct. |
+| s11-9-7 | Late tap assigned by event time, window corrected | Event-time windows. Correct. |
+| s11-10-1 | OLTP: order, address, stock; OLAP: revenue by country, basket size | As taught. Correct. |
+| s11-10-4 | Columns compress: similar values together | C-Store. Correct. |
+| s11-10-5 | Report hurts production: copy to analytics store | As taught. Correct. |
+| s11-10-6 | Column store poor at single-row updates | Touches every column. Correct. |
+| s11-11-2 | Rarest word helps ranking most | idf. Correct. |
+| s11-11-3 | Polling: hourly invoice, build status; SSE: election results; WS: cursors, voice signalling | As taught. Correct. |
+| s11-11-5 | Weakness: counter bottleneck; UUIDv4 scattered inserts; Snowflake needs sane clocks | Clock regression repeats ids. Correct. |
+| s11-11-6 | "Probably yes": check the real store | As taught. Correct. |
+| s11-11-8 | Live orders per minute: stream | As taught. Correct. |
+| s11-11-9 | Sum one column: column store reads least | As taught. Correct. |
+| s11-11-10 | Grid search: your cell and neighbours | As taught. Correct. |
