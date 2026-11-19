@@ -1214,3 +1214,67 @@ their own queue's documentation.
 | s8-10-7 | Flight full after hotel: cancel the hotel booking | Saga compensation. Correct. |
 | s8-10-9 | Poison message without a cap: retried forever | As taught. Correct. |
 | s8-10-10 | Jitter: retries spread out | As s8-5-3. Correct. |
+
+# Hand verification, System Design SD-7: S9 (APIs and service boundaries)
+
+Rate-limiter figure goals checked against every reachable state (src/lib/limiter.ts, exact arithmetic in
+tenths of a second; unit-tested: a fixed window lets 2 × limit through across a boundary, a sliding
+window does not, a token bucket takes a burst up to its size and then the refill rate). Code examples
+are executed. Judgement items, re-derived from primary sources: RFC 9110 (method idempotency §9.2.2;
+201 §15.3.2; 401 §15.5.2 vs 403 §15.5.4; 405 §15.5.6; 503 + Retry-After §15.6.4), RFC 6585 §4 (429),
+the IETF httpapi Idempotency-Key header draft (still a draft, so the lesson says "often an
+Idempotency-Key header"), gRPC docs (HTTP/2, protobuf; browsers need gRPC-Web), GraphQL spec, Fowler's
+"MonolithFirst" and "Microservices" articles, and Kubernetes Service/DNS docs for discovery.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s9-1-1 | REST: public API; gRPC: service-to-service; GraphQL: app picks fields | Typical fit. Correct. |
+| s9-1-2 | Idempotent: GET, PUT full replace, DELETE; not: POST orders, POST payments | RFC 9110 §9.2.2. Correct. |
+| s9-1-3 | 11 calls on mobile: one GraphQL query for the screen | Collapses round trips; gRPC keeps 11 calls. Correct. |
+| s9-1-4 | Created: 201 | RFC 9110 §15.3.2. Correct. |
+| s9-1-5 | 401: no token, expired, malformed; 403: not admin, another user's file | RFC 9110 §15.5.2/§15.5.4. Correct. |
+| s9-1-7 | gRPC not for browsers: they cannot speak it directly | Needs gRPC-Web proxy. Correct. |
+| s9-2-3 | Large OFFSET reads and discards the skipped rows | Standard DB behaviour. Correct. |
+| s9-2-4 | Infinite changing feed: cursor | Stable and fast at depth. Correct. |
+| s9-2-5 | Cursor: feed, partner sync, chat; offset: admin table, first search pages | As taught. Correct. |
+| s9-2-7 | Opaque cursor: free to change its contents | Encapsulation. Correct. |
+| s9-3-1 | Safe: optional field, new endpoint; breaking: rename, required input, unit change | Compatibility rules. Correct. |
+| s9-3-3 | Euros to cents: add v2, keep v1 a year | Non-breaking path. Correct. |
+| s9-3-4 | Release v2, announce, measure, contact, switch off | Deprecation practice. Correct. |
+| s9-3-5 | Unknown request field: ignore (tolerant reader) | Robustness; strict 400 noted. Correct. |
+| s9-3-6 | Mobile harder: old app versions stay installed | As taught. Correct. |
+| s9-4-2 | Client creates the key before trying | Server-made key lost with the reply. Correct. |
+| s9-4-3 | Key, send, charge + store, reply lost, retry same key, replay | Idempotency-Key flow. Correct. |
+| s9-4-4 | Concurrent retries: claim the key atomically first | Check-then-act race. Correct. |
+| s9-4-5 | Same key, different body: reject as misuse | Draft recommends a request fingerprint and an error. Correct. |
+| s9-4-6 | Needs key: POST payments, orders, emails; safe: GET, PUT | As s9-1-2. Correct. |
+| s9-5-3 | Limited client gets 429 with Retry-After | RFC 6585 §4. Correct. |
+| s9-5-4 | API key: paid plans, partners, tenants; IP: login form, anonymous signup | Identity when known. Correct. |
+| s9-5-5 | 10 servers, local counters: up to 10× the limit; use a shared store | As taught. Correct. |
+| s9-5-7 | Sliding log costs memory growing with the limit | One timestamp per allowed request. Correct. |
+| s9-6-4 | Bucket size controls the largest burst | Token bucket definition. Correct. |
+| s9-6-5 | Fixed: cheap, edge bursts; sliding: exact; bucket: bursts up to size | As taught. Correct. |
+| s9-6-6 | Start-up bursts of 40, average 10/s: bucket 50, refill 10/s | Fixed 10/s rejects bursts. Correct. |
+| s9-7-1 | Gateway: API key, rate limit, routing; service: discount, refund rule | Cross-cutting vs business. Correct. |
+| s9-7-2 | API key checked at the gateway | Every request passes it. Correct. |
+| s9-7-3 | Gateway risk: every request depends on it | Run several, keep thin. Correct. |
+| s9-7-5 | Twelve token checks: check once at the gateway | Consistency; services still authorise. Correct. |
+| s9-7-6 | TLS termination: HTTPS decrypted at the edge | Definition. Correct. |
+| s9-7-7 | Decrypt, key, rate limit, route, log | Cheap rejections first. Correct. |
+| s9-8-1 | Monolith: small team, one transaction, unclear product; micro: 200 engineers, GPU part | Fowler, MonolithFirst. Correct. |
+| s9-8-3 | Service call adds network failures and latency | Fallacies of distributed computing. Correct. |
+| s9-8-4 | Five-person startup: modular monolith | As taught. Correct. |
+| s9-8-5 | Split by business capability | Not layers, not tables. Correct. |
+| s9-8-7 | Microservices mainly solve teams blocking each other | Independent deploys and scaling. Correct. |
+| s9-9-1 | Start, register, pass health checks, lookup, pick | Registry flow. Correct. |
+| s9-9-3 | No hard-coded IPs: instances move | Autoscaling, redeploys. Correct. |
+| s9-9-4 | Client-side: caller asks registry; server-side: balancer asks; DNS: name resolves | Discovery patterns. Correct. |
+| s9-9-5 | DNS drawback: cached answers go stale | TTL caching. Correct. |
+| s9-9-6 | Hung instance: health check a real endpoint | Liveness by response. Correct. |
+| s9-9-7 | The registry knows where instances are | As drawn. Correct. |
+| s9-10-2 | Internal fast typed calls: gRPC | As s9-1-1. Correct. |
+| s9-10-4 | Safe: optional field, endpoint; breaking: remove field, date type, required header | As s9-3-1. Correct. |
+| s9-10-5 | Retry safely with the same key | As s9-4-2. Correct. |
+| s9-10-7 | Team of six, unsettled domain: modular monolith | As s9-8-4. Correct. |
+| s9-10-8 | Decrypt, key, limit, route | As s9-7-7. Correct. |
+| s9-10-10 | Fixed 100/min: up to 200 in one real minute | Boundary burst. Correct. |

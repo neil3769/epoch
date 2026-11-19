@@ -110,3 +110,24 @@ describe('queue figure', () => {
     expect(simulateQueue(spec, { ...queueStart(spec), workers: 4 }).ticks).toBe(2);
   });
 });
+
+import { limiterGoalMet, limiterStart, limiterStates, simulateLimiter, type LimiterSpecLike } from '../src/lib/limiter';
+
+describe('rate-limiter figure', () => {
+  const edge: LimiterSpecLike = { times: [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4], algorithm: 'fixed', algorithms: ['fixed', 'sliding'], limit: 5, goal: { maxPerSecond: 5 } };
+  it('a fixed window lets twice the limit through across a boundary; a sliding window does not', () => {
+    const f = simulateLimiter(edge, limiterStart(edge));
+    expect(f.count).toBe(10);
+    expect(f.peak).toBe(10);
+    const s = simulateLimiter(edge, { ...limiterStart(edge), algorithm: 'sliding' });
+    expect(s.allowed).toEqual([true, true, true, true, true, false, false, false, false, false]);
+    expect(limiterGoalMet(edge, limiterStart(edge))).toBe(false);
+    expect(limiterStates(edge).some((st) => limiterGoalMet(edge, st))).toBe(true);
+  });
+  it('a token bucket takes a burst up to its size, then the refill rate', () => {
+    const burst: LimiterSpecLike = { times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 2, 3, 4, 5], algorithm: 'bucket', limit: 4, rate: 1, controls: ['limit'], goal: { minAllowed: 12 } };
+    expect(simulateLimiter(burst, limiterStart(burst)).count).toBe(8);
+    expect(simulateLimiter(burst, { ...limiterStart(burst), limit: 7 }).count).toBe(11);
+    expect(simulateLimiter(burst, { ...limiterStart(burst), limit: 8 }).count).toBe(12);
+  });
+});

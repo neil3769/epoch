@@ -7,6 +7,7 @@ import { DescentFigure } from './DescentFigure';
 import { NeuronFigure } from './NeuronFigure';
 import { QuorumFigure } from './QuorumFigure';
 import { QueueFigure } from './QueueFigure';
+import { LimiterFigure } from './LimiterFigure';
 import { RingFigure } from './RingFigure';
 import { ShapeChecker } from './ShapeChecker';
 import { StepperFigure } from './StepperFigure';
@@ -36,5 +37,7 @@ export function Figure({ spec, onGoal }: { spec: FigureSpec; onGoal?: () => void
       return <QuorumFigure spec={spec} onGoal={onGoal} />;
     case 'queue':
       return <QueueFigure spec={spec} onGoal={onGoal} />;
+    case 'limiter':
+      return <LimiterFigure spec={spec} onGoal={onGoal} />;
   }
 }

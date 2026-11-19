@@ -2719,3 +2719,32 @@ mark {
   border-style: dashed;
   color: var(--muted);
 }
+
+.lim-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+.lim-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.lim-sec {
+  flex: none;
+  width: 2.6em;
+  padding-top: 5px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+.lim-reqs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 30px;
+}
+.lim-reqs .cache-read {
+  font-size: 12px;
+}

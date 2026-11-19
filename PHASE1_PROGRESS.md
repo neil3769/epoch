@@ -368,3 +368,17 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   four-control queue goal reached in the app. Tests: 94 pass.
 - Still to build: partition (CAP), rate-limiter and sharding figures; units S9 to S14; walkthroughs 2
   to 14 and the four AI designs in the walkthrough player. Next: S9 (rate-limiter figure).
+
+## System Design SD-7: S9 APIs and service boundaries, 2026-11-19 — DONE
+- New figure `limiter`: requests over up to 6 seconds, grouped by second and marked allowed or 429,
+  under a fixed window, a sliding window or a token bucket (size and refill controls); shows the
+  busiest one-second span. Goals: never more than N in any second, and/or at least M allowed.
+  src/lib/limiter.ts (exact, in tenths of a second), verified against every reachable state, unit-tested.
+- S9 (10 lessons: REST, gRPC and GraphQL, pagination, versioning, idempotency keys, rate-limit windows,
+  the token bucket, the API gateway, monolith or microservices, service discovery, checkpoint). Labs:
+  Pages, versions and keys (scaffolded); Rate limiters and routing (empty functions). Library page.
+  50 judgement items hand-verified.
+- Browser at 390 px: 101 S9 screens and lab steps plus the Library page, no overflow; bucket-size and
+  sliding-window goals reached in the app. Tests: 96 pass.
+- Still to build: partition (CAP) and sharding figures; units S10 to S14; walkthroughs 2 to 14 and the
+  four AI designs in the walkthrough player. Next: S10 Reliability and operations.

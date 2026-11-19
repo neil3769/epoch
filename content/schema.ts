@@ -190,6 +190,18 @@ export const QueueFigureSchema = z.object({
   goal: z.object({ clean: z.literal(true).optional(), clearBy: z.number().int().min(1).optional() }).optional(),
 });
 
+/** Rate limiter: requests over a few seconds against fixed, sliding or token-bucket limits. */
+export const LimiterFigureSchema = z.object({
+  kind: z.literal('limiter'),
+  times: z.array(z.number().min(0).max(5.9)).min(2).max(18),
+  algorithm: z.enum(['fixed', 'sliding', 'bucket']),
+  algorithms: z.array(z.enum(['fixed', 'sliding', 'bucket'])).optional(),
+  limit: z.number().int().min(1).max(10),
+  rate: z.number().int().min(1).max(5).optional(),
+  controls: z.array(z.enum(['limit', 'rate'])).optional(),
+  goal: z.object({ maxPerSecond: z.number().int().min(1).optional(), minAllowed: z.number().int().min(1).optional() }).optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
@@ -202,6 +214,7 @@ export const FigureSchema = z.discriminatedUnion('kind', [
   RingFigureSchema,
   QuorumFigureSchema,
   QueueFigureSchema,
+  LimiterFigureSchema,
 ]);
 
 
@@ -598,6 +611,7 @@ export type CacheFigureSpec = z.infer<typeof CacheFigureSchema>;
 export type RingFigureSpec = z.infer<typeof RingFigureSchema>;
 export type QuorumFigureSpec = z.infer<typeof QuorumFigureSchema>;
 export type QueueFigureSpec = z.infer<typeof QueueFigureSchema>;
+export type LimiterFigureSpec = z.infer<typeof LimiterFigureSchema>;
 export type DiagramSpec = z.infer<typeof DiagramSchema>;
 export type NodeKindT = (typeof NODE_KINDS)[number];
 export type Exercise = z.infer<typeof ExerciseSchema>;

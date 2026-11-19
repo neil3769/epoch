@@ -46,6 +46,7 @@ import { cacheGoalMet, cacheStart, cacheStates } from '../src/lib/cachesim';
 import { ringGoalMet, ringStart, ringStates } from '../src/lib/ringsim';
 import { quorumGoalMet, quorumStart, quorumStates } from '../src/lib/quorum';
 import { maxWorkers, queueGoalMet, queueStart, queueStates } from '../src/lib/queuesim';
+import { limiterGoalMet, limiterStart, limiterStates } from '../src/lib/limiter';
 import { withinFactor } from '../src/lib/estimate';
 import { NUMBER_ROWS, NUMBERS_PY } from '../content/numbers';
 
@@ -202,6 +203,15 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
     if (f.goal) {
       if (quorumGoalMet(f, quorumStart(f))) fail(where, 'quorum goal is already met at the start');
       if (!quorumStates(f).some((s) => quorumGoalMet(f, s))) fail(where, 'quorum goal is not reachable with the controls');
+    }
+  } else if (f.kind === 'limiter') {
+    if (f.times.some((t, i) => i > 0 && t < f.times[i - 1])) fail(where, 'limiter times must be in order');
+    if (f.times.some((t) => Math.abs(t * 10 - Math.round(t * 10)) > 1e-9)) fail(where, 'limiter times need at most one decimal');
+    if (f.algorithms && !f.algorithms.includes(f.algorithm)) fail(where, 'the starting algorithm is not among the choices');
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (limiterGoalMet(f, limiterStart(f))) fail(where, 'limiter goal is already met at the start');
+      if (!limiterStates(f).some((s) => limiterGoalMet(f, s))) fail(where, 'limiter goal is not reachable with the controls');
     }
   } else if (f.kind === 'queue') {
     if (f.workers > maxWorkers(f)) fail(where, 'queue starts with more workers than allowed');
