@@ -175,6 +175,21 @@ export const QuorumFigureSchema = z.object({
   goal: z.union([z.object({ fresh: z.literal(true) }), z.object({ freshWithDown: z.number().int().min(1) })]).optional(),
 });
 
+/** Queue and workers: a backlog with flaky, poison and crashing jobs. */
+export const QueueFigureSchema = z.object({
+  kind: z.literal('queue'),
+  jobs: z.string().regex(/^[.fpc]{1,10}$/),
+  workers: z.number().int().min(1).max(6),
+  maxWorkers: z.number().int().min(1).max(6).optional(),
+  arrive: z.number().int().min(0).max(5).optional(),
+  retries: z.number().int().min(0).max(3).optional(),
+  ackAfter: z.boolean().optional(),
+  idem: z.boolean().optional(),
+  dlq: z.boolean().optional(),
+  controls: z.array(z.enum(['workers', 'retries', 'ack', 'idem', 'dlq'])).min(1),
+  goal: z.object({ clean: z.literal(true).optional(), clearBy: z.number().int().min(1).optional() }).optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
@@ -186,6 +201,7 @@ export const FigureSchema = z.discriminatedUnion('kind', [
   CacheFigureSchema,
   RingFigureSchema,
   QuorumFigureSchema,
+  QueueFigureSchema,
 ]);
 
 
@@ -581,6 +597,7 @@ export type BalancerFigureSpec = z.infer<typeof BalancerFigureSchema>;
 export type CacheFigureSpec = z.infer<typeof CacheFigureSchema>;
 export type RingFigureSpec = z.infer<typeof RingFigureSchema>;
 export type QuorumFigureSpec = z.infer<typeof QuorumFigureSchema>;
+export type QueueFigureSpec = z.infer<typeof QueueFigureSchema>;
 export type DiagramSpec = z.infer<typeof DiagramSchema>;
 export type NodeKindT = (typeof NODE_KINDS)[number];
 export type Exercise = z.infer<typeof ExerciseSchema>;

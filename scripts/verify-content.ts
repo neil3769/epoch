@@ -45,6 +45,7 @@ import { lbGoalMet, lbStart, lbStates } from '../src/lib/lbsim';
 import { cacheGoalMet, cacheStart, cacheStates } from '../src/lib/cachesim';
 import { ringGoalMet, ringStart, ringStates } from '../src/lib/ringsim';
 import { quorumGoalMet, quorumStart, quorumStates } from '../src/lib/quorum';
+import { maxWorkers, queueGoalMet, queueStart, queueStates } from '../src/lib/queuesim';
 import { withinFactor } from '../src/lib/estimate';
 import { NUMBER_ROWS, NUMBERS_PY } from '../content/numbers';
 
@@ -201,6 +202,13 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
     if (f.goal) {
       if (quorumGoalMet(f, quorumStart(f))) fail(where, 'quorum goal is already met at the start');
       if (!quorumStates(f).some((s) => quorumGoalMet(f, s))) fail(where, 'quorum goal is not reachable with the controls');
+    }
+  } else if (f.kind === 'queue') {
+    if (f.workers > maxWorkers(f)) fail(where, 'queue starts with more workers than allowed');
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (queueGoalMet(f, queueStart(f))) fail(where, 'queue goal is already met at the start');
+      if (!queueStates(f).some((s) => queueGoalMet(f, s))) fail(where, 'queue goal is not reachable with the controls');
     }
   } else if (f.kind === 'ring') {
     if (new Set(f.keys).size !== f.keys.length) fail(where, 'ring keys must be unique');

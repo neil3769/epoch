@@ -353,3 +353,18 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - Still to build from the brief: the partition (CAP) figure, rate-limiter, queue and sharding
   figures; units S8 to S14; walkthroughs 2 to 14 and the four AI designs in the walkthrough player.
   Next session: S8 Queues, streams and async work (queue figure), then S9 (rate-limiter figure).
+
+## System Design SD-6: S8 Queues, streams and async work, 2026-11-19 — DONE
+- New figure `queue`: a backlog of jobs (normal, fails once, always fails, crashes before the ack) with
+  optional steady arrivals; controls chosen per figure from workers, retries, ack first/after,
+  idempotent handling and a dead-letter queue; shows each job's outcome (done, twice, lost, DLQ) and
+  when the backlog clears. Goals: every job done once (poison jobs parked), and/or clear within N
+  ticks. src/lib/queuesim.ts, verified against every reachable state and unit-tested.
+- S8 (10 lessons: doing work later, queue vs pub-sub vs log, delivery guarantees, exactly once as
+  idempotent handling, retries and dead letters, backpressure, ordering, the outbox pattern (with real
+  SQLite rollback), sagas, checkpoint). Labs: A queue with acks (scaffolded); Retries, partitions and
+  sagas (empty functions). Library page. 47 judgement items hand-verified.
+- Browser at 390 px: 95 S8 screens, 9 lab steps and the Library page, no overflow; the checkpoint's
+  four-control queue goal reached in the app. Tests: 94 pass.
+- Still to build: partition (CAP), rate-limiter and sharding figures; units S9 to S14; walkthroughs 2
+  to 14 and the four AI designs in the walkthrough player. Next: S9 (rate-limiter figure).

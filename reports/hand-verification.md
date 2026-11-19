@@ -1153,3 +1153,64 @@ PACELC, Lamport 1978, Raft paper, Kleppmann's DDIA chapter 8-9 on leases and fen
 | s7-10-5 | Worldwide strong writes wait on a far majority | Latency side. Correct. |
 | s7-10-8 | Fencing order | As s7-9-1. Correct. |
 | s7-10-10 | Wall clocks drift | As s7-7-2. Correct. |
+
+# Hand verification, System Design SD-6: S8 (Queues, streams and async work)
+
+Queue figure goals checked against every reachable state of each figure's controls (src/lib/queuesim.ts,
+unit-tested: ack-first loses failing jobs, ack-after repeats crashed ones unless idempotent, poison jobs
+end in the DLQ only if there is one, the backlog drains at workers − arrivals per tick). Code examples
+are executed (including the outbox rollback in real SQLite). Judgement items, re-derived from the
+mechanisms (Kleppmann, DDIA ch. 11; RFC 9110 §15.6.4 and RFC 6585 §4 for 503/429 with Retry-After;
+Richardson, microservices.io, for the transactional outbox and saga patterns; Garcia-Molina & Salem 1987
+for sagas). No product-specific delivery guarantee is taught; the Library page tells the learner to check
+their own queue's documentation.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s8-1-1 | Request: password, search results, stock check; queue: welcome email, photo resize, monthly PDF | Caller needs the answer to continue or not. Correct. |
+| s8-1-3 | Queued email: request waits only for adding the message | Enqueue returns at once. Correct. |
+| s8-1-4 | The queue absorbs the burst | Messages wait until a worker is free. Correct. |
+| s8-1-6 | Provider down: queue the email, send later | Signups keep working; delivery delayed. Correct. |
+| s8-1-7 | Queue is wrong when the caller needs the result now | Adds delay, cannot speed an awaited answer. Correct. |
+| s8-2-1 | Queue: one worker; pub-sub: every subscriber; log: kept, offsets | Definitions. Correct. |
+| s8-2-2 | Order event to many services: publish one event | Decoupling; no waiting on the slowest. Correct. |
+| s8-2-4 | Last week's orders: a log kept for a week | Queues delete handled messages; non-durable pub-sub has no history. Correct. |
+| s8-2-5 | Queue: resize, PDF jobs; pub-sub: order fan-out, price change; log: replay clicks, rebuild index | As taught. Correct. |
+| s8-2-7 | Non-durable subscriber down: misses everything sent meanwhile | No storage. Correct. |
+| s8-3-2 | Can be lost: location ping, metrics sample, typing indicator; must arrive: payment email, ship order | Cost of loss. Correct. |
+| s8-3-3 | Take, work, crash before ack, timeout, redelivered and done again | Visibility timeout / redelivery. Correct. |
+| s8-3-5 | Queue keeps message until ack because the worker may die mid-job | As taught. Correct. |
+| s8-3-6 | Important work: at least once with safe repeats | Standard practice. Correct. |
+| s8-4-2 | Safe: set status, delete row 7, save profile by id; not: add 10, send email, insert payment | Idempotence. Correct. |
+| s8-4-4 | Record handled id with the effect, atomically | A crash between them repeats or loses. Correct. |
+| s8-4-6 | Charge timed out: retry with the same idempotency key | Provider returns the first result for a repeated key; never retry skips, fresh retry double-charges. Correct. |
+| s8-4-7 | "Add 10" safe to repeat: store the message id | Turns repeat into no-op. Correct. |
+| s8-5-3 | Jitter spreads retries in time | Avoids synchronized retry storms. Correct. |
+| s8-5-4 | Retry: timeout, 503, 429; dead-letter: invalid JSON, deleted account | Transient vs permanent. Correct. |
+| s8-5-6 | Fail, retry 1 s, retry 2 s, DLQ, fix and replay | Capped backoff then DLQ. Correct. |
+| s8-6-4 | Sale overload: pause the email queue | Protect checkout; delay what can wait. Correct. |
+| s8-6-5 | Unbounded queue hides that workers cannot keep up | Growth is silent. Correct. |
+| s8-6-6 | Add workers: lasting doubling, tripled steady volume; absorb: 5-min burst, nightly import, monthly invoices | Average rate vs spike. Correct. |
+| s8-6-7 | Push back with 429 (503 also, both with Retry-After) | RFC 6585 §4, RFC 9110 §15.6.4. Correct. |
+| s8-7-2 | Created/cancelled reorder: two workers run in parallel | Competing consumers. Correct. |
+| s8-7-3 | Account events: partition by account id | Per-key order, parallel across keys. Correct. |
+| s8-7-4 | Order matters: one document's edits, one account, one order's status; not: different photos, different users | Per entity. Correct. |
+| s8-7-6 | One dominant key: that partition is overloaded | Hot partition. Correct. |
+| s8-7-7 | Order between different keys: not kept, rarely matters | Partitions independent. Correct. |
+| s8-8-1 | Begin, insert order, insert outbox, commit, relay reads, publishes then marks sent | Transactional outbox. Correct. |
+| s8-8-2 | Crash after commit: relay sends it later | Row is durable. Correct. |
+| s8-8-4 | Fix missing events: outbox in the same transaction | Publish-first creates phantom events. Correct. |
+| s8-8-5 | Relay double-publish acceptable because consumers are idempotent | Outbox is at least once. Correct. |
+| s8-8-6 | Inside: order row, outbox row; after: publish, mark sent, email | Only DB writes in the transaction. Correct. |
+| s8-8-7 | The relay publishes | As drawn. Correct. |
+| s8-9-1 | Stock, card, courier fails, refund, release | Compensate in reverse. Correct. |
+| s8-9-2 | Charge/refund, reserve/release, book/cancel | Compensating actions. Correct. |
+| s8-9-4 | A saga gives up hiding half-done states (isolation) | Each step commits locally. Correct. |
+| s8-9-6 | Can undo: seat, card, points; cannot: email, parcel handed over | Reversibility. Correct. |
+| s8-9-7 | Irreversible step goes last | Nothing after it can fail. Correct. |
+| s8-10-2 | Ack after, crash: work done twice | At least once. Correct. |
+| s8-10-3 | Queue: encode video; pub-sub: signup fan-out, setting change; log: last week's events, rebuild cache | As taught. Correct. |
+| s8-10-6 | Outbox order | As s8-8-1. Correct. |
+| s8-10-7 | Flight full after hotel: cancel the hotel booking | Saga compensation. Correct. |
+| s8-10-9 | Poison message without a cap: retried forever | As taught. Correct. |
+| s8-10-10 | Jitter: retries spread out | As s8-5-3. Correct. |

@@ -2685,3 +2685,37 @@ mark {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
+
+.q-jobs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin: 10px 0;
+}
+.q-job {
+  min-height: 48px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.q-job b {
+  font-family: var(--mono);
+}
+.q-job.ev-done {
+  background: var(--good-soft);
+  border-color: var(--good);
+}
+.q-job.ev-twice,
+.q-job.ev-lost {
+  background: var(--bad-soft);
+  border-color: var(--bad);
+  color: var(--bad);
+}
+.q-job.ev-dlq {
+  border-style: dashed;
+  color: var(--muted);
+}

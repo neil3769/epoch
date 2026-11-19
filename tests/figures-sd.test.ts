@@ -83,3 +83,30 @@ describe('quorum figure', () => {
     expect(simulateQuorum(spec, { w: 3, r: 3, down: [4] }).seen).toBe(2);
   });
 });
+
+import { queueGoalMet, queueStart, queueStates, simulateQueue, type QueueSpecLike } from '../src/lib/queuesim';
+
+describe('queue figure', () => {
+  const base: QueueSpecLike = { jobs: '.f.p.c', workers: 2, controls: ['ack', 'retries', 'idem', 'dlq'], goal: { clean: true } };
+  it('ack-first loses failing jobs; ack-after duplicates a crash unless idempotent', () => {
+    const first = simulateQueue(base, { ...queueStart(base), ackAfter: false });
+    expect(first.outcomes).toEqual(['done', 'lost', 'done', 'lost', 'done', 'done']);
+    const after = simulateQueue(base, { ...queueStart(base), retries: 1 });
+    expect(after.outcomes).toEqual(['done', 'done', 'done', 'lost', 'done', 'twice']);
+    const fixed = simulateQueue(base, { workers: 2, retries: 1, ackAfter: true, idem: true, dlq: true });
+    expect(fixed.outcomes).toEqual(['done', 'done', 'done', 'dlq', 'done', 'done']);
+    expect(fixed.attempts).toBe(1 + 2 + 1 + 2 + 1 + 2);
+    expect(fixed.ticks).toBe(5);
+  });
+  it('the clean goal needs retries, idempotency and a DLQ together', () => {
+    const ok = queueStates(base).filter((s) => queueGoalMet(base, s));
+    expect(ok.length).toBeGreaterThan(0);
+    for (const s of ok) expect(s.ackAfter && s.idem && s.dlq && s.retries >= 1).toBe(true);
+    expect(queueGoalMet(base, queueStart(base))).toBe(false);
+  });
+  it('the backlog never clears when arrivals match the workers', () => {
+    const spec: QueueSpecLike = { jobs: '....', workers: 2, arrive: 2, controls: ['workers'], goal: { clearBy: 2 } };
+    expect(simulateQueue(spec, queueStart(spec)).ticks).toBeNull();
+    expect(simulateQueue(spec, { ...queueStart(spec), workers: 4 }).ticks).toBe(2);
+  });
+});
