@@ -382,3 +382,14 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   sliding-window goals reached in the app. Tests: 96 pass.
 - Still to build: partition (CAP) and sharding figures; units S10 to S14; walkthroughs 2 to 14 and the
   four AI designs in the walkthrough player. Next: S10 Reliability and operations.
+
+## System Design SD-8: S10 Reliability and operations, 2026-11-19 — DONE
+- S10 (10 lessons: timeouts, retries without storms, circuit breakers, bulkheads and degradation,
+  redundancy and regions, safe deployment, metrics, logs and traces, SLOs and error budgets,
+  authentication and authorisation with sessions and tokens, checkpoint). No new figure. Labs: Deadlines
+  and retries (scaffolded); A circuit breaker (empty functions: breaker states on a passed-in clock,
+  error budget, ownership check). Library page. 49 judgement items hand-verified.
+- Browser at 390 px: 101 S10 screens and lab steps plus the Library page, no overflow or error
+  screens; S10 lists after S9 on the Systems tab. Tests: 96 pass.
+- Still to build: partition (CAP) and sharding figures; units S11 to S14; walkthroughs 2 to 14 and
+  the four AI designs in the walkthrough player. Next: S11 Specialised building blocks (11 lessons).

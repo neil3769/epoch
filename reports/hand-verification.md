@@ -1278,3 +1278,63 @@ Idempotency-Key header"), gRPC docs (HTTP/2, protobuf; browsers need gRPC-Web), 
 | s9-10-7 | Team of six, unsettled domain: modular monolith | As s9-8-4. Correct. |
 | s9-10-8 | Decrypt, key, limit, route | As s9-7-7. Correct. |
 | s9-10-10 | Fixed 100/min: up to 200 in one real minute | Boundary burst. Correct. |
+
+# Hand verification, System Design SD-8: S10 (Reliability and operations)
+
+No new figure. Code examples, estimates and both labs are executed. Judgement items, re-derived from:
+Google SRE book (chapters on SLOs, handling overload, addressing cascading failures) and SRE workbook
+(error budget policy); Nygard, Release It! (timeouts, circuit breaker, bulkhead); AWS Builders' Library
+("Timeouts, retries and backoff with jitter"); RFC 9110 (401 vs 403); RFC 7519 (JWT: signed claims,
+`exp`); OWASP Top 10 A01 Broken Access Control; Martin Fowler on blue-green, canary and feature toggles.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s10-1-1 | No timeout: stuck calls hold threads | Resource exhaustion. Correct. |
+| s10-1-4 | Timeout just above p99 (~200 ms vs p99 120) | Builders' Library: pick from latency percentiles. Correct. |
+| s10-1-5 | Hang, wait, threads fill, queue, caller stops, its callers wait | Cascading failure. Correct. |
+| s10-1-7 | 50 ms left of deadline for a 300 ms call: give up | Deadline propagation. Correct. |
+| s10-2-3 | Retry: timeout GET, 503, reset GET; not: 400, POST payments without key, 404 | Transient and idempotent. Correct. |
+| s10-2-4 | Retry at one layer only | Amplification. Correct. |
+| s10-2-6 | Retries half the traffic: backoff, jitter, budget | SRE "Handling overload" retry budget. Correct. |
+| s10-2-7 | Only safe-to-repeat: a repeat may apply twice | Idempotency. Correct. |
+| s10-3-1 | Closed, threshold, open, trial, closed | Breaker state machine. Correct. |
+| s10-3-2 | Closed: through; open: fail at once; half-open: one trial | As taught. Correct. |
+| s10-3-4 | Fail fast to spare the failing service | And free caller resources. Correct. |
+| s10-3-5 | Recs down, 2 s waits: breaker plus fallback list | Degrade gracefully. Correct. |
+| s10-3-6 | Half-open lets a trial call through | Definition. Correct. |
+| s10-4-1 | Shared pool exhausted: separate pool per dependency | Bulkhead. Correct. |
+| s10-4-2 | Must: payment, cart; degrade: recs, reviews, recently viewed | Core path. Correct. |
+| s10-4-4 | Bulkhead from ship compartments | Etymology. Correct. |
+| s10-4-6 | Drop recommendations | Non-core. Correct. |
+| s10-4-7 | Fallbacks decided ahead and tested | As taught. Correct. |
+| s10-5-1 | RTO time to recover; RPO data loss; N+1 one spare | Definitions. Correct. |
+| s10-5-4 | RPO 0, RTO 15 min: synchronous replica in a second region | Zero loss needs synchronous ack. Correct. |
+| s10-5-5 | AA: global feed, game lobbies, news; AP: HR tool, small billing DB | Latency/failover vs cost. Correct. |
+| s10-5-6 | Active-active brings write conflicts | Multi-writer. Correct. |
+| s10-5-7 | Backups trustworthy when restored regularly | Restore testing. Correct. |
+| s10-6-1 | Rolling few at a time; blue-green switch all and back; canary small share | Fowler. Correct. |
+| s10-6-2 | 1%, compare, widen, all, remove old | Canary. Correct. |
+| s10-6-4 | Risky checkout: feature flag | Off without deploy. Correct. |
+| s10-6-6 | Blue-green: instant switch back | Old environment still up. Correct. |
+| s10-6-7 | Schema works with old code because both versions run | Expand/contract. Correct. |
+| s10-7-1 | Metric: error rate, p99; log: stack trace, user 42; trace: slow service, call timings | As taught. Correct. |
+| s10-7-3 | Alert on p99: averages hide the tail | SRE monitoring chapter. Correct. |
+| s10-7-4 | Request id links logs across services | Correlation id. Correct. |
+| s10-7-6 | RED: rate, errors, duration | Wilkie's RED method. Correct. |
+| s10-7-7 | Find slow service among eight: tracing | As taught. Correct. |
+| s10-8-4 | Not 100%: no room for change | SRE "Embracing risk". Correct. |
+| s10-8-5 | Budget gone: pause launches, fix reliability | Error budget policy. Correct. |
+| s10-8-6 | Good SLI: checkouts, searches < 300 ms, pages without error; not: DB CPU, server count | User-facing. Correct. |
+| s10-8-7 | SLA is a contract with penalties | SRE book. Correct. |
+| s10-9-1 | AuthN: password, signature, passkey; AuthZ: owner delete, admin orders, invoice access | Definitions. Correct. |
+| s10-9-2 | Session server state; signed token self-contained; refresh token long-lived, revocable | RFC 7519, OAuth 2.0 (RFC 6749 §1.5). Correct. |
+| s10-9-3 | Log out everywhere with 24 h stateless tokens: short tokens plus revocable refresh | As taught. Correct. |
+| s10-9-5 | Changing an id shows another's invoice: authorisation failed | OWASP A01 (IDOR). Correct. |
+| s10-9-7 | Signature proves it was not altered | RFC 7515/7519. Correct. |
+| s10-10-1 | p99 80 ms: timeout ~150 ms | As s10-1-4. Correct. |
+| s10-10-3 | Breaker order | As s10-3-1. Correct. |
+| s10-10-4 | Must: playback, sign-in; degrade: personalised rows, resume position, artwork | Core path. Correct. |
+| s10-10-6 | Canary small share; blue-green switch back; flag off without deploy | As taught. Correct. |
+| s10-10-7 | Failing search: breaker, hide suggestions | As s10-3-5. Correct. |
+| s10-10-9 | Trace shows which service was slow | As s10-7-7. Correct. |
+| s10-10-10 | Short tokens because they cannot be revoked early | Stateless validation. Correct. |
