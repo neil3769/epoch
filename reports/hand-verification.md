@@ -1575,3 +1575,58 @@ before designing, scope to a core, think aloud, justify choices, name bottleneck
 | s14-6-8 | Strong: assumption written, 10× breakage, scoped billing; red: five DBs, silence | As taught. Correct. |
 | s14-6-9 | "You decide" on users: assume aloud | As s14-2-5. Correct. |
 | s14-6-10 | Last four minutes: what breaks first and fixes | Pacing. Correct. |
+
+# Hand verification, walkthroughs 2–4: rate limiter, notification service, news feed
+
+Estimates use the Numbers page names and are recomputed by the verifier; code exercises are executed;
+diagram goals (slot and path) are checked for reachability. Judgement items re-derived from the units they
+depend on (S4 caching, S5/S6 data and sharding, S7 consistency, S8 queues and delivery, S9 rate-limiting
+algorithms and idempotency keys, S10 breakers and fail-open/closed) and RFC 6585 §4 (429), RFC 9110
+(202, Retry-After). The RateLimit-* header names follow the IETF httpapi draft and are labelled as varying
+by provider. The news-feed hybrid (push for most, pull for very large accounts) is the widely described
+standard answer to the celebrity problem.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| wrl-1-1 | In: per-key limits, per-plan limits, 429 + Retry-After; later: per-IP, billing, dashboard | Stated scope. Correct. |
+| wrl-1-2 | Most important: adds almost no latency | On every request. Correct. |
+| wrl-1-3 | Store down: fail open | API availability need. Correct. |
+| wrl-2-3 | One in-memory node for 20,000 checks: yes, about 5× headroom | 100k ops/s stated. Correct. |
+| wrl-3-1 | Under: normal answer; over: 429; Retry-After: seconds to wait | RFC 6585, 9110. Correct. |
+| wrl-3-2 | Receive, read key, check counter, forward or 429 | As taught. Correct. |
+| wrl-4-1 | Token bucket per key | Bursts + average, small memory (S9). Correct. |
+| wrl-4-3 | Counters in a shared in-memory store | Per-server counters multiply the limit. Correct. |
+| wrl-5-1 | Slot: in-memory store | Latency need. Correct. |
+| wrl-5-2 | Allowed path: client, gateway, API | As drawn. Correct. |
+| wrl-5-3 | Limiter in gateway: one check for all services | As taught. Correct. |
+| wrl-6-2 | Races: atomic update in the store | Lost update (S13). Correct. |
+| wrl-7-1 | Abusive key: gateways cache "blocked" briefly | Local short-circuit. Correct. |
+| wrl-7-2 | At 10×: shard counters by key | 200k checks/s > one node. Correct. |
+| wrl-7-3 | Open: product pages, search; closed: logins, SMS codes, reset emails | Cost of overuse. Correct. |
+| wns-1-1 | In: channels, opt-outs, retries, templates; later: A/B, inbox | Stated scope. Correct. |
+| wns-1-2 | Never lose a message | Stated. Correct. |
+| wns-1-3 | Urgent: reset, 2FA, shipped; can wait: newsletter, sale | As taught. Correct. |
+| wns-3-1 | POST → 202 + id; GET status; PUT prefs | RFC 9110 202. Correct. |
+| wns-3-2 | 202 because sending happens later | Accepted, not done. Correct. |
+| wns-3-3 | Duplicate SMS on retry: idempotency key | S9. Correct. |
+| wns-4-1 | DB: prefs, status, templates; queue: pending; cache: recent ids | As taught. Correct. |
+| wns-5-1 | Slot: queue (urgent) | Durable hand-off (S8). Correct. |
+| wns-5-2 | Reset path: callers, API, urgent, senders, providers | As drawn. Correct. |
+| wns-5-3 | Two queues so campaigns can't delay resets | Isolation. Correct. |
+| wns-6-1 | Provider failing: back off, breaker, fail over | S10. Correct. |
+| wns-7-1 | First limit at 10×: provider rate limits | Providers cap sends. Correct. |
+| wns-7-2 | Throttle bulk, urgent first | As taught. Correct. |
+| wns-7-3 | Re-check opt-out just before sending | User choice. Correct. |
+| wnf-1-1 | In: post, follow, feed; later: ranking, comments, ads | Stated scope. Correct. |
+| wnf-1-2 | Fast feed loads, slight lag OK | Availability over consistency (S7). Correct. |
+| wnf-1-3 | Features, scale, follow counts, freshness | As taught. Correct. |
+| wnf-3-1 | POST /posts 201; GET /feed cursor page; POST /follows | As taught. Correct. |
+| wnf-3-2 | Feed pages with a cursor | S9. Correct. |
+| wnf-4-1 | DB: posts, follows; cache: feed ids, hot posts; object store: photos | As taught. Correct. |
+| wnf-4-3 | Shard posts by author id | Timestamp hot-spots, country skew (S6). Correct. |
+| wnf-5-1 | Slot: queue for fan-out | Posting does not wait. Correct. |
+| wnf-5-2 | Feed open path: app, feed API, feed cache | As drawn. Correct. |
+| wnf-5-3 | Fan-out on write buys fast reads | Precomputation. Correct. |
+| wnf-6-2 | Celebrities: pull at read time (hybrid) | Standard answer. Correct. |
+| wnf-7-2 | Feed entry holds recent post ids only | Bounded memory. Correct. |
+| wnf-7-3 | Feeds for active users only | Cost on idle users. Correct. |

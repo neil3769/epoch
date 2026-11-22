@@ -89,3 +89,31 @@ describe('diagram layout', () => {
     expect(probs.some((p) => p.includes('layer 0 has 4 nodes'))).toBe(true);
   });
 });
+
+import { layout as diagramLayout } from '../src/lib/diagram';
+
+describe('diagram layout routing', () => {
+  it('routes a long edge round the margin when a straight line would cross a box', () => {
+    const spec = {
+      nodes: [
+        { id: 'c', kind: 'client' as const, label: 'App' },
+        { id: 'a', kind: 'service' as const, label: 'Post API' },
+        { id: 'f', kind: 'service' as const, label: 'Feed API' },
+        { id: 'q', kind: 'queue' as const, label: 'Queue' },
+        { id: 'w', kind: 'worker' as const, label: 'Fan-out' },
+        { id: 'k', kind: 'cache' as const, label: 'Cache' },
+      ],
+      edges: [
+        { from: 'c', to: 'a' },
+        { from: 'c', to: 'f' },
+        { from: 'a', to: 'q' },
+        { from: 'q', to: 'w' },
+        { from: 'w', to: 'k' },
+        { from: 'f', to: 'k' },
+      ],
+    };
+    const edges = diagramLayout(spec).edges;
+    expect(edges.find((e) => e.from === 'f' && e.to === 'k')!.path).toContain('C');
+    expect(edges.find((e) => e.from === 'q' && e.to === 'w')!.path).not.toContain('C');
+  });
+});

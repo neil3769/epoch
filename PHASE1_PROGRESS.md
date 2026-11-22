@@ -437,3 +437,17 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   S11 to S14 list in order on the Systems tab. Tests: 96 pass.
 - All 14 System Design units now exist. Still to build from the brief: the partition (CAP) and sharding
   figures (for S6/S7), walkthroughs 2 to 14, and the four E11 AI designs in the walkthrough player.
+
+## Walkthroughs 2–4, 2026-11-22 — DONE
+- Rate limiter (needs S1–S4, S9), notification service (needs S1–S3, S8, S10) and news feed (needs
+  S1–S6), each through the seven steps with a strong-answer note, a growing diagram, a final diagram and
+  decisions for the Library, and blank-page references. Listed in unlock order: URL shortener, news
+  feed, rate limiter, notification service.
+- Diagram layout: a downward edge whose straight line would cross a box in a middle layer is now routed
+  round the right-hand margin (unit-tested). Nine existing diagrams in S3, S6, S7, S11 and S12 had
+  such crossings and now read cleanly.
+- Browser at 390 px with temporary S1–S10 progress (removed afterwards): every step intro, first
+  exercise, summary and blank page of the three walkthroughs, no overflow or error screens; the
+  news-feed slot diagram checked visually. Tests: 97 pass. 42 judgement items hand-verified.
+- Still to build: walkthroughs 5–14 (key-value store next), the four E11 AI designs in the walkthrough
+  player, and the partition and sharding figures.

@@ -84,7 +84,7 @@ export function layout(spec: DiagramSpec, visible?: Set<string>): Layout {
     let path: string;
     let lx: number;
     let ly: number;
-    if (b.layer > a.layer) {
+    if (b.layer > a.layer && !crossesBox(a, b, placed)) {
       const x1 = a.x + a.w / 2;
       const y1 = a.y + NODE_H;
       const x2 = b.x + b.w / 2;
@@ -114,6 +114,27 @@ export function layout(spec: DiagramSpec, visible?: Set<string>): Layout {
   }
   const height = PAD * 2 + rows.length * NODE_H + Math.max(0, rows.length - 1) * LAYER_GAP;
   return { nodes: [...placed.values()], edges, height };
+}
+
+/**
+ * True when the straight line from a's bottom to b's top would pass through
+ * a box in a layer between them; such edges go round the right-hand margin.
+ */
+function crossesBox(a: PlacedNode, b: PlacedNode, placed: Map<string, PlacedNode>): boolean {
+  if (b.layer - a.layer < 2) return false;
+  const x1 = a.x + a.w / 2;
+  const y1 = a.y + NODE_H;
+  const x2 = b.x + b.w / 2;
+  const y2 = b.y;
+  const xAt = (y: number) => x1 + ((x2 - x1) * (y - y1)) / (y2 - y1);
+  for (const n of placed.values()) {
+    if (n.layer <= a.layer || n.layer >= b.layer) continue;
+    const xs = [xAt(n.y), xAt(n.y + NODE_H)];
+    const lo = Math.min(...xs);
+    const hi = Math.max(...xs);
+    if (hi > n.x - 4 && lo < n.x + n.w + 4) return true;
+  }
+  return false;
 }
 
 /** True when each consecutive pair of `ids` is joined by an edge in that direction. */
