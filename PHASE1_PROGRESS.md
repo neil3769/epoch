@@ -427,3 +427,13 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - Browser at 390 px: 101 S13 screens and lab steps plus the Library page, no overflow or error
   screens. Tests: 96 pass.
 - Next: S14 The design interview (6 lessons).
+
+## System Design SD-12: S14 The design interview, 2026-11-22 — DONE
+- S14 (6 lessons: the seven steps, from a vague prompt to requirements, choosing the deep dive,
+  defending a trade-off, pacing and pitfalls with a 35-minute budget, checkpoint). One lab from empty
+  functions: Interview arithmetic (per-second rate, peak, storage, servers with a spare, pacing check).
+  Library page. 46 judgement items hand-verified.
+- Browser at 390 px: 61 S14 screens and lab steps plus the Library page, no overflow or error screens;
+  S11 to S14 list in order on the Systems tab. Tests: 96 pass.
+- All 14 System Design units now exist. Still to build from the brief: the partition (CAP) and sharding
+  figures (for S6/S7), walkthroughs 2 to 14, and the four E11 AI designs in the walkthrough player.

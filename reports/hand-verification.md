@@ -1518,3 +1518,60 @@ multiplicity); Python docs for functools (wraps, lru_cache), threading and queue
 | s13-10-8 | Team 1 ◇— * Player: a team has many players | UML aggregation. Correct. |
 | s13-10-9 | Passing dependencies in makes testing with fakes easy | DIP. Correct. |
 | s13-10-10 | Override raising "not supported": Liskov | As taught. Correct. |
+
+# Hand verification, System Design SD-12: S14 (The design interview)
+
+No new figure. Code examples and the lab are executed. This unit is almost all judgement; items are
+re-derived from the framework this app's walkthroughs use (SYSTEM_DESIGN_BRIEF §5), from the earlier
+units' content for every cost and deep-dive claim, and from widely published interviewer guidance (ask
+before designing, scope to a core, think aloud, justify choices, name bottlenecks). The 35-minute pacing
+(5 + 3 + 5 + 10 + 8 + 4) is the app's own suggestion, presented as "about", not as a rule.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s14-1-1 | Requirements, estimation, API, data model, high-level, deep dive, trade-offs | Framework. Correct. |
+| s14-1-2 | Requirements what/how well; estimation numbers; API calls | Framework. Correct. |
+| s14-1-3 | Data model stored/keyed; deep dive one hard part; bottlenecks what breaks | Framework. Correct. |
+| s14-1-4 | Requirements first: boxes depend on needs | As taught. Correct. |
+| s14-1-5 | Req: expiry, users; est: writes/s, 5-year storage; deep: collisions, viral link | Step contents. Correct. |
+| s14-1-6 | Drawing in minute one: ask requirements first | As taught. Correct. |
+| s14-1-7 | Say which step you start | Driving the interview. Correct. |
+| s14-2-1 | Functional: send, history, block; non-functional: latency, availability, scale | Definitions. Correct. |
+| s14-2-2 | Restate, users, core features, scale targets, out of scope | As taught. Correct. |
+| s14-2-3 | Fifteen features: agree three core | Scoping. Correct. |
+| s14-2-4 | Useful question: reads per write | Shapes the design. Correct. |
+| s14-2-5 | "You decide": state an assumption and go on | As taught. Correct. |
+| s14-2-6 | Core: shorten, redirect; out: settings page, billing, marketing emails | Scoping. Correct. |
+| s14-2-7 | Latency how fast; availability share of time; consistency latest write | Definitions (S1, S7). Correct. |
+| s14-2-8 | Write requirements visibly to justify later choices | As taught. Correct. |
+| s14-3-1 | Shortener codes; feed fan-out; ride matching | S6, S11 content. Correct. |
+| s14-3-2 | Chat delivery; rate limiter shared counting; video transcoding/CDN | S9, S11 content. Correct. |
+| s14-3-3 | Least telling chat deep dive: a standard load balancer | Generic part. Correct. |
+| s14-3-4 | Interviewer hints at celebrities: follow the hint | As taught. Correct. |
+| s14-3-5 | Deep: matching, position updates; mention: login, receipts, settings | As taught. Correct. |
+| s14-3-6 | Name, simple version, where it breaks, better design, its cost | As taught. Correct. |
+| s14-3-7 | Deep dive about 8–10 minutes of 35 | Pacing. Correct. |
+| s14-3-8 | Two interesting parts, 12 min: pick one, say why | As taught. Correct. |
+| s14-4-1 | Choice, cost, tie to requirements, when otherwise | As taught. Correct. |
+| s14-4-2 | Cache staleness challenge: reads dominate, staleness allowed | Tie to requirements. Correct. |
+| s14-4-3 | Strong: cost of joins, switch at 10×; weak: everyone, big companies, "best" | As taught. Correct. |
+| s14-4-4 | Real flaw: agree and adjust | As taught. Correct. |
+| s14-4-5 | Cache stale; replicas lag; sharding cross-shard queries | S4–S6. Correct. |
+| s14-4-6 | Queue delay/repeats; strong consistency latency; denormalising multi-writes | S5, S7, S8. Correct. |
+| s14-4-7 | Saying what would change your mind shows the limits | As taught. Correct. |
+| s14-4-8 | 10M relational profiles: SQL | Fits one database (S5). Correct. |
+| s14-5-2 | Strong: scale first, what breaks, check vs requirements; red: silence, Kafka no reason, login 20 min | As taught. Correct. |
+| s14-5-3 | Stuck on data model at 20 min: summarise and move on | Pacing. Correct. |
+| s14-5-4 | While thinking: think aloud | As taught. Correct. |
+| s14-5-5 | Pacing order | Framework. Correct. |
+| s14-5-7 | Name a technology with what it gives you here | As taught. Correct. |
+| s14-5-8 | Blank-page pass aloud with the 35-minute timer | Brief §5. Correct. |
+| s14-6-1 | Seven steps | As s14-1-1. Correct. |
+| s14-6-2 | Functional: request, accept, map; non-functional: 10 s match, 300 cities | Definitions. Correct. |
+| s14-6-3 | "Design a chat app": ask what it must do | As taught. Correct. |
+| s14-6-4 | Feed fan-out; shortener codes; chat delivery | As s14-3-1. Correct. |
+| s14-6-5 | Replica staleness challenge: reads dominate, lag allowed | As s14-4-2. Correct. |
+| s14-6-6 | SPOF pointed out: replicate it | As s14-4-4. Correct. |
+| s14-6-8 | Strong: assumption written, 10× breakage, scoped billing; red: five DBs, silence | As taught. Correct. |
+| s14-6-9 | "You decide" on users: assume aloud | As s14-2-5. Correct. |
+| s14-6-10 | Last four minutes: what breaks first and fixes | Pacing. Correct. |
