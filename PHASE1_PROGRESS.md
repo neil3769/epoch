@@ -403,3 +403,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   screens. Tests: 96 pass.
 - Still to build: partition (CAP) and sharding figures; units S12 to S14; walkthroughs 2 to 14 and
   the four AI designs in the walkthrough player. Next: S12 Designing AI systems (9 lessons).
+
+## System Design SD-10: S12 Designing AI systems, 2026-11-22 — DONE
+- New optional `see` field on concept cards: a "Builds on:" row of links to earlier lessons (the brief
+  says S12 links to E6 and E9 rather than re-teaching them). The verifier checks every link exists.
+- S12 (9 lessons: batching, streaming and GPU queues, vector indexes at scale, the two paths of a
+  retrieval system, exact and semantic caching, a model gateway, cost per request, feedback and
+  evaluation loops, checkpoint). No new figure. Labs: Costs, batches and recall (scaffolded); Cache and
+  gateway (empty functions: cosine, semantic lookup, budget, fallback routing, gateway). Library page.
+  38 judgement items hand-verified.
+- Browser at 390 px: 92 S12 screens and lab steps plus the Library page, no overflow or error screens;
+  "Builds on" links open the linked E lessons. Tests: 96 pass.
+- Next: S13 Low-level design in Python, then S14 The design interview.

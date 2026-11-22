@@ -266,7 +266,10 @@ function checkCard(where: string, card: Card) {
   checkWidth(where, 'card output', card.output);
   if (card.figure) checkFigure(where, card.figure, false);
   if (card.diagram) checkDiagram(where, card.diagram);
+  for (const id of card.see ?? []) if (!lessonIdsAll.has(id)) fail(where, `card links to unknown lesson ${id}`);
 }
+
+const lessonIdsAll = new Set(catalog.flatMap((c) => c.unit?.lessons.map((l) => l.id) ?? []));
 
 function checkDiagram(where: string, d: DiagramSpec) {
   for (const pr of diagramProblems(d)) fail(where, `diagram: ${pr}`);

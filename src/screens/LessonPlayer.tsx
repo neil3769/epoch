@@ -112,6 +112,20 @@ export function LessonPlayer({ lessonId, previewFrom }: { lessonId: string; prev
       {lesson.card.output !== undefined && <OutputBlock text={lesson.card.output} />}
       {lesson.card.figure && <Figure spec={lesson.card.figure} />}
       {lesson.card.diagram && <DiagramView spec={lesson.card.diagram} />}
+      {lesson.card.see && (
+        <p className="card-see">
+          Builds on:{' '}
+          {lesson.card.see.map((id, i) => {
+            const r = findLesson(id);
+            return (
+              <span key={id}>
+                {i > 0 && ' · '}
+                <a href={`#/lesson/${id}`}>{r ? `${r.unit.id} ${r.lesson.title}` : id}</a>
+              </span>
+            );
+          })}
+        </p>
+      )}
       {lesson.checkpoint && (
         <p className="card-note">
           Get {Math.ceil(TEST_OUT * total)} of {total} right first time to test out of {unit.id}: every lesson in it then counts as done.

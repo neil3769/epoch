@@ -469,6 +469,8 @@ export const CardSchema = z.object({
   output: z.string().optional(),
   figure: FigureSchema.optional(),
   diagram: DiagramSchema.optional(),
+  /** Earlier lessons this one builds on, shown as links instead of re-teaching them. */
+  see: z.array(z.string().regex(/^[a-z0-9-]+$/)).min(1).max(3).optional(),
 });
 
 export const LessonSchema = z.object({

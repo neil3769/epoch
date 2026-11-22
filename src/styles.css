@@ -2748,3 +2748,14 @@ mark {
 .lim-reqs .cache-read {
   font-size: 12px;
 }
+
+.card-see {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.card-see a {
+  color: var(--primary);
+  font-weight: 650;
+}

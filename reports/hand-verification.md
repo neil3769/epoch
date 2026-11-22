@@ -1404,3 +1404,55 @@ never undercounts); Akidau et al. 2015 (Dataflow: event time, watermarks); Stone
 | s11-11-8 | Live orders per minute: stream | As taught. Correct. |
 | s11-11-9 | Sum one column: column store reads least | As taught. Correct. |
 | s11-11-10 | Grid search: your cell and neighbours | As taught. Correct. |
+
+# Hand verification, System Design SD-10: S12 (Designing AI systems)
+
+No new figure. Cards link to E3, E5, E6, E9, E10, S4, S8, S9 and S11 lessons (new optional `see` field on
+cards, checked by the verifier to point at real lessons) instead of re-teaching them. Code examples,
+estimates and both labs are executed. Judgement items, re-derived from: the vLLM paper (Kwon et al. 2023,
+PagedAttention) and Orca (Yu et al. 2022, iteration-level "continuous" batching); the memory-bound nature
+of autoregressive decoding (weights read once per step, shared by the batch); WHATWG server-sent events;
+Malkov & Yashunin 2018 (HNSW), Jégou et al. 2011 (product quantisation) and the FAISS wiki (IVF, choosing
+an index); provider price pages for the input/output split (prices in the lesson are illustrative, not a
+claim about one provider); Google SRE "Handling overload" for queue limits and early rejection.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s12-1-2 | Batching raises throughput: one weight read serves many | Decoding is memory-bandwidth bound. Correct. |
+| s12-1-4 | p95 TTFT target: cap batch size and wait time | Standard dynamic batching. Correct. |
+| s12-1-5 | Large: overnight embedding, ticket summaries, nightly eval; small: live chat, voice | Throughput vs latency. Correct. |
+| s12-1-6 | Continuous batching: requests join between steps | Orca iteration-level scheduling. Correct. |
+| s12-2-2 | Perceived speed: time to first token | As taught. Correct. |
+| s12-2-4 | Unbounded GPU queue: limit it, reject with 503 | Load shedding. Correct. |
+| s12-2-5 | High: chat, voice; low: back-fill, nightly eval, weekly drafts | Interactive first. Correct. |
+| s12-2-7 | Scale GPUs on queue wait | What users feel. Correct. |
+| s12-3-4 | ANN gives up a little recall | Definition. Correct. |
+| s12-3-5 | HNSW graph walk; IVF closest clusters; quantisation fewer bytes | Papers above. Correct. |
+| s12-3-7 | 5,000 pages: exact search | Brute force is milliseconds. Correct. |
+| s12-4-1 | Ingestion: chunking, re-embedding, deletions; query: embed question, rerank, search | As taught. Correct. |
+| s12-4-3 | Embed, search both indexes, merge, rerank, pass to model | Hybrid RAG query path (E6). Correct. |
+| s12-4-4 | Deleted page still quoted: delete its chunks on change | Source tracking. Correct. |
+| s12-4-5 | New embedding model: old and new vectors don't compare | Different embedding spaces. Correct. |
+| s12-4-7 | Ingest worker splits and embeds | As drawn. Correct. |
+| s12-5-3 | Exact: same doc, same string; semantic: opening hours, shipping; none: balance, dosage | Cost of a wrong hit. Correct. |
+| s12-5-4 | Semantic cache risk: answering a different question | As taught. Correct. |
+| s12-5-6 | Personal order answers: cache only generic ones | Data leakage (E10). Correct. |
+| s12-5-7 | Prompt version in the key: new prompts give new answers | As taught. Correct. |
+| s12-6-1 | Gateway: keys, budgets, fallback, cost logs; app: prompt, what to show | As taught. Correct. |
+| s12-6-4 | Leaked keys, unknown spend: gateway holds keys and logs | As taught. Correct. |
+| s12-6-5 | Fallback must be checked on the eval set | Quality, not price. Correct. |
+| s12-6-7 | Key/budget, choose, call, fallback, log, return | As taught. Correct. |
+| s12-7-3 | Input: chunks, system prompt, history; calls: agent steps, retries, fallback | Cost model. Correct. |
+| s12-7-4 | 8,000 in / 300 out at $3/$15: input dominates | $0.024 vs $0.0045. Correct. |
+| s12-7-6 | Costs 3× its value: cut context, smaller model, check evals | As taught. Correct. |
+| s12-8-1 | Mark wrong, review, write answer, golden set, check next change | E5 golden set. Correct. |
+| s12-8-2 | Explicit: thumbs, complaint, stars; implicit: rephrase, copy, ask for person | As taught. Correct. |
+| s12-8-3 | Log versions to see which change broke it | As taught. Correct. |
+| s12-8-5 | Sparse votes: also judge a live sample | E5 model-as-judge. Correct. |
+| s12-8-7 | Before shipping a prompt: run the golden set | As taught. Correct. |
+| s12-9-2 | Stream so the first words come sooner | As s12-2-2. Correct. |
+| s12-9-3 | Ingestion: chunking, batch embedding, deletions; query: rerank, embed question | As s12-4-1. Correct. |
+| s12-9-5 | Balance answers: fetch fresh, never semantic-cache | As s12-5-6. Correct. |
+| s12-9-6 | Gateway order | As s12-6-7. Correct. |
+| s12-9-9 | Full GPU queue: reject at once with 503 | As s12-2-4. Correct. |
+| s12-9-10 | Same total, one regression: look at the broken case | As taught. Correct. |
