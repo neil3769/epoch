@@ -1456,3 +1456,65 @@ claim about one provider); Google SRE "Handling overload" for queue limits and e
 | s12-9-6 | Gateway order | As s12-6-7. Correct. |
 | s12-9-9 | Full GPU queue: reject at once with 503 | As s12-2-4. Correct. |
 | s12-9-10 | Same total, one regression: look at the broken case | As taught. Correct. |
+
+# Hand verification, System Design SD-11: S13 (Low-level design in Python)
+
+No new figure. All code examples and both labs are executed, including `threading.Lock` and `queue.Queue`
+in Pyodide (Pyodide cannot start threads, so race conditions are shown as hand-interleaved reads and
+writes, which is exactly the interleaving a real scheduler can produce). Judgement items re-derived from:
+Gamma et al., Design Patterns (strategy, state, observer, decorator, factory method, adapter; "favour object
+composition over class inheritance"); Martin's SOLID articles; Liskov & Wing 1994 (behavioural subtyping);
+the UML 2.5 specification's class-diagram notation (generalisation, composition, aggregation, dependency,
+multiplicity); Python docs for functools (wraps, lru_cache), threading and queue.
+
+| Exercise | Answer | Re-derivation |
+|---|---|---|
+| s13-1-1 | Class: Book, Member; method: borrow, return; attribute: due date, title | Nouns/verbs/values. Correct. |
+| s13-1-3 | Borrowing limit lives in Member | Rule with its data. Correct. |
+| s13-1-5 | Vending machine: a few classes, one job each | Avoid a god class. Correct. |
+| s13-1-7 | Use cases, nouns/verbs, classes, methods, walk-through | Standard OOD process. Correct. |
+| s13-2-1 | Is a: Car/Vehicle, Square/Shape; has a: Engine, LineItem, Song | As taught. Correct. |
+| s13-2-3 | Fly/sound ducks: compose parts | GoF strategy example. Correct. |
+| s13-2-5 | Warrior-mage: ability objects | Composition. Correct. |
+| s13-2-6 | Inheritance is a kind of; composition has a part; delegation passes on | Definitions. Correct. |
+| s13-2-7 | Inheritance for a true, stable "is a" | GoF. Correct. |
+| s13-3-1 | Keep total and discounts; move PDF, email, saving out | SRP. Correct. |
+| s13-3-3 | SRP: one reason to change | Martin. Correct. |
+| s13-3-4 | Payment elif chain: one class per method | OCP. Correct. |
+| s13-3-5 | Tests, list jobs, extract one, delegate, test and repeat | Refactoring practice. Correct. |
+| s13-3-7 | OCP: add new code, don't edit old | Meyer/Martin. Correct. |
+| s13-4-2 | Penguin.fly() raising breaks Liskov | Behavioural subtyping. Correct. |
+| s13-4-4 | Constructed payment client: pass it in | DIP. Correct. |
+| s13-4-5 | Liskov keeps promises; ISP small interfaces; DIP receive dependencies | Definitions. Correct. |
+| s13-4-6 | Fat Device interface: split it | ISP. Correct. |
+| s13-5-3 | State pattern: the Draft class decides | GoF State. Correct. |
+| s13-5-4 | Strategy: shipping rule, sort, compression; State: order, traffic light, vending | As taught. Correct. |
+| s13-5-5 | Status checks in 12 methods: one class per state | GoF State motivation. Correct. |
+| s13-5-7 | Python strategy is often a function passed in | First-class functions. Correct. |
+| s13-6-3 | Observer: senders need not know listeners | GoF. Correct. |
+| s13-6-4 | Observer: price watchers, screen redraw; decorator: cache, retry, timing | As taught. Correct. |
+| s13-6-6 | Retries in 30 functions: a @retry decorator | DRY. Correct. |
+| s13-6-7 | functools.wraps keeps name and docstring | Python docs. Correct. |
+| s13-7-3 | Factory: storage from config, parser by ext, sender per channel; adapter: SDK, legacy logger | As taught. Correct. |
+| s13-7-4 | Adapter lets you swap vendors in one place | GoF Adapter. Correct. |
+| s13-7-5 | 40 direct SDK calls: adapter now | As taught. Correct. |
+| s13-7-7 | Factory hides which class is created | GoF. Correct. |
+| s13-8-1 | Triangle is a; diamond has a; dashed uses | UML 2.5. Correct. |
+| s13-8-2 | Car and Truck inherit from Vehicle | As drawn. Correct. |
+| s13-8-3 | Order 1 ◆— * LineItem: an order has many items | Multiplicity. Correct. |
+| s13-8-5 | Is a: Admin, Circle; has a: Cart/Item, Team/Player; uses: mailer, tax calculator | As taught. Correct. |
+| s13-8-6 | Payments is the interface | As drawn. Correct. |
+| s13-8-7 | Boxes, is-a, has-a with numbers, uses, read back | As taught. Correct. |
+| s13-8-8 | Filled diamond: part dies with its whole | UML composition vs aggregation. Correct. |
+| s13-9-2 | A reads, B reads, A writes, B writes, A's deposit lost | Lost update. Correct. |
+| s13-9-4 | `with lock:` releases even on errors | Context manager. Correct. |
+| s13-9-5 | Lock: shared counter, check-then-insert, shared balance; safe: own list, constant, own file | As taught. Correct. |
+| s13-9-6 | Check-then-book race: lock around both | Atomicity. Correct. |
+| s13-9-7 | Deadlock: take locks in one fixed order | Lock ordering. Correct. |
+| s13-10-1 | Has a: LineItem, Room, Track; is a: Truck, Savings | As taught. Correct. |
+| s13-10-3 | Formats, emails, saves: breaks SRP | As taught. Correct. |
+| s13-10-4 | Strategy swap algorithm; observer notify; adapter fit interface | GoF. Correct. |
+| s13-10-5 | Growing discount chain: table of functions | OCP + strategy. Correct. |
+| s13-10-8 | Team 1 ◇— * Player: a team has many players | UML aggregation. Correct. |
+| s13-10-9 | Passing dependencies in makes testing with fakes easy | DIP. Correct. |
+| s13-10-10 | Override raising "not supported": Liskov | As taught. Correct. |

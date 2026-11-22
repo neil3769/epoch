@@ -415,3 +415,15 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
 - Browser at 390 px: 92 S12 screens and lab steps plus the Library page, no overflow or error screens;
   "Builds on" links open the linked E lessons. Tests: 96 pass.
 - Next: S13 Low-level design in Python, then S14 The design interview.
+
+## System Design SD-11: S13 Low-level design in Python, 2026-11-22 — DONE
+- S13 (10 lessons: modelling with classes, composition over inheritance, SOLID in two lessons, strategy
+  and state, observer and decorator, factory and adapter, reading a class diagram, shared state and
+  locks, checkpoint). Class diagrams reuse the diagram component (boxes plus "is a", "has 1", "uses"
+  edges; subclasses are listed before their base so the arrows point down). Race conditions are shown
+  as hand-interleaved steps because Pyodide cannot start threads; Lock and Queue themselves run.
+  Labs: A parking lot (scaffolded); States, events and locks (empty functions). Library page.
+  49 judgement items hand-verified.
+- Browser at 390 px: 101 S13 screens and lab steps plus the Library page, no overflow or error
+  screens. Tests: 96 pass.
+- Next: S14 The design interview (6 lessons).
