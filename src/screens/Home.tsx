@@ -3,7 +3,7 @@ import type { Track } from '../../content/index';
 import { CheckIcon, CodeIcon, GearIcon, GoalRing, LockIcon, MoonIcon, OrbitIcon, SparkIcon, SunIcon, go } from '../components/Bits';
 import { toggleTheme, useTheme } from '../lib/theme';
 import { useBarHeight } from '../components/useBarHeight';
-import { allWalks, allowedUnits, blankOpensOn, checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack, walkStepsDone, walkUnlocked } from '../lib/curriculum';
+import { allowedUnits, blankOpensOn, checkpointOf, continueLesson, findExercise, findLab, labRewrites, labUnlocked, unitDone, unitsForTrack, walkRoute, walksForTrack, walkStepsDone, walkUnlocked } from '../lib/curriculum';
 import { addDays, dayKey, shortDate } from '../lib/dates';
 import { LibraryList } from './Library';
 import { planWeekOn, unitsThisWeek } from '../../content/plan';
@@ -285,23 +285,27 @@ export function Home() {
         })}
       </div>
 
-      {track === 'system-design' && !only && (
+      {(track === 'system-design' || track === 'engineering') && !only && walksForTrack(track).length > 0 && (
         <section className="unit walks">
           <div className="unit-head">
             <span className="unit-id">W</span>
             <div>
-              <h3>Design walkthroughs</h3>
-              <span className="unit-meta">A classic problem, step by step through the interview framework</span>
+              <h3>{track === 'engineering' ? 'AI system designs' : 'Design walkthroughs'}</h3>
+              <span className="unit-meta">
+                {track === 'engineering'
+                  ? 'The four designs from your plan, step by step through the interview framework'
+                  : 'A classic problem, step by step through the interview framework'}
+              </span>
             </div>
           </div>
           <ol className="lessons">
-            {allWalks().map((w) => {
+            {walksForTrack(track).map((w) => {
               const open = walkUnlocked(w, p);
               const done = !!p.completed[w.id];
               const steps = walkStepsDone(w, p);
               const opens = blankOpensOn(w, p);
               const meta = !open
-                ? `Opens after ${w.needs.join(', ')}`
+                ? `Opens after ${walkRoute(w, track).join(', ')}`
                 : p.completed[`${w.id}:blank`]
                   ? 'Done · blank-page pass done'
                   : done

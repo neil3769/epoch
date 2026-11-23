@@ -1784,3 +1784,68 @@ standard answer to the celebrity problem.
 | wmg-7-1 | Many stateless copies in two regions | Remove SPOF. Correct. |
 | wmg-7-2 | Batch starving others: per-team limits and priority | Bulkhead (S10). Correct. |
 | wmg-7-3 | Gateway: keys, budgets, fallback; teams: prompts, quality, tier | Ownership. Correct. |
+| wsb-1-1 | In: answer, cite, hand over; later: refunds, voice, general questions | Stated scope. Correct. |
+| wsb-1-2 | Grounded answers or a handover | Cost of wrong answers. Correct. |
+| wsb-1-3 | Disputed charge: hand over to a person | Money decisions. Correct. |
+| wsb-3-1 | messages: streamed reply; citation; handover event; feedback | As taught. Correct. |
+| wsb-3-2 | Keep last few turns, summarise older | Context budget. Correct. |
+| wsb-4-1 | Vectors: embeddings, article id/date, product; DB: history, feedback, handovers | Metadata with vectors. Correct. |
+| wsb-4-2 | Article updated: replace all its chunks | No stale advice. Correct. |
+| wsb-5-1 | Slot: agent queue | Handover to people. Correct. |
+| wsb-5-2 | Chat API decides answer or handover | Rules in code. Correct. |
+| wsb-5-3 | Load, search, hand over if low, prompt, stream | Decide before paying. Correct. |
+| wsb-6-1 | Injection: rules in code, not just prompt | E10. Correct. |
+| wsb-6-3 | Signal: issues resolved, not reopened | Outcome metric. Correct. |
+| wsb-7-1 | Halve cost: cache common answers | Repeat questions. Correct. |
+| wsb-7-2 | 10x: model limits and cost first | Index tiny. Correct. |
+| wsb-7-3 | Bot: password, shipping, plans; person: dispute, complaint, legal | Cost of a wrong answer. Correct. |
+| wde-1-1 | In: PDFs/scans, schema, totals check, review; later: paying, fraud | Stated scope. Correct. |
+| wde-1-2 | Correct fields, or flagged | Money at stake. Correct. |
+| wde-1-3 | Within an hour, in background | 30-day payment terms. Correct. |
+| wde-3-1 | Upload, OCR, model JSON, validate, save or review | Pipeline order. Correct. |
+| wde-3-2 | POST returns job id; GET status; review queue; webhook | Async API. Correct. |
+| wde-3-3 | Job id: work takes seconds to minutes | 202 Accepted. Correct. |
+| wde-4-2 | Object store: PDFs, images, OCR text; DB: fields, reviews, versions | As taught. Correct. |
+| wde-4-3 | Store model/prompt version to trace and re-run | Reproducibility. Correct. |
+| wde-5-1 | Slot: job queue | Bursts (S8). Correct. |
+| wde-5-2 | Path: uploads, files, jobs, extractors, results | As drawn. Correct. |
+| wde-5-3 | Crash: job returns to queue | Ack after save (S8). Correct. |
+| wde-6-2 | New layout: add examples, re-test | Do not loosen checks. Correct. |
+| wde-6-3 | Measure field by field on a labelled set | E5. Correct. |
+| wde-7-1 | Month-end: queue absorbs, add workers | Work can wait. Correct. |
+| wde-7-2 | Review backlog: fix top failure causes | Root causes. Correct. |
+| wde-7-3 | Code: totals, dates; model: layout, supplier; person: unreadable, failed twice | As taught. Correct. |
+| wda-1-1 | In: SQL, safe runs, show work; later: writes, schedules, forecasts | Stated scope. Correct. |
+| wda-1-2 | Correct, with the work shown | Stated. Correct. |
+| wda-1-3 | Read-only account, limited tables | Least privilege. Correct. |
+| wda-2-3 | Prompt: only relevant tables | Context size. Correct. |
+| wda-3-1 | Find tables, write SQL, run read-only, fix, answer | Agent loop. Correct. |
+| wda-3-2 | ask; run_sql; describe_table; step limit | Narrow tools (E7). Correct. |
+| wda-3-3 | Show SQL so people can check | Transparency. Correct. |
+| wda-4-2 | Always: question, rules; retrieved: tables, examples; never: raw rows, passwords | As taught. Correct. |
+| wda-4-3 | Descriptions from a curated catalogue | Official meanings. Correct. |
+| wda-5-1 | Slot: sandbox (worker) | Isolation (E10). Correct. |
+| wda-5-2 | Path: analysts, agent, sandbox, warehouse | As drawn. Correct. |
+| wda-5-3 | Warehouse: heavy queries never slow sales | Separate analytics (S11). Correct. |
+| wda-6-2 | Golden questions with known answers | E5. Correct. |
+| wda-6-3 | Ambiguous metric: use defined one, say so | Catalogue definitions. Correct. |
+| wda-7-1 | Runaway query: limit time and scan | Shared warehouse. Correct. |
+| wda-7-2 | Run as the user with their rights | Access control. Correct. |
+| wda-7-3 | Agent: tables, SQL, wording; code: read-only, time limit, row access | Judgement vs rules. Correct. |
+| wcr-1-1 | In: line comments, fixes, style rules; later: approving, pushing, whole repo | Stated scope. Correct. |
+| wcr-1-2 | Few comments, mostly useful | Noise kills trust. Correct. |
+| wcr-1-3 | Bot only suggests, never blocks | False alarms. Correct. |
+| wcr-2-3 | Cost not the hard problem; usefulness is | About $80/day. Correct. |
+| wcr-3-1 | PR event, queue, fetch diff, draft, post filtered | Pipeline order. Correct. |
+| wcr-3-2 | webhook queues; diff; suggestion; thumbs | As taught. Correct. |
+| wcr-3-3 | Three quick pushes: review the latest only | Stale code. Correct. |
+| wcr-4-2 | Send: changed lines, surrounding code, rules; leave out: locks, repo, secrets | As taught. Correct. |
+| wcr-4-3 | Store text, kind, model, outcome | Measure precision. Correct. |
+| wcr-5-1 | Slot: job queue | Fast webhook reply. Correct. |
+| wcr-5-2 | Path: git host, jobs, workers, LLM | As drawn. Correct. |
+| wcr-5-3 | Answer webhook fast: hosts retry slow hooks | Avoid duplicates. Correct. |
+| wcr-6-2 | 70% ignored: measure per kind, drop weak kinds | E5. Correct. |
+| wcr-6-3 | Injection in diff: treat as data | E10. Correct. |
+| wcr-7-1 | 300 files: review in parts, cap comments | Context window. Correct. |
+| wcr-7-2 | Rate limit: let the queue smooth it | S8. Correct. |
+| wcr-7-3 | Bot: None checks, missing tests, naming; people: merge, design, security | Ownership. Correct. |

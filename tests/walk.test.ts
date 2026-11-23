@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { walkthroughs } from '../content/walkthroughs/index';
 import { FRAMEWORK, WalkthroughSchema } from '../content/schema';
-import { blankOpensOn, walkNextStep, walkStepsDone, walkUnlocked } from '../src/lib/curriculum';
+import { blankOpensOn, walkNextStep, walkRoute, walksForTrack, walkStepsDone, walkUnlocked } from '../src/lib/curriculum';
 import { emptyProgress, mergeProgress } from '../src/lib/progress';
 import { catalog } from '../content/index';
 
@@ -19,6 +19,21 @@ describe('design walkthroughs', () => {
     expect(walkUnlocked(w, p)).toBe(false);
     for (const id of w.needs) for (const l of catalog.find((c) => c.id === id)!.unit!.lessons) p.completed[l.id] = '2026-11-17T00:00:00Z';
     expect(walkUnlocked(w, p)).toBe(true);
+  });
+  it('open by either route when they have two, and list on the right tabs', () => {
+    const both = walkthroughs.filter((x) => x.orNeeds);
+    expect(both.length).toBeGreaterThan(0);
+    for (const x of both) {
+      const p = emptyProgress();
+      expect(walkUnlocked(x, p)).toBe(false);
+      for (const id of x.orNeeds!) for (const l of catalog.find((c) => c.id === id)!.unit!.lessons) p.completed[l.id] = '2026-11-17T00:00:00Z';
+      expect(walkUnlocked(x, p)).toBe(true);
+      expect(walkRoute(x, 'engineering')).toEqual(x.orNeeds);
+      expect(walkRoute(x, 'system-design')).toEqual(x.needs);
+    }
+    expect(walksForTrack('engineering').every((x) => x.tracks?.includes('engineering'))).toBe(true);
+    expect(walksForTrack('system-design')).toContain(w);
+    expect(walksForTrack('engineering')).not.toContain(w);
   });
   it('resume at the first unfinished step, merged across devices', () => {
     const a = emptyProgress();

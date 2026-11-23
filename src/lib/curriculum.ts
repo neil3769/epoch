@@ -157,12 +157,22 @@ export function labRewrites(p: Progress, today: string): { labId: string; step: 
 export const findWalk = (id: string): Walkthrough | undefined => walkthroughs.find((w) => w.id === id);
 export const allWalks = () => walkthroughs;
 
-/** Open once every unit it needs is finished. */
-export const walkUnlocked = (w: Walkthrough, p: Progress) =>
-  w.needs.every((id) => {
+/** Walkthroughs listed on a Home tab. */
+export const walksForTrack = (track: 'engineering' | 'system-design') =>
+  walkthroughs.filter((w) => (w.tracks ?? ['system-design']).includes(track));
+
+const allDone = (ids: string[], p: Progress) =>
+  ids.every((id) => {
     const u = catalog.find((c) => c.id === id)?.unit;
     return !!u && unitDone(u, p);
   });
+
+/** Open once every unit it needs is finished, or every unit of its other route. */
+export const walkUnlocked = (w: Walkthrough, p: Progress) => allDone(w.needs, p) || (!!w.orNeeds && allDone(w.orNeeds, p));
+
+/** The units to name when it is locked, for the track being shown. */
+export const walkRoute = (w: Walkthrough, track: 'engineering' | 'system-design') =>
+  track === 'engineering' && w.orNeeds ? w.orNeeds : w.needs;
 
 /** Steps finished so far (resume at this index). */
 export const walkStepsDone = (w: Walkthrough, p: Progress) => w.steps.filter((_, i) => p.completed[`${w.id}#${i + 1}`]).length;

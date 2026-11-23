@@ -737,7 +737,7 @@ async function main() {
     }
     walks.push(parsed.data);
     claim(w.id, `walkthrough ${w.id}`);
-    for (const u of w.needs) if (!unitIds.has(u)) fail(w.id, `needs unknown unit ${u}`);
+    for (const u of [...w.needs, ...(w.orNeeds ?? [])]) if (!unitIds.has(u)) fail(w.id, `needs unknown unit ${u}`);
     w.steps.forEach((st, i) => {
       if (st.title !== FRAMEWORK[i]) fail(`${w.id}/step ${i + 1}`, `should be "${FRAMEWORK[i]}", is "${st.title}"`);
       if (countSentences(st.intro) > 3) fail(`${w.id}/step ${i + 1}`, 'intro is more than three sentences');

@@ -479,3 +479,16 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   verify-content: 3219 exercises. Tests: 97 pass. 77 judgement items hand-verified.
 - Still to build: the four E11 AI designs in the walkthrough player, and the partition (CAP) and
   sharding figures for S6/S7.
+
+## The four AI system designs, 2026-11-23 — DONE
+- Support chatbot, document extraction, data-analysis agent and code-review assistant, as full
+  seven-step walkthroughs extending the matching E11 lessons. Written once and listed in both tracks:
+  a new optional `orNeeds` (the engineering route) and `tracks` on walkthroughs. Each opens after its
+  System Design units (S1–S3 plus S4/S8/S10 and S12) or its engineering units (E11 plus two of E3, E5,
+  E6, E7, E8, E10). The AI Engineering tab now shows an "AI system designs" section; the walkthrough's
+  locked page names both routes. Unit-tested (98 tests).
+- Browser at 390 px with temporary E-route progress only (removed afterwards): the four designs open
+  and list on the AI Engineering tab and on the System Design tab; every step intro, summary and blank
+  page, no overflow or error screens; the four final diagrams checked visually; the locked page shows
+  both routes. verify-content: 3303 exercises. 66 judgement items hand-verified.
+- Still to build from the brief: the partition (CAP) and sharding figures for S6/S7.

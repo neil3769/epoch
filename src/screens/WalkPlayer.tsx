@@ -51,7 +51,10 @@ export function WalkPlayer({ walkId, mode }: { walkId: string; mode: WalkMode })
     return (
       <main className="screen">
         <TopBar title={w.title} />
-        <p>This walkthrough opens when you have finished {w.needs.join(', ')}: it uses everything in them.</p>
+        <p>
+          This walkthrough opens when you have finished {w.needs.join(', ')}
+          {w.orNeeds ? ` (or ${w.orNeeds.join(', ')})` : ''}: it uses everything in them.
+        </p>
       </main>
     );
   if (mode.kind === 'blank') return <BlankPass w={w} />;

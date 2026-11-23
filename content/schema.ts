@@ -584,6 +584,10 @@ export const WalkthroughSchema = z.object({
   question: z.string(),
   /** Units that must be finished first. */
   needs: z.array(z.string()).min(1),
+  /** Or open once these are finished instead: the other track's route to the same design. */
+  orNeeds: z.array(z.string()).min(1).optional(),
+  /** Home tabs that list it (default: System design only). */
+  tracks: z.array(z.enum(['engineering', 'system-design'])).min(1).optional(),
   minutes: z.number().int().min(10).max(25),
   steps: z.array(WalkStepSchema).length(7),
   /** Added to the Library when finished. */
