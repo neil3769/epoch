@@ -465,3 +465,17 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   77 judgement items hand-verified.
 - Still to build: walkthroughs 10–14 (video streaming next), the four E11 AI designs in the
   walkthrough player, and the partition and sharding figures.
+
+## Walkthroughs 10–14, 2026-11-23 — DONE
+- Video streaming (needs S1–S4, S8, S11), payment system (needs S1–S3, S5, S7, S8, S10), nearby
+  search (needs S1–S4, S6, S11), document assistant at scale (needs S1–S4, S8, S11, S12) and model
+  gateway (needs S1–S4, S9, S10, S12). All 14 walkthroughs from the brief now exist. Unlock order:
+  URL shortener, news feed, key-value store, rate limiter, notification service, payment system, web
+  crawler, autocomplete, chat, file sync, video streaming, nearby search, document assistant, model
+  gateway.
+- Browser at 390 px with temporary S1–S12 progress (removed afterwards): every step intro, the summary
+  and the blank page of all five, no overflow or error screens; all five final diagrams checked
+  visually (LLM and Vectors swapped in the document-assistant diagrams so two edges no longer cross).
+  verify-content: 3219 exercises. Tests: 97 pass. 77 judgement items hand-verified.
+- Still to build: the four E11 AI designs in the walkthrough player, and the partition (CAP) and
+  sharding figures for S6/S7.

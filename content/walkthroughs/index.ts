@@ -3,10 +3,15 @@ import { autocomplete } from './autocomplete';
 import { chat } from './chat';
 import { fileSync } from './file-sync';
 import { kvStore } from './kv-store';
+import { modelGateway } from './model-gateway';
+import { nearby } from './nearby';
 import { newsFeed } from './news-feed';
 import { notificationService } from './notification-service';
+import { payments } from './payments';
+import { rag } from './rag';
 import { rateLimiter } from './rate-limiter';
 import { urlShortener } from './url-shortener';
+import { video } from './video';
 import { webCrawler } from './web-crawler';
 
 /** Design walkthroughs in the order they unlock. */
@@ -16,8 +21,13 @@ export const walkthroughs: Walkthrough[] = [
   kvStore,
   rateLimiter,
   notificationService,
+  payments,
   webCrawler,
   autocomplete,
   chat,
   fileSync,
+  video,
+  nearby,
+  rag,
+  modelGateway,
 ];

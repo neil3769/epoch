@@ -1707,3 +1707,80 @@ standard answer to the celebrity problem.
 | wfs-7-1 | Cost: move cold blocks to cheaper tiers | Keeps files, keeps copies. Correct. |
 | wfs-7-2 | Metadata hot spot: shard by user or folder | Vertical ceiling. Correct. |
 | wfs-7-3 | Device: split, hash, watch; servers: permissions, storage, version order | Trust boundary. Correct. |
+| wvs-1-1 | In: upload, stream anywhere, adaptive quality; later: live, comments, recommendations | Stated scope. Correct. |
+| wvs-1-2 | Smooth playback, quick start | Viewer experience. Correct. |
+| wvs-1-3 | Ready in minutes, then notify | Processing first. Correct. |
+| wvs-3-1 | Upload URL, direct upload, done signal, queued job, ready | Signed-URL flow. Correct. |
+| wvs-3-2 | POST videos, GET video, manifest, segment | HLS/DASH model. Correct. |
+| wvs-3-3 | Segments let quality switch mid-video | Adaptive bitrate. Correct. |
+| wvs-4-1 | Object store: original, segments, thumbnails; DB: title, status, owner | Bytes vs facts. Correct. |
+| wvs-4-3 | Metadata in a relational database | Queries and lists. Correct. |
+| wvs-5-1 | Slot: CDN | 90 GB/s. Correct. |
+| wvs-5-2 | Upload path: creators, originals, jobs, encoders, segments | As drawn. Correct. |
+| wvs-5-3 | Workers behind a queue: encoding slow and bursty | S8. Correct. |
+| wvs-6-2 | Viral video: shield tier before storage | Stampede (S4). Correct. |
+| wvs-6-3 | Fewer qualities until popular | Long tail cost. Correct. |
+| wvs-7-2 | 10x viewers: CDN grows first | Bandwidth driver. Correct. |
+| wvs-7-3 | Viewers: CDN, manifests, metadata reads; uploads: encoding, originals, segments | Cost drivers. Correct. |
+| wps-1-1 | In: charge, refund, ledger; later: storing cards, currencies, own fraud model | Stated scope. Correct. |
+| wps-1-2 | Exactly-once effect on money | Correctness first. Correct. |
+| wps-1-3 | Partition: refuse payments until healed | CP for money (S7). Correct. |
+| wps-3-2 | POST with key, GET status, refunds, webhook | As taught. Correct. |
+| wps-3-3 | Timeout: show pending | Unknown outcome. Correct. |
+| wps-4-1 | Relational database | ACID (S5). Correct. |
+| wps-4-3 | Fix by a reversing entry | Append-only ledger. Correct. |
+| wps-5-1 | Slot: processor (api) | No card storage. Correct. |
+| wps-5-2 | Charge path: checkout, payment service, processor | As drawn. Correct. |
+| wps-5-3 | Key, pending, charge, reply/webhook, ledger and paid | Pending first. Correct. |
+| wps-6-1 | Timeout: retry with the same key | Idempotent processor call. Correct. |
+| wps-6-3 | Mismatch: flag, fix with new entries | Append-only. Correct. |
+| wps-7-1 | Processor down: fail over to a backup | Breaker (S10). Correct. |
+| wps-7-2 | 600/s: one good database still copes | 3,000 rows/s. Correct. |
+| wps-7-3 | Sync: key check, pending row, charge; background: receipt, reconciliation, reports | Customer path minimal. Correct. |
+| wnb-1-1 | In: radius search, details, owner edits; later: travel times, reviews, moving drivers | Stated scope. Correct. |
+| wnb-1-2 | Mostly reads | Searches vs edits. Correct. |
+| wnb-1-3 | Edits within a day | Stated. Correct. |
+| wnb-3-1 | GET /nearby?lat=&lng=&radius= | As taught. Correct. |
+| wnb-3-2 | nearby ids; details; owner edit; page token | As taught. Correct. |
+| wnb-4-1 | Geohash grid index | S11. Correct. |
+| wnb-4-3 | Check own cell and eight neighbours | Border cases. Correct. |
+| wnb-5-1 | Slot: grid in RAM (cache) | As taught. Correct. |
+| wnb-5-2 | Search path: users, LB, API, geo index | As drawn. Correct. |
+| wnb-5-3 | Nightly rebuild: places rarely change | Read-heavy. Correct. |
+| wnb-6-1 | Dense areas: cells that split | Quadtree (S11). Correct. |
+| wnb-6-3 | Nearest 20 with a next page | Pagination. Correct. |
+| wnb-7-1 | Scale API servers and index copies | 200 GB fits one machine. Correct. |
+| wnb-7-2 | Cache results per cell and radius | Hot areas. Correct. |
+| wnb-7-3 | Nightly: new cafe, hours, typo; at once: fraud removal, emergency closure | Harm of delay. Correct. |
+| wrg-1-1 | In: citations, permissions, fresh index; later: actions, voice, fine-tuning | Stated scope. Correct. |
+| wrg-1-2 | Hardest later: permission checks | Re-index cost. Correct. |
+| wrg-1-3 | Edits reflected within about an hour | Background ingestion. Correct. |
+| wrg-2-3 | Index size is the harder problem | 2 TB vs 9 q/s. Correct. |
+| wrg-3-1 | Stream the answer | S12. Correct. |
+| wrg-3-2 | Identity, embed, filtered search, prompt, stream | Order of query path. Correct. |
+| wrg-3-3 | ask, citation, feedback, change event | As taught. Correct. |
+| wrg-4-1 | Vectors: embeddings, groups; object store: files; DB: versions, feedback | Filtering in search. Correct. |
+| wrg-4-3 | Enforce permissions in retrieval | Never the prompt. Correct. |
+| wrg-5-1 | Slot: vector index | S12. Correct. |
+| wrg-5-2 | Ingestion path: changes, indexers, vectors | As drawn. Correct. |
+| wrg-5-3 | Separate ingestion: slow vs fast | S12. Correct. |
+| wrg-6-2 | No answer in chunks: say so, show sources | Grounding. Correct. |
+| wrg-6-3 | Golden set before shipping | S12 evaluation. Correct. |
+| wrg-7-2 | Halve cost: cache and route easy questions small | S12 cost. Correct. |
+| wrg-7-3 | Query: embed question, filter, stream; ingestion: embed chunks, parse, re-index | As taught. Correct. |
+| wmg-1-1 | In: one API, budgets, fallback, cost; later: training, chat UI | Stated scope. Correct. |
+| wmg-1-2 | Little latency, high uptime | Shared dependency. Correct. |
+| wmg-1-3 | Provider keys only in the gateway | Secrets and spend. Correct. |
+| wmg-2-3 | Async I/O for 8,000 in flight | Waiting-bound. Correct. |
+| wmg-3-1 | One request shape | Provider independence. Correct. |
+| wmg-3-2 | team key, tier, 429, usage | As taught. Correct. |
+| wmg-4-1 | Memory: counters, exact cache; DB: budgets, routing; log: cost, latency | By access pattern. Correct. |
+| wmg-4-3 | Cache key: hash of model, prompt, settings | S12. Correct. |
+| wmg-5-1 | Slot: in-memory counters | S9. Correct. |
+| wmg-5-2 | Usage path: gateway, usage log, spend | As drawn. Correct. |
+| wmg-5-3 | Usage via queue: call need not wait | Async logging. Correct. |
+| wmg-6-1 | Provider timing out: breaker, fail over | S10. Correct. |
+| wmg-6-3 | Semantic cache only where a team opts in | Wrong-answer risk (S12). Correct. |
+| wmg-7-1 | Many stateless copies in two regions | Remove SPOF. Correct. |
+| wmg-7-2 | Batch starving others: per-team limits and priority | Bulkhead (S10). Correct. |
+| wmg-7-3 | Gateway: keys, budgets, fallback; teams: prompts, quality, tier | Ownership. Correct. |
