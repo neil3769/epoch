@@ -8,6 +8,8 @@ import { NeuronFigure } from './NeuronFigure';
 import { QuorumFigure } from './QuorumFigure';
 import { QueueFigure } from './QueueFigure';
 import { LimiterFigure } from './LimiterFigure';
+import { PartitionFigure } from './PartitionFigure';
+import { ShardFigure } from './ShardFigure';
 import { RingFigure } from './RingFigure';
 import { ShapeChecker } from './ShapeChecker';
 import { StepperFigure } from './StepperFigure';
@@ -39,5 +41,9 @@ export function Figure({ spec, onGoal }: { spec: FigureSpec; onGoal?: () => void
       return <QueueFigure spec={spec} onGoal={onGoal} />;
     case 'limiter':
       return <LimiterFigure spec={spec} onGoal={onGoal} />;
+    case 'shard':
+      return <ShardFigure spec={spec} onGoal={onGoal} />;
+    case 'partition':
+      return <PartitionFigure spec={spec} onGoal={onGoal} />;
   }
 }

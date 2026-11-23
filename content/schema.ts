@@ -202,6 +202,37 @@ export const LimiterFigureSchema = z.object({
   goal: z.object({ maxPerSecond: z.number().int().min(1).optional(), minAllowed: z.number().int().min(1).optional() }).optional(),
 });
 
+/** Sharding: rows placed by the hash of a chosen key; a skewed key makes a hot shard. */
+export const ShardFigureSchema = z.object({
+  kind: z.literal('shard'),
+  fields: z.array(z.string().regex(/^[a-z]{1,8}$/)).min(2).max(3),
+  rows: z.array(z.array(z.string().regex(/^[A-Za-z0-9]{1,6}$/)).min(2).max(3)).min(6).max(16),
+  /** Requests a second per row (default 1). */
+  load: z.array(z.number().int().min(1).max(9)).optional(),
+  key: z.string(),
+  keys: z.array(z.string()).min(1).optional(),
+  shards: z.number().int().min(2).max(4),
+  maxShards: z.number().int().min(2).max(4).optional(),
+  goal: z.object({ maxShare: z.number().gt(0).max(1).optional(), local: z.string().optional(), hot: z.literal(true).optional() }).optional(),
+});
+
+/** Partition: two sides of a shop's replicas lose contact; keep serving or refuse on the minority side. */
+export const PartitionFigureSchema = z.object({
+  kind: z.literal('partition'),
+  nodes: z.tuple([z.number().int().min(1).max(4), z.number().int().min(1).max(4)]),
+  stock: z.number().int().min(1).max(9),
+  ops: z.array(z.object({ side: z.enum(['a', 'b']), op: z.enum(['buy', 'read']) })).min(3).max(10),
+  mode: z.enum(['accept', 'refuse']),
+  goal: z
+    .object({
+      noOversell: z.literal(true).optional(),
+      noStale: z.literal(true).optional(),
+      allServed: z.literal(true).optional(),
+      minServed: z.number().int().min(1).optional(),
+    })
+    .optional(),
+});
+
 export const FigureSchema = z.discriminatedUnion('kind', [
   CompareFigureSchema,
   StepperFigureSchema,
@@ -215,6 +246,8 @@ export const FigureSchema = z.discriminatedUnion('kind', [
   QuorumFigureSchema,
   QueueFigureSchema,
   LimiterFigureSchema,
+  ShardFigureSchema,
+  PartitionFigureSchema,
 ]);
 
 
@@ -618,6 +651,8 @@ export type RingFigureSpec = z.infer<typeof RingFigureSchema>;
 export type QuorumFigureSpec = z.infer<typeof QuorumFigureSchema>;
 export type QueueFigureSpec = z.infer<typeof QueueFigureSchema>;
 export type LimiterFigureSpec = z.infer<typeof LimiterFigureSchema>;
+export type ShardFigureSpec = z.infer<typeof ShardFigureSchema>;
+export type PartitionFigureSpec = z.infer<typeof PartitionFigureSchema>;
 export type DiagramSpec = z.infer<typeof DiagramSchema>;
 export type NodeKindT = (typeof NODE_KINDS)[number];
 export type Exercise = z.infer<typeof ExerciseSchema>;

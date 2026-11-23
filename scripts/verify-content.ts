@@ -47,6 +47,8 @@ import { ringGoalMet, ringStart, ringStates } from '../src/lib/ringsim';
 import { quorumGoalMet, quorumStart, quorumStates } from '../src/lib/quorum';
 import { maxWorkers, queueGoalMet, queueStart, queueStates } from '../src/lib/queuesim';
 import { limiterGoalMet, limiterStart, limiterStates } from '../src/lib/limiter';
+import { PARTITION_MODES, partitionGoalMet } from '../src/lib/partition';
+import { shardGoalMet, shardKeys, shardStart, shardStates } from '../src/lib/shard';
 import { withinFactor } from '../src/lib/estimate';
 import { NUMBER_ROWS, NUMBERS_PY } from '../content/numbers';
 
@@ -212,6 +214,25 @@ function checkFigure(where: string, f: FigureSpec, needGoal: boolean) {
     if (f.goal) {
       if (limiterGoalMet(f, limiterStart(f))) fail(where, 'limiter goal is already met at the start');
       if (!limiterStates(f).some((s) => limiterGoalMet(f, s))) fail(where, 'limiter goal is not reachable with the controls');
+    }
+  } else if (f.kind === 'shard') {
+    if (f.rows.some((r) => r.length !== f.fields.length)) fail(where, 'every shard row needs one value per field');
+    if (f.load && f.load.length !== f.rows.length) fail(where, 'shard load needs one value per row');
+    if (!f.fields.includes(f.key)) fail(where, `shard key ${f.key} is not a field`);
+    for (const k of shardKeys(f)) if (!f.fields.includes(k)) fail(where, `shard key choice ${k} is not a field`);
+    if (!shardKeys(f).includes(f.key)) fail(where, 'the starting key is not among the choices');
+    if (f.maxShards !== undefined && f.maxShards < f.shards) fail(where, 'shard figure starts with more shards than allowed');
+    if (f.goal?.local !== undefined && !f.fields.includes(f.goal.local)) fail(where, `local goal ${f.goal.local} is not a field`);
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (shardGoalMet(f, shardStart(f))) fail(where, 'shard goal is already met at the start');
+      if (!shardStates(f).some((s) => shardGoalMet(f, s))) fail(where, 'shard goal is not reachable with the controls');
+    }
+  } else if (f.kind === 'partition') {
+    if (needGoal && !f.goal) fail(where, 'figure exercise needs a goal');
+    if (f.goal) {
+      if (partitionGoalMet(f, f.mode)) fail(where, 'partition goal is already met at the start');
+      if (!PARTITION_MODES.some((m) => partitionGoalMet(f, m))) fail(where, 'partition goal is not reachable with either choice');
     }
   } else if (f.kind === 'queue') {
     if (f.workers > maxWorkers(f)) fail(where, 'queue starts with more workers than allowed');

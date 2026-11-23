@@ -1849,3 +1849,9 @@ standard answer to the celebrity problem.
 | wcr-7-1 | 300 files: review in parts, cap comments | Context window. Correct. |
 | wcr-7-2 | Rate limit: let the queue smooth it | S8. Correct. |
 | wcr-7-3 | Bot: None checks, missing tests, naming; people: merge, design, security | Ownership. Correct. |
+| s6-8-9 (figure) | Key user: 4/4/4 and each user together; country 9/12 on one shard; order 6/12 and scattered | Checked in browser; goal verified over all states. Correct. |
+| s6-8-10 (figure) | Key day: 11 of 12 rows on one shard (hot) | Timestamp trap. Correct. |
+| s6-9-9 (figure) | Key post spreads the celebrity's load 7/7/7/7; author puts 26 of 28 on one shard | Hot key. Correct. |
+| s7-1-9 (figure) | 3/2 split, 3 tickets: serving both sells 4 (oversold 1); refusing on B keeps it right | CP choice. Correct. |
+| s7-1-10 (figure) | Plenty of stock: keep serving answers everyone; B shows a stale 9 | AP choice. Correct. |
+| s7-1-11 (figure) | 2/2 split: refusing answers nobody; only serving answers anyone | Odd replica counts. Correct. |

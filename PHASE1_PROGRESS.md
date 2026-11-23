@@ -492,3 +492,17 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   page, no overflow or error screens; the four final diagrams checked visually; the locked page shows
   both routes. verify-content: 3303 exercises. 65 judgement items hand-verified.
 - Still to build from the brief: the partition (CAP) and sharding figures for S6/S7.
+
+## Sharding and partition figures, 2026-11-23 — DONE
+- Sharding figure (src/lib/shard.ts, ShardFigure): rows placed by FNV-1a hash of the chosen key, each
+  shard's share of the load, goals maxShare / local (one field's rows together) / hot. Used in S6
+  "Choosing a shard key" (s6-8-9 user vs country vs order id; s6-8-10 the date key's hot shard) and
+  "Hot keys" (s6-9-9 a celebrity's weighted posts).
+- Partition figure (src/lib/partition.ts, PartitionFigure): a shop's replicas split two ways; keep
+  serving on both sides or refuse on the minority side; shows each request's outcome, stale reads and
+  what was oversold when the split heals. Used in S7 "CAP: a choice during a partition" (s7-1-9
+  nothing oversold, s7-1-10 everyone served, s7-1-11 an even split answers nobody).
+- Verifier checks both (fields, keys, goal not met at start, reachable). 8 new unit tests (106 pass).
+  verify-content: 3309 exercises. Browser at 390 px: all six exercises render without overflow and
+  reach their goals.
+- Everything in the System Design brief is now built.
