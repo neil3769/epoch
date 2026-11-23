@@ -1630,3 +1630,80 @@ standard answer to the celebrity problem.
 | wnf-6-2 | Celebrities: pull at read time (hybrid) | Standard answer. Correct. |
 | wnf-7-2 | Feed entry holds recent post ids only | Bounded memory. Correct. |
 | wnf-7-3 | Feeds for active users only | Cost on idle users. Correct. |
+| wkv-1-1 | In: get/put, delete, survive failures; later: ranges, indexes, multi-key transactions | Stated scope. Correct. |
+| wkv-1-2 | Split: keep answering on both sides | Availability asked for (S7 AP). Correct. |
+| wkv-1-3 | Two teams: tunable R and W per request | Cart vs ledger needs differ. Correct. |
+| wkv-2-3 | Plan about 20 machines: storage (15) decides, plus room | Larger need plus headroom. Correct. |
+| wkv-3-1 | put stores/overwrites; get value or not found; delete writes a tombstone | Dynamo-style deletes. Correct. |
+| wkv-3-3 | Quorum with N=3: wait for two replies | Majority of three. Correct. |
+| wkv-4-1 | Consistent hashing with virtual nodes | Few keys move (S6). Correct. |
+| wkv-4-3 | Copies on the next three distinct machines on the ring | Preference list. Correct. |
+| wkv-5-1 | Slot: coordinator (service) | Gathers quorum replies. Correct. |
+| wkv-5-2 | Put path: clients, LB, coordinator, Node A | As drawn. Correct. |
+| wkv-5-3 | Every node keeps the ring map (gossip) | No central directory. Correct. |
+| wkv-6-2 | Replica down with W=2: hinted handoff, then repair | Dynamo paper. Correct. |
+| wkv-6-3 | Concurrent cart versions: keep both, app merges | Version vectors (S7). Correct. |
+| wkv-7-1 | Hot key: short cache in front | More machines do not move the key. Correct. |
+| wkv-7-2 | 10x data: add machines, ring rebalances | Horizontal scaling. Correct. |
+| wkv-7-3 | R=W=1: sessions, cart reads, flags; quorum: balances, stock, passwords | Cost of a stale read. Correct. |
+| wwc-1-1 | In: HTML, links, robots.txt, duplicates; later: media, JS rendering, ranking | Stated scope. Correct. |
+| wwc-1-2 | Politeness shapes the design | Per-site limits drive the frontier. Correct. |
+| wwc-1-3 | Crawler trap: cap pages and depth per site | Standard defence. Correct. |
+| wwc-3-1 | Frontier, robots, download, store, extract, add unseen | Pipeline order. Correct. |
+| wwc-3-2 | Frontier, fetcher, parser, seen set: jobs | As taught. Correct. |
+| wwc-4-1 | Seen check at 10B URLs: Bloom filter | About 1 TB as a set vs 12 GB. Correct. |
+| wwc-4-3 | Object store: HTML, archives; KV: last fetched, content hash; memory: robots, DNS | By size and access. Correct. |
+| wwc-5-1 | Slot: Bloom filter (cache) | In memory. Correct. |
+| wwc-5-2 | Link path: fetchers, parser, seen filter, frontier | As drawn. Correct. |
+| wwc-5-3 | Queues let parts run at their own pace | Decoupling (S8). Correct. |
+| wwc-6-1 | 5,000 links from one site: a queue per site, paced | Politeness by design. Correct. |
+| wwc-6-3 | Mirrors: compare a content hash | Exact duplicates; SimHash for near. Correct. |
+| wwc-7-1 | DNS waits: cache DNS in the crawler | More fetchers wait too. Correct. |
+| wwc-7-2 | 10x: partition the frontier by host | Politeness stays local. Correct. |
+| wwc-7-3 | Often: news, prices, scores; rarely: paper, about page, unchanged page | Change history. Correct. |
+| wac-1-1 | In: top 5, lowercase English, daily popularity; later: spelling, per-user, languages | Stated scope. Correct. |
+| wac-1-2 | Within about 100 ms | Faster than typing. Correct. |
+| wac-1-3 | Daily rebuild, hourly trends | Cheap and fresh enough. Correct. |
+| wac-2-3 | 50k/s: answer from memory, cache hard | DB per keystroke too slow. Correct. |
+| wac-3-1 | GET /suggest?q= | Cacheable. Correct. |
+| wac-3-2 | Type, wait, send, reply, drop if stale, show | Debounce then discard stale. Correct. |
+| wac-4-1 | Trie with top 5 per node | One lookup. Correct. |
+| wac-5-1 | Slot: trie in RAM (cache) | As taught. Correct. |
+| wac-5-2 | Miss path: browser, CDN, suggest API, trie | As drawn. Correct. |
+| wac-5-3 | CDN works: same prefix, same answer for all | Shared cacheable GET. Correct. |
+| wac-6-1 | Log, count daily, filter, build trie, swap in | Batch build order. Correct. |
+| wac-6-2 | Load a new trie, then swap | No half-updated lists. Correct. |
+| wac-6-3 | Offensive query: blocklist at build time | Plus serve-time list. Correct. |
+| wac-7-1 | Short prefixes: precompute and cache | First-letter shards skew. Correct. |
+| wac-7-2 | Split trie by prefix ranges balanced by load | Letters are uneven. Correct. |
+| wac-7-3 | Serve: lookup, debounce, CDN; build: counting, filtering, writing trie | As taught. Correct. |
+| wch-1-1 | In: 1:1, groups, history, online status; later: calls, reactions | Stated scope. Correct. |
+| wch-1-2 | No message lost or out of order | What users notice. Correct. |
+| wch-1-3 | Offline two hours: store, then sync from last id | Every message, in order. Correct. |
+| wch-3-1 | Push over a WebSocket kept open | S11. Correct. |
+| wch-3-2 | send stores/delivers; ack; sync after id; heartbeat | As taught. Correct. |
+| wch-4-1 | Wide-column keyed by chat, then message id | Write rate and size. Correct. |
+| wch-4-2 | Time-ordered ids (Snowflake) | Sortable, no single counter. Correct. |
+| wch-5-1 | Slot: map in RAM (cache) | Changes constantly. Correct. |
+| wch-5-2 | Locked phone: phone push (APNs/FCM) | Others listed with reasons. Correct. |
+| wch-5-3 | Send, store, look up the recipient's server, push, ack | Store before deliver. Correct. |
+| wch-6-1 | Same order: a sequence number per chat | Clocks and arrival differ. Correct. |
+| wch-6-3 | Group of 100: store once per chat | Deliver 100 times, store once. Correct. |
+| wch-7-1 | Reconnect wave: random backoff | Thundering herd (S10). Correct. |
+| wch-7-2 | Presence: heartbeats with a timeout | Cheap, expires. Correct. |
+| wch-7-3 | Socket: open chat, typing, live receipts; push: locked, app closed | Push only to wake. Correct. |
+| wfs-1-1 | In: upload/download, sync, share, 30-day versions; later: co-editing, search | Stated scope. Correct. |
+| wfs-1-2 | Never lose or corrupt a file | Durability first. Correct. |
+| wfs-1-3 | Offline conflict: keep both as conflicted copies | No work lost. Correct. |
+| wfs-3-1 | Split, hash, ask missing, upload, commit | Commit last. Correct. |
+| wfs-3-2 | missing: hashes to send; PUT block; commit version; changes since cursor | As taught. Correct. |
+| wfs-3-3 | Long-poll for changes, then fetch | Rehash finds only local edits. Correct. |
+| wfs-4-1 | Object store: blocks, old blocks; metadata DB: names, versions, permissions, cursors | Bytes vs facts. Correct. |
+| wfs-4-3 | Metadata: relational, sharded by user | Transactions for renames. Correct. |
+| wfs-5-1 | Slot: object store | Petabytes of blobs. Correct. |
+| wfs-5-2 | Commit path: devices, sync API, metadata | As drawn. Correct. |
+| wfs-5-3 | Blocks upload direct: skip API servers | Signed URLs. Correct. |
+| wfs-6-3 | Shared folder change: notify, devices pull | Small message, pull what is needed. Correct. |
+| wfs-7-1 | Cost: move cold blocks to cheaper tiers | Keeps files, keeps copies. Correct. |
+| wfs-7-2 | Metadata hot spot: shard by user or folder | Vertical ceiling. Correct. |
+| wfs-7-3 | Device: split, hash, watch; servers: permissions, storage, version order | Trust boundary. Correct. |

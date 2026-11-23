@@ -451,3 +451,17 @@ Read BUILD_BRIEF.md, then this file. Do not redo items marked done.
   news-feed slot diagram checked visually. Tests: 97 pass. 42 judgement items hand-verified.
 - Still to build: walkthroughs 5–14 (key-value store next), the four E11 AI designs in the walkthrough
   player, and the partition and sharding figures.
+
+## Walkthroughs 5–9, 2026-11-23 — DONE
+- Key-value store (needs S1–S3, S5–S7), web crawler (needs S1–S3, S8, S9, S11), search autocomplete
+  (needs S1–S4, S11), chat system (needs S1–S3, S5, S8, S11) and file sync (needs S1–S3, S5, S8, S11),
+  each through the seven steps with strong-answer notes, a step-5 diagram, a final diagram and
+  decisions, and blank-page references. Unlock order: URL shortener, news feed, key-value store, rate
+  limiter, notification service, web crawler, autocomplete, chat, file sync.
+- Browser at 390 px with temporary S1–S11 progress (removed afterwards): every step intro, the summary
+  and the blank page of all five, no overflow or error screens; all five final diagrams and the chat
+  step-5 slot and tap exercises checked visually (a "gossip" edge that pushed Node B down a row was
+  removed from the key-value final diagram). verify-content: 3114 exercises. Tests: 97 pass.
+  77 judgement items hand-verified.
+- Still to build: walkthroughs 10–14 (video streaming next), the four E11 AI designs in the
+  walkthrough player, and the partition and sharding figures.
